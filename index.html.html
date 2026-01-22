@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        /* Light Theme Variables: Muted Burgundy & Grey */
+        :root {
+            --primary-color: #A05252; /* Muted Burgundy */
+            --secondary-color: #666666; /* Medium Grey for subtle text */
+            --background-color: #F9F9F9; /* Very light grey background */
+            --card-bg: #FFFFFF; /* White cards */
+            --text-color: #333333; /* Dark Grey for main text */
+            --border-color: #EAEAEA; /* Light Grey for borders */
+            --light-icon-color: #E0E0E0; /* Very light grey for icons */
+            --border-radius: 12px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            --transition-speed: 0.3s;
+        }
+
+        /* Dark Theme Variables: Matching Grey Base */
+        body.dark-theme {
+            --primary-color: #CF9999; /* Lighter Burgundy for dark theme contrast */
+            --secondary-color: #B0B0B0;
+            --background-color: #2D2D2D;
+            --card-bg: #444444;
+            --text-color: #F9F9F9;
+            --border-color: #555555;
+            --light-icon-color: #555555;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+
+        /* Password Protection Styles */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #A05252 0%, #8B4545 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .login-overlay.hidden {
+            display: none;
+        }
+
+        .login-box {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .login-box h1 {
+            color: #A05252;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .login-box p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .login-input {
+            padding: 15px;
+            border: 2px solid #EAEAEA;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: #A05252;
+        }
+
+        .login-button {
+            padding: 15px;
+            background: #A05252;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .login-button:hover {
+            background: #8B4545;
+        }
+
+        .login-error {
+            color: #dc3545;
+            font-size: 14px;
+            display: none;
+            margin-top: -10px;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--card-bg);
+            padding: 24px;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            transition: background-color var(--transition-speed);
+            z-index: 50;
+        }
+
+        .sidebar h2 {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: var(--border-radius);
+            color: var(--text-color);
+            text-decoration: none;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+        
+        .nav-link.active i, .nav-link:hover i {
+            color: #FFFFFF;
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+            transition: color var(--transition-speed);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 32px;
+            margin-left: 250px;
+            transition: margin-left var(--transition-speed);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        
+        .header .controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        
+        .toggle-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            transition: color var(--transition-speed);
+        }
+        
+        .toggle-button:hover {
+            color: var(--primary-color);
+        }
+
+        .refresh-btn {
+            background: none;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .refresh-btn.loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .refresh-btn.loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--box-shadow);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color var(--transition-speed);
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .metric-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1;
+        }
+
+        .card p {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .metric-icon-container {
+            font-size: 3.5rem;
+            color: var(--light-icon-color);
+            transition: color 0.3s;
+        }
+        .card:hover .metric-icon-container {
+            color: var(--border-color);
+        }
+        
+        .department-card {
+            cursor: pointer;
+            flex-direction: column;
+            min-height: 200px;
+        }
+        .department-card .metric-content {
+            align-items: flex-start;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 32px 0 16px;
+        }
+        
+        .section-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: background-color var(--transition-speed);
+            margin-bottom: 20px;
+        }
+        
+        #report-output-content table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        #report-output-content table th, #report-output-content table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        #report-output-content table th {
+            background-color: var(--background-color);
+            color: var(--secondary-color);
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table th {
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+         .data-table a:hover {
+            text-decoration: underline;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+        
+        .status-active { background-color: #D4EDDA; color: #155724; }
+        .status-inactive { background-color: #F8D7DA; color: #721C24; }
+	.status-WFH { background-color: #F9D8DA; color: #799224; }
+	.status-ShortLeave { background-color: #F4D4DA; color: #796624; }
+        .status-onleave { background-color: #FFF3CD; color: #856404; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 90%;
+            max-width: 900px;
+            position: relative;
+            transition: background-color var(--transition-speed);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-button {
+            color: var(--secondary-color);
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color var(--transition-speed);
+        }
+
+        .profile-pic-preview {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-top: 10px;
+        }
+        
+        .tab-controls {
+            display: flex;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-weight: 600;
+            color: var(--secondary-color);
+            transition: color 0.3s;
+        }
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            margin-bottom: -2px;
+        }
+        .tab-content {
+            display: none;
+            padding: 10px 0;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            padding-top: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .details-item {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        
+        .details-item h4 {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+            color: var(--text-color);
+        }
+
+        .details-item p {
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        .action-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .action-buttons .primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .action-buttons .secondary {
+            background-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .table-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--secondary-color);
+            transition: color var(--transition-speed);
+        }
+
+        .table-actions button:hover {
+            color: var(--primary-color);
+        }
+        
+        .transaction-log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                flex-direction: row;
+                justify-content: space-around;
+                padding: 12px;
+            }
+            .sidebar h2, .sidebar .nav-link span { display: none; }
+            .nav-link { flex-direction: column; gap: 4px; font-size: 0.8rem; }
+            .main-content { margin-left: 0; padding: 16px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .card-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Password Protection Overlay -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <h1>🔐 HR Dashboard</h1>
+            <p>Research & Development Solutions</p>
+            <form class="login-form" id="loginForm">
+                <input 
+                    type="password" 
+                    class="login-input" 
+                    id="passwordInput" 
+                    placeholder="Enter Password"
+                    required
+                    autocomplete="off"
+                />
+                <div class="login-error" id="loginError">❌ Incorrect password. Please try again.</div>
+                <button type="submit" class="login-button">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+            <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                Session expires when browser is closed
+            </p>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2>HR Dashboard <br> Research & Development Solutions</h2>
+            <nav>
+                <a href="#dashboard" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i><span>Dashboard</span></a>
+                <a href="#employees" class="nav-link" data-page="employees"><i class="fas fa-users"></i><span>Employees</span></a>
+                <a href="#payroll" class="nav-link" data-page="payroll"><i class="fas fa-money-check-alt"></i><span>Payroll & Log</span></a>
+                <a href="#departments" class="nav-link" data-page="departments"><i class="fas fa-sitemap"></i><span>Departments</span></a>
+                <a href="#reports" class="nav-link" data-page="reports"><i class="fas fa-chart-line"></i><span>Reports</span></a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <h1 id="page-title">Dashboard</h1>
+                <div class="controls">
+                    <button id="refresh-data-btn" class="refresh-btn" onclick="loadDataFromGoogleSheets()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                    <button id="theme-toggle" class="toggle-button"><i class="fas fa-moon"></i></button>
+                    <button class="toggle-button" onclick="logout()" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                    <a href="#" class="nav-link" id="import-button"><i class="fas fa-upload"></i> Import CSV</a>
+                    <a href="#" class="nav-link" id="add-employee-button"><i class="fas fa-plus"></i> Add Employee</a>
+                </div>
+            </header>
+
+            <!-- Page Sections -->
+            <section id="dashboard" class="page active">
+                <h2 style="margin-bottom: 16px; font-size: 1.3rem; color: var(--secondary-color);">Overview Metrics</h2>
+                <div class="card-grid">
+                    <div class="card"><div class="metric-content"><div class="value" id="total-employees">0</div><p>Total Employees</p></div><div class="metric-icon-container"><i class="fas fa-users"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="active-employees">0</div><p>Active Employees</p></div><div class="metric-icon-container"><i class="fas fa-user-check"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="male-employees">0</div><p>Male Employees</p></div><div class="metric-icon-container"><i class="fas fa-mars"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="female-employees">0</div><p>Female Employees</p></div><div class="metric-icon-container"><i class="fas fa-venus"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="gender-ratio">0%</div><p>Female Ratio</p></div><div class="metric-icon-container"><i class="fas fa-balance-scale"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="avg-tenure">0</div><p>Avg Tenure (Years)</p></div><div class="metric-icon-container"><i class="fas fa-calendar-alt"></i></div></div>
+                </div>
+
+                <h2 style="margin: 24px 0 16px 0; font-size: 1.3rem; color: var(--secondary-color);">Financial Metrics</h2>
+                <div class="card-grid">
+                    <div class="card"><div class="metric-content"><div class="value" id="total-payroll">PKR 0</div><p>Total Monthly Payroll</p></div><div class="metric-icon-container"><i class="fas fa-coins"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="regular-employees">0</div><p>Regular Employees</p></div><div class="metric-icon-container"><i class="fas fa-user-tie"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="contractual-employees">0</div><p>Contractual Employees</p></div><div class="metric-icon-container"><i class="fas fa-file-contract"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="turnover-rate">0%</div><p>Annual Turnover Rate</p></div><div class="metric-icon-container"><i class="fas fa-sync-alt"></i></div></div>
+                </div>
+
+                <h2 style="margin: 24px 0 16px 0; font-size: 1.3rem; color: var(--secondary-color);">Recent Activity</h2>
+                <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                    <div class="card"><div class="metric-content"><div class="value" id="joiners-30days">0</div><p>Joiners (Last 31 Days)</p></div><div class="metric-icon-container"><i class="fas fa-user-plus"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="leavers-30days">0</div><p>Leavers (Last 31 Days)</p></div><div class="metric-icon-container"><i class="fas fa-user-minus"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="joiners-90days">0</div><p>Joiners (Last 90 Days)</p></div><div class="metric-icon-container"><i class="fas fa-user-plus"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="leavers-90days">0</div><p>Leavers (Last 90 Days)</p></div><div class="metric-icon-container"><i class="fas fa-user-minus"></i></div></div>
+                </div>
+
+                <h2 style="margin: 24px 0 16px 0; font-size: 1.3rem; color: var(--secondary-color);">Department Analytics</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; margin-bottom: 24px;">
+                    <div class="card" style="flex-direction: column; align-items: flex-start; padding: 24px;">
+                        <h3 style="margin-bottom: 16px; font-size: 1.1rem;">Gender Distribution by Department</h3>
+                        <div id="gender-by-dept-chart" style="width: 100%;"></div>
+                    </div>
+                    <div class="card" style="flex-direction: column; align-items: flex-start; padding: 24px;">
+                        <h3 style="margin-bottom: 16px; font-size: 1.1rem;">Employee Type Distribution</h3>
+                        <div id="employment-type-chart" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; margin-bottom: 24px;">
+                    <div class="card" style="flex-direction: column; align-items: flex-start; padding: 24px;">
+                        <h3 style="margin-bottom: 16px; font-size: 1.1rem;">Top 5 Departments by Headcount</h3>
+                        <div id="dept-headcount-chart" style="width: 100%;"></div>
+                    </div>
+                    <div class="card" style="flex-direction: column; align-items: flex-start; padding: 24px;">
+                        <h3 style="margin-bottom: 16px; font-size: 1.1rem;">Avg Salary by Department</h3>
+                        <div id="dept-salary-chart" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="section-header"><h2>Recent Hires</h2><a href="#employees" class="nav-link small">View All</a></div>
+                <div class="table-responsive"><table class="data-table" id="recent-hires-table"><thead><tr><th>Name</th><th>Department</th><th>Position</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+            </section>
+
+            <section id="employees" class="page">
+                <div class="section-header"><h2>All Employees</h2><input type="text" id="employee-search" placeholder="Search employees..." style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);"></div>
+                <div class="filter-group" style="display: flex; gap: 10px; margin-bottom: 20px;"><select id="gender-filter" style="padding: 8px;"><option value="">All Genders</option><option value="Male">Male</option><option value="Female">Female</option></select><select id="department-filter" style="padding: 8px;"><option value="">All Departments</option></select><select id="status-filter" style="padding: 8px;"><option value="">All Statuses</option><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="On-Leave">On-Leave</option></select></div>
+                <div class="table-responsive"><table class="data-table" id="employees-table"><thead><tr><th>Name</th><th>Department</th><th>Position</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+            </section>
+
+            <section id="payroll" class="page">
+                <div class="section-header"><h2>HR Transaction Log</h2><div class="transaction-log-header"><button onclick="openTransactionModal()" class="action-buttons primary" style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-plus"></i> New Transaction</button><button class="action-buttons secondary" id="download-transaction-log-btn" style="display: flex; align-items: center; gap: 8px;" onclick="downloadTransactionLog()"><i class="fas fa-download"></i> Download Log</button></div></div>
+                <div class="table-responsive"><table class="data-table" id="transaction-table"><thead><tr><th>Date</th><th>Type</th><th>Employee ID</th><th>Details</th></tr></thead><tbody></tbody></table></div>
+                <div class="section-header"><h2>Monthly Payroll Summary</h2></div>
+                <div class="table-responsive"><table class="data-table" id="payroll-table"><thead><tr><th>Name</th><th>Department</th><th>Base Salary</th><th>Total Cost</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+            </section>
+
+            <section id="departments" class="page"><div class="section-header"><h2>Departments</h2></div><div class="card-grid" id="department-grid"></div></section>
+
+            <section id="reports" class="page">
+                <div class="section-header"><h2>Reports & Analytics</h2></div>
+                <div class="card" style="flex-direction: column; align-items: flex-start;">
+                    <h3>Generate Custom Report</h3>
+                    <form id="report-form" style="width: 100%;"><div class="form-grid"><div class="form-group"><label for="report-type">Report Type</label><select id="report-type" name="reportType" required><option value="joining">Joining Report</option><option value="leaving">Leaving/Termination Report</option><option value="payroll">Detailed Payroll Report</option><option value="contact">Full Contact List</option><option value="department-salary">Department-wise Salary Breakdown</option></select></div><div class="form-group"><label for="report-start-date">Start Date</label><input type="date" id="report-start-date" name="startDate"></div><div class="form-group"><label for="report-end-date">End Date</label><input type="date" id="report-end-date" name="endDate"></div><div class="form-group"><label for="report-department">Department</label><select id="report-department" name="department"><option value="">All Departments</option></select></div></div><button type="submit">Generate Report</button></form>
+                </div>
+                <div class="card" style="margin-top: 20px; flex-direction: column; align-items: flex-start;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px;"><h3>Report Output Preview</h3><button class="action-buttons primary" id="download-report-btn" style="display: none; padding: 6px 12px;" onclick="downloadReport()"><i class="fas fa-download"></i> Download CSV</button></div><div id="report-output-content" style="width: 100%; min-height: 100px;"><p style="color: var(--secondary-color);">Generated report data will appear here.</p></div></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Employee Modal -->
+    <div id="employee-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeEmployeeModal()">&times;</span><h3 style="margin-bottom: 15px;">Add/Edit Employee Details</h3><div class="tab-controls"><button class="tab-button active" data-tab="personal">Personal & Contact</button><button class="tab-button" data-tab="employment">Employment</button><button class="tab-button" data-tab="compensation">Compensation</button></div><form id="employee-form"><input type="hidden" id="employee-index" name="index"><div id="tab-personal" class="tab-content active"><div class="form-grid"><div class="form-group"><label for="employee-name">Name</label><input type="text" id="employee-name" name="Name" required></div><div class="form-group"><label for="employee-id">ID</label><input type="text" id="employee-id" name="ID" required></div><div class="form-group"><label for="employee-gender">Gender</label><select id="employee-gender" name="Gender" required><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div><div class="form-group"><label for="employee-contact">Contact Number</label><input type="text" id="employee-contact" name="Contact Number"></div><div class="form-group"><label for="employee-address">Address</label><textarea id="employee-address" name="Address" rows="1"></textarea></div><div class="form-group"><label for="employee-profile-pic">Profile Picture</label><input type="file" id="employee-profile-pic" accept="image/*"><img id="profile-pic-preview" class="profile-pic-preview" style="display: none;" alt="Profile Preview"></div><div class="form-group"><label for="employee-emergency-name">Emergency Name</label><input type="text" id="employee-emergency-name" name="Emergency Name"></div><div class="form-group"><label for="employee-emergency-rel">Emergency Relationship</label><input type="text" id="employee-emergency-rel" name="Emergency Relationship"></div><div class="form-group"><label for="employee-emergency-phone">Emergency Phone</label><input type="text" id="employee-emergency-phone" name="Emergency Phone"></div></div></div><div id="tab-employment" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-dept">Department</label><input type="text" id="employee-dept" name="Department" required></div><div class="form-group"><label for="employee-pos">Position</label><input type="text" id="employee-pos" name="Position" required></div><div class="form-group"><label for="employee-emptype">Employment Type</label><input type="text" id="employee-emptype" name="Employment Type"></div><div class="form-group"><label for="employee-postype">Position Type</label><input type="text" id="employee-postype" name="Position Type"></div><div class="form-group"><label for="employee-supervisor">Supervisor</label><input type="text" id="employee-supervisor" name="Supervisor"></div><div class="form-group"><label for="employee-stationed">Stationed At</label><input type="text" id="employee-stationed" name="Stationed At"></div><div class="form-group"><label for="employee-fieldcity">Field Office City</label><input type="text" id="employee-fieldcity" name="Field Office City"></div><div class="form-group"><label for="employee-doj">Date of Joining</label><input type="date" id="employee-doj" name="Date of Joining" required></div><div class="form-group"><label for="employee-dol">Date of Leaving</label><input type="date" id="employee-dol" name="Date of Leaving"></div><div class="form-group"><label for="employee-status">Status</label><select id="employee-status" name="Status"><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="On-Leave">On-Leave</option></select></div><div class="form-group"><label for="employee-termination-reason">Termination Reason</label><textarea id="employee-termination-reason" name="Termination Reason" rows="1"></textarea></div><div class="form-group"><label for="employee-skills">Skills</label><textarea id="employee-skills" name="Skills" rows="1"></textarea></div></div></div><div id="tab-compensation" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-salary">Base Salary (PKR)</label><input type="number" id="employee-salary" name="Base Salary" required></div><div class="form-group"><label for="employee-travel">Travel Allowance (PKR)</label><input type="number" id="employee-travel" name="Travel Allowance"></div><div class="form-group"><label for="employee-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="employee-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="employee-other">Other Allowance (PKR)</label><input type="number" id="employee-other" name="Other Allowance"></div><div class="form-group"><label for="employee-pf">Provident Fund (PKR)</label><input type="number" id="employee-pf" name="Provident Fund"></div><div class="form-group"><label for="employee-eobi">EOBI (PKR)</label><input type="number" id="employee-eobi" name="EOBI"></div><div class="form-group"><label for="employee-cost-center">Cost Center</label><input type="text" id="employee-cost-center" name="Cost Center"></div></div></div><button type="submit" style="margin-top: 20px; width: 100%;">Save Employee</button></form></div></div>
+
+    <!-- Payroll Modal -->
+    <div id="payroll-modal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-button" onclick="closePayrollModal()">&times;</span><h3>Update Payroll Allowances</h3><form id="payroll-form"><input type="hidden" id="payroll-employee-index" name="index"><div class="form-group"><label for="payroll-name">Employee</label><input type="text" id="payroll-name" name="Name" readonly></div><div class="form-group"><label for="payroll-salary">Base Salary (PKR)</label><input type="number" id="payroll-salary" name="Base Salary" required></div><div class="form-group"><label for="payroll-travel">Travel Allowance (PKR)</label><input type="number" id="payroll-travel" name="Travel Allowance"></div><div class="form-group"><label for="payroll-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="payroll-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="payroll-other">Other Allowance (PKR)</label><input type="number" id="payroll-other" name="Other Allowance"></div><button type="submit">Save Payroll</button></form></div></div>
+
+    <!-- Import Modal -->
+    <div id="import-modal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-button" onclick="closeImportModal()">&times;</span><h3>Import Data</h3><p style="margin-bottom: 15px; text-align: center; color: var(--secondary-color);">Select your detailed CSV file. All dashboard data will be loaded from this file.</p><form id="import-form"><div class="form-group"><label for="csv-file">Choose a CSV file:</label><input type="file" id="csv-file" accept=".csv" required></div><button type="submit">Import</button></form></div></div>
+
+    <!-- Details Modal -->
+    <div id="details-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeDetailsModal()">&times;</span><div id="employee-details-content"></div><div class="action-buttons"><button class="secondary" onclick="closeDetailsModal()">Close</button></div></div></div>
+    
+    <!-- Department Details Modal -->
+    <div id="department-details-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeDepartmentDetailsModal()">&times;</span><h3 id="department-details-title" style="margin-bottom: 20px;"></h3><div id="department-details-content"></div><div class="action-buttons"><button class="secondary" onclick="closeDepartmentDetailsModal()">Close</button></div></div></div>
+
+    <!-- HR Transaction Modal -->
+    <div id="transaction-modal" class="modal"><div class="modal-content" style="max-width: 600px;"><span class="close-button" onclick="closeTransactionModal()">&times;</span><h3>Record HR Transaction</h3><form id="transaction-form"><div class="form-grid"><div class="form-group"><label for="transaction-type">Transaction Type</label><select id="transaction-type" name="type" required onchange="updateTransactionForm(this.value)"><option value="">Select Action...</option><option value="promotion">Salary/Position Change</option><option value="lwp">Leave Without Pay (LWP)</option><option value="termination">Termination / Leaver</option></select></div><div class="form-group"><label for="transaction-employee-id">Employee</label><select id="transaction-employee-id" name="employee_id" required><option value="">Select Employee...</option></select></div></div><div id="dynamic-transaction-fields" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;"></div><div class="form-grid"><div class="form-group"><label for="transaction-date">Effective Date</label><input type="date" id="transaction-date" name="effective_date" required></div></div><div class="form-group"><label for="transaction-notes">Detailed Notes</label><textarea id="transaction-notes" name="notes" rows="3" placeholder="Enter full details and rationale..."></textarea></div><button type="submit" id="transaction-submit-btn" style="width: 100%;">Log Transaction</button></form></div></div>
+
+    <script>
+        // ===================================================
+        // PASSWORD PROTECTION
+        // ===================================================
+        // CHANGE YOUR PASSWORD HERE:
+        // Current password: "rads2025"
+        // To change: Replace the hash below with a new password hash
+        // Use this site to generate hash: https://emn178.github.io/online-tools/sha256.html
+        
+        const PASSWORD_HASH = '9c8c5d8e3c4f8a6b2d1e5f9a8c7b6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8'; // rads2025
+        
+        // Authentication functions
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function checkAuthentication() {
+            const isAuthenticated = sessionStorage.getItem('hrDashboardAuth') === 'true';
+            const loginOverlay = document.getElementById('loginOverlay');
+            
+            if (isAuthenticated) {
+                loginOverlay.classList.add('hidden');
+            } else {
+                loginOverlay.classList.remove('hidden');
+            }
+            
+            return isAuthenticated;
+        }
+
+        function logout() {
+            sessionStorage.removeItem('hrDashboardAuth');
+            location.reload();
+        }
+
+        // Login form handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const passwordInput = document.getElementById('passwordInput');
+            const loginError = document.getElementById('loginError');
+            
+            // Check authentication on page load
+            checkAuthentication();
+            
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const enteredPassword = passwordInput.value;
+                const enteredHash = await hashPassword(enteredPassword);
+                
+                if (enteredHash === PASSWORD_HASH) {
+                    // Correct password
+                    sessionStorage.setItem('hrDashboardAuth', 'true');
+                    document.getElementById('loginOverlay').classList.add('hidden');
+                    loginError.classList.remove('show');
+                    passwordInput.value = '';
+                    
+                    // Load data after successful login
+                    loadDataFromGoogleSheets();
+                } else {
+                    // Wrong password
+                    loginError.classList.add('show');
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                    
+                    // Shake animation
+                    const loginBox = document.querySelector('.login-box');
+                    loginBox.style.animation = 'shake 0.5s';
+                    setTimeout(() => {
+                        loginBox.style.animation = '';
+                    }, 500);
+                }
+            });
+        });
+
+        // Add shake animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+                20%, 40%, 60%, 80% { transform: translateX(10px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // ===================================================
+        // DASHBOARD CODE
+        // ===================================================
+
+        // Google Sheets CSV Configuration
+        const GOOGLE_SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRTf2qj4n3jmOGT1vkd1QUChdZbazTynus5-AgNUTrGPfGjbmLoWWKk_YneSHnNWjMphgDmcmt_m5Ac/pub?output=csv';
+        const AUTO_REFRESH_INTERVAL = 300000; // 5 minutes
+
+        let employees = [];
+        let mockTransactionLog = [];
+        let mockReportData = [];
+
+        // --- DOM Elements ---
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const body = document.body;
+        const navLinks = document.querySelectorAll('.nav-link[data-page]');
+        const pages = document.querySelectorAll('.page');
+        const pageTitle = document.getElementById('page-title');
+        
+        const employeeModal = document.getElementById('employee-modal');
+        const employeeForm = document.getElementById('employee-form');
+        const employeeProfilePicInput = document.getElementById('employee-profile-pic');
+        const profilePicPreview = document.getElementById('profile-pic-preview');
+        
+        const payrollModal = document.getElementById('payroll-modal');
+        const payrollForm = document.getElementById('payroll-form');
+        const importModal = document.getElementById('import-modal');
+        const importForm = document.getElementById('import-form');
+        
+        const employeesTableBody = document.getElementById('employees-table').querySelector('tbody');
+        const recentHiresTableBody = document.getElementById('recent-hires-table').querySelector('tbody');
+        const payrollTableBody = document.getElementById('payroll-table').querySelector('tbody');
+        const transactionTableBody = document.getElementById('transaction-table').querySelector('tbody');
+        
+        const detailsModal = document.getElementById('details-modal');
+        const departmentGrid = document.getElementById('department-grid');
+        const departmentDetailsModal = document.getElementById('department-details-modal');
+        const departmentDetailsTitle = document.getElementById('department-details-title');
+        const departmentDetailsContent = document.getElementById('department-details-content');
+        
+        const employeeSearch = document.getElementById('employee-search');
+        const genderFilter = document.getElementById('gender-filter');
+        const departmentFilter = document.getElementById('department-filter');
+        const statusFilter = document.getElementById('status-filter');
+        
+        const reportDepartmentSelect = document.getElementById('report-department');
+        const reportForm = document.getElementById('report-form');
+        const downloadReportBtn = document.getElementById('download-report-btn');
+        const reportOutputContent = document.getElementById('report-output-content');
+        
+        const transactionModal = document.getElementById('transaction-modal');
+        const transactionForm = document.getElementById('transaction-form');
+        const dynamicTransactionFields = document.getElementById('dynamic-transaction-fields');
+        const transactionEmployeeSelect = document.getElementById('transaction-employee-id');
+        
+        // --- Theme Management ---
+        (function setupTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                body.classList.add('dark-theme');
+                themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                body.classList.remove('dark-theme');
+                themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        })();
+
+        // --- CSV Data Functions ---
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let char of line) {
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+
+        function parseCSVData(csvText) {
+            const lines = csvText.split('\n').filter(line => line.trim());
+            if (lines.length === 0) return [];
+            
+            const headers = parseCSVLine(lines[0]);
+            const data = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                if (values.length === headers.length) {
+                    const row = {};
+                    headers.forEach((header, index) => {
+                        row[header] = values[index];
+                    });
+                    data.push(row);
+                }
+            }
+            return data;
+        }
+
+        async function loadDataFromGoogleSheets() {
+            const btn = document.getElementById('refresh-data-btn');
+            if (btn) {
+                btn.classList.add('loading');
+            }
+            
+            try {
+                const timestamp = new Date().getTime();
+                const url = `${GOOGLE_SHEETS_CSV_URL}&t=${timestamp}`;
+                
+                console.log('Fetching from Google Sheets...');
+                console.log('URL:', url);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors',
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const csvText = await response.text();
+                console.log('CSV loaded, length:', csvText.length);
+                const rawData = parseCSVData(csvText);
+                
+                if (rawData.length > 0) {
+                    // Process employee data with column mapping and calculations
+                    employees = rawData.map(emp => {
+                        // First map column names to standard format
+                        const mappedEmp = mapColumnNames(emp);
+                        
+                        // Then calculate salary fields
+                        const baseSalary = parseFloat(mappedEmp['Base Salary'] || 0);
+                        const travelAllowance = parseFloat(mappedEmp['Travel Allowance'] || 0);
+                        const fuelAllowance = parseFloat(mappedEmp['Fuel/Grocery Allowance'] || 0);
+                        const otherAllowance = parseFloat(mappedEmp['Other Allowance'] || 0);
+                        const providentFund = parseFloat(mappedEmp['Provident Fund'] || 0);
+                        const eobi = parseFloat(mappedEmp['EOBI'] || 0);
+                        
+                        const salary = baseSalary + travelAllowance + fuelAllowance + otherAllowance - providentFund - eobi;
+                        const totalCost = baseSalary + travelAllowance + fuelAllowance + otherAllowance;
+                        
+                        return {
+                            ...mappedEmp,
+                            'Salary': salary.toFixed(2),
+                            'Total Cost to Company': totalCost.toFixed(2)
+                        };
+                    });
+                    
+                    console.log(`✓ Loaded ${employees.length} employees from Google Sheets at ${new Date().toLocaleTimeString()}`);
+                    updateUI();
+                    
+                    if (btn) {
+                        btn.classList.remove('loading');
+                    }
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error loading from Google Sheets:', error);
+                if (btn) {
+                    btn.classList.remove('loading');
+                }
+                if (employees.length === 0) {
+                    alert('Could not load data from Google Sheets. Please check:\n1. Your sheet is published\n2. Internet connection is working\n\nError: ' + error.message);
+                }
+                return false;
+            }
+        }
+
+        // Auto-refresh every 5 minutes
+        setInterval(loadDataFromGoogleSheets, AUTO_REFRESH_INTERVAL);
+
+        // Column name mapping function
+        function mapColumnNames(emp) {
+            const mapped = {};
+            
+            // Map ID variations
+            mapped['ID'] = emp['ID'] || emp['Employee ID'] || emp['EmployeeID'] || emp['Emp ID'] || '';
+            
+            // Map Name variations
+            mapped['Name'] = emp['Name'] || emp['Full Name'] || emp['FullName'] || emp['Employee Name'] || '';
+            
+            // Map Position/Designation
+            mapped['Position'] = emp['Position'] || emp['Designation'] || emp['Job Title'] || '';
+            
+            // Map Department
+            mapped['Department'] = emp['Department'] || emp['Dept'] || '';
+            
+            // Map Status
+            mapped['Status'] = emp['Status'] || 'Active';
+            
+            // Map Date fields
+            mapped['Date of Joining'] = emp['Date of Joining'] || emp['Joining Date'] || emp['Join Date'] || '';
+            mapped['Date of Leaving'] = emp['Date of Leaving'] || emp['Date of Separation'] || emp['Leaving Date'] || '';
+            mapped['Termination Reason'] = emp['Termination Reason'] || emp['Reason of Separation'] || emp['Leaving Reason'] || '';
+            
+            // Map Salary fields
+            mapped['Base Salary'] = emp['Base Salary'] || emp['Monthly Salary'] || emp['Basic Salary'] || emp['Salary'] || '0';
+            mapped['Travel Allowance'] = emp['Travel Allowance'] || emp['Travel'] || '0';
+            mapped['Fuel/Grocery Allowance'] = emp['Fuel/Grocery Allowance'] || emp['Fuel Allowance'] || '0';
+            mapped['Other Allowance'] = emp['Other Allowance'] || emp['Other'] || '0';
+            mapped['Provident Fund'] = emp['Provident Fund'] || emp['PF'] || '0';
+            mapped['EOBI'] = emp['EOBI'] || '0';
+            
+            // Map other fields
+            mapped['Gender'] = emp['Gender'] || emp['Sex'] || '';
+            mapped['Contact Number'] = emp['Contact Number'] || emp['Phone'] || emp['Mobile'] || '';
+            mapped['Email'] = emp['Email'] || emp['Email Address'] || '';
+            mapped['Address'] = emp['Address'] || '';
+            mapped['Supervisor'] = emp['Supervisor'] || emp['Manager'] || emp['Reporting To'] || '';
+            mapped['Employment Type'] = emp['Employment Type'] || emp['Joined As'] || 'Regular';
+            mapped['Position Type'] = emp['Position Type'] || '';
+            mapped['Stationed At'] = emp['Stationed At'] || emp['Location'] || '';
+            mapped['Field Office City'] = emp['Field Office City'] || '';
+            mapped['Cost Center'] = emp['Cost Center'] || emp['Project'] || '';
+            mapped['Skills'] = emp['Skills'] || '';
+            mapped['Emergency Name'] = emp['Emergency Name'] || emp['Emergency Contact'] || '';
+            mapped['Emergency Relationship'] = emp['Emergency Relationship'] || '';
+            mapped['Emergency Phone'] = emp['Emergency Phone'] || '';
+            mapped['ProfilePic'] = emp['ProfilePic'] || '';
+            
+            return mapped;
+        }
+
+        // --- Page Navigation ---
+        function showPage(pageId) {
+            pages.forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            pageTitle.textContent = pageId.charAt(0).toUpperCase() + pageId.slice(1);
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelector(`.nav-link[data-page="${pageId}"]`).classList.add('active');
+            updateUI();
+        }
+
+        // --- Modal Control ---
+        function openEmployeeModal(employee = null) {
+            employeeForm.reset();
+            profilePicPreview.style.display = 'none';
+            profilePicPreview.src = '';
+            document.getElementById('employee-index').value = '';
+            document.querySelector('#employee-modal h3').textContent = 'Add New Employee';
+            if (!employee) {
+                document.getElementById('employee-doj').value = new Date().toISOString().split('T')[0];
+            }
+            document.querySelectorAll('.tab-content, .tab-button').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-personal').classList.add('active');
+            document.querySelector('.tab-button[data-tab="personal"]').classList.add('active');
+            if (employee) {
+                fillEmployeeForm(employee);
+            }
+            employeeModal.style.display = 'flex';
+        }
+
+        function openDetailsModal(employee) {
+            if (!employee) return;
+            const detailsContent = document.getElementById('employee-details-content');
+            const formatCurrency = (value) => `PKR ${parseFloat(value || 0).toLocaleString()}`;
+            const N_A = '<span style="color: var(--secondary-color);">N/A</span>';
+
+            detailsContent.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+                    <img src="${employee.ProfilePic || `https://placehold.co/100x100/${body.classList.contains('dark-theme') ? 'CF9999/2D2D2D' : 'A05252/FFFFFF'}?text=${employee.Name ? employee.Name.charAt(0) : 'E'}`}" alt="Profile" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color);">
+                    <div>
+                        <h2 style="margin-bottom: 5px;">${employee.Name || N_A}</h2>
+                        <p style="color: var(--secondary-color); margin-bottom: 8px;">${employee.Position || 'Position not set'} • ${employee.Department || 'No Department'}</p>
+                        <span class="status-badge status-${(employee.Status || '').toLowerCase().replace('-', '')}">${employee.Status || N_A}</span>
+                    </div>
+                </div>
+                
+                <h3 style="font-size: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 10px;">Personal & Contact</h3>
+                <div class="details-grid">
+                    <div class="details-item"><h4>Employee ID</h4><p>${employee.ID || N_A}</p></div>
+                    <div class="details-item"><h4>Gender</h4><p>${employee.Gender || N_A}</p></div>
+                    <div class="details-item"><h4>Contact Number</h4><p>${employee['Contact Number'] || N_A}</p></div>
+                    <div class="details-item" style="grid-column: 1 / -1;"><h4>Address</h4><p>${employee.Address || N_A}</p></div>
+                </div>
+
+                <h3 style="font-size: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 10px;">Emergency Contact</h3>
+                <div class="details-grid">
+                    <div class="details-item"><h4>Name</h4><p>${employee['Emergency Name'] || N_A}</p></div>
+                    <div class="details-item"><h4>Relationship</h4><p>${employee['Emergency Relationship'] || N_A}</p></div>
+                    <div class="details-item"><h4>Phone</h4><p>${employee['Emergency Phone'] || N_A}</p></div>
+                </div>
+
+                <h3 style="font-size: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 10px;">Employment Details</h3>
+                <div class="details-grid">
+                    <div class="details-item"><h4>Date of Joining</h4><p>${employee['Date of Joining'] || N_A}</p></div>
+                    <div class="details-item"><h4>Supervisor</h4><p>${employee.Supervisor || N_A}</p></div>
+                    <div class="details-item"><h4>Employment Type</h4><p>${employee['Employment Type'] || N_A}</p></div>
+                    <div class="details-item"><h4>Stationed At</h4><p>${employee['Stationed At'] || N_A}</p></div>
+                </div>
+
+                <h3 style="font-size: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 10px;">Compensation</h3>
+                <div class="details-grid">
+                    <div class="details-item"><h4>Base Salary</h4><p>${formatCurrency(employee['Base Salary'])}</p></div>
+                    <div class="details-item"><h4>Allowances</h4><p>${formatCurrency((parseFloat(employee['Travel Allowance'] || 0) + parseFloat(employee['Fuel/Grocery Allowance'] || 0) + parseFloat(employee['Other Allowance'] || 0)))}</p></div>
+                    <div class="details-item"><h4>Deductions (PF+EOBI)</h4><p>${formatCurrency(parseFloat(employee['Provident Fund'] || 0) + parseFloat(employee['EOBI'] || 0))}</p></div>
+                    <div class="details-item"><h4>Total Cost</h4><p><strong>${formatCurrency(employee['Total Cost to Company'])}</strong></p></div>
+                </div>
+                
+                ${employee.Status === 'Inactive' ? `
+                <h3 style="font-size: 1.2rem; color: var(--primary-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 10px;">Termination Details</h3>
+                <div class="details-grid">
+                    <div class="details-item"><h4>Date of Leaving</h4><p>${employee['Date of Leaving'] || N_A}</p></div>
+                    <div class="details-item" style="grid-column: span 2;"><h4>Reason</h4><p>${employee['Termination Reason'] || N_A}</p></div>
+                </div>` : ''}
+            `;
+            detailsModal.style.display = 'flex';
+        }
+        
+        function openDepartmentDetailsModal(deptData) {
+            let dept = deptData;
+            if (typeof dept === 'string') {
+                try { dept = JSON.parse(dept.replace(/'/g, '"')); } catch (e) { console.error("Could not parse department data:", e); return; }
+            }
+            if (!dept) return;
+
+            departmentDetailsTitle.textContent = `${dept.name} Department`;
+            const employeeTable = `
+                <h4>Active Employees in this Department</h4>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead><tr><th>Name</th><th>Position</th><th>Status</th></tr></thead>
+                        <tbody>
+                            ${dept.employees.map(emp => `
+                                <tr>
+                                    <td><a href="#" onclick="closeDepartmentDetailsModal(); openDetailsModal(employees.find(e => e.ID === '${emp.ID}'))">${emp.Name}</a></td>
+                                    <td>${emp.Position}</td>
+                                    <td><span class="status-badge status-${(emp.Status || '').toLowerCase().replace('-', '')}">${emp.Status}</span></td>
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
+            const femalePercent = dept.employeeCount > 0 ? ((dept.femaleCount / dept.employeeCount) * 100).toFixed(1) : 0;
+            const malePercent = dept.employeeCount > 0 ? ((dept.maleCount / dept.employeeCount) * 100).toFixed(1) : 0;
+            
+            departmentDetailsContent.innerHTML = `
+                <div class="card-grid" style="margin-bottom: 20px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                     <div class="card"><div class="metric-content"><div class="value">${dept.employeeCount}</div><p>Active Employees</p></div></div>
+                     <div class="card"><div class="metric-content"><div class="value">${dept.maleCount}</div><p>Male (${malePercent}%)</p></div><div class="metric-icon-container"><i class="fas fa-mars"></i></div></div>
+                     <div class="card"><div class="metric-content"><div class="value">${dept.femaleCount}</div><p>Female (${femalePercent}%)</p></div><div class="metric-icon-container"><i class="fas fa-venus"></i></div></div>
+                     <div class="card"><div class="metric-content"><div class="value">PKR ${dept.totalCTC.toLocaleString(undefined, {maximumFractionDigits: 0})}</div><p>Total Department Cost</p></div><div class="metric-icon-container"><i class="fas fa-coins"></i></div></div>
+                </div>
+                <div class="card" style="margin-bottom: 20px; padding: 16px;">
+                    <h4 style="margin-bottom: 12px;">Gender Distribution</h4>
+                    <div style="display: flex; gap: 2px; height: 32px; border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
+                        <div style="background: #6B9BD1; width: ${malePercent}%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.9rem;">${dept.maleCount > 0 ? dept.maleCount + ' Male' : ''}</div>
+                        <div style="background: #CF9999; width: ${femalePercent}%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.9rem;">${dept.femaleCount > 0 ? dept.femaleCount + ' Female' : ''}</div>
+                    </div>
+                    <div style="display: flex; gap: 16px; font-size: 0.85rem;">
+                        <div><span style="display: inline-block; width: 12px; height: 12px; background: #6B9BD1; border-radius: 2px; margin-right: 6px;"></span>Male: ${malePercent}%</div>
+                        <div><span style="display: inline-block; width: 12px; height: 12px; background: #CF9999; border-radius: 2px; margin-right: 6px;"></span>Female: ${femalePercent}%</div>
+                    </div>
+                </div>
+                ${employeeTable}`;
+            departmentDetailsModal.style.display = 'flex';
+        }
+
+        function closeEmployeeModal() { employeeModal.style.display = 'none'; }
+        function closePayrollModal() { payrollModal.style.display = 'none'; }
+        function openImportModal() { importModal.style.display = 'flex'; }
+        function closeImportModal() { importModal.style.display = 'none'; }
+        function closeDetailsModal() { detailsModal.style.display = 'none'; }
+        function closeDepartmentDetailsModal() { departmentDetailsModal.style.display = 'none'; }
+        function openTransactionModal() { transactionModal.style.display = 'flex'; }
+        function closeTransactionModal() { transactionModal.style.display = 'none'; }
+
+        // --- Core Data & UI Rendering Functions ---
+        const updateUI = () => {
+            renderDashboard();
+            renderEmployees();
+            renderPayroll();
+            renderDepartments();
+            renderTransactions();
+            populateReportDepartments();
+            populateFilters();
+            populateTransactionEmployees();
+        };
+
+        const renderDashboard = () => {
+            const today = new Date();
+            const thirtyOneDaysAgo = new Date(new Date().setDate(today.getDate() - 31));
+            const ninetyDaysAgo = new Date(new Date().setDate(today.getDate() - 90));
+            const activeEmployees = employees.filter(e => e.Status === 'Active');
+            
+            // Basic metrics
+            document.getElementById('total-employees').textContent = employees.length;
+            document.getElementById('active-employees').textContent = activeEmployees.length;
+            const maleCount = employees.filter(e => e.Gender === 'Male').length;
+            const femaleCount = employees.filter(e => e.Gender === 'Female').length;
+            document.getElementById('male-employees').textContent = maleCount;
+            document.getElementById('female-employees').textContent = femaleCount;
+            
+            // Gender ratio
+            const femaleRatio = employees.length > 0 ? ((femaleCount / employees.length) * 100).toFixed(1) : 0;
+            document.getElementById('gender-ratio').textContent = femaleRatio + '%';
+            
+            // Average tenure calculation
+            const tenures = activeEmployees.map(e => {
+                const joinDate = parseDate(e['Date of Joining']);
+                if (!joinDate) return 0;
+                return (today - joinDate) / (1000 * 60 * 60 * 24 * 365.25);
+            }).filter(t => t > 0);
+            const avgTenure = tenures.length > 0 ? (tenures.reduce((a, b) => a + b, 0) / tenures.length).toFixed(1) : 0;
+            document.getElementById('avg-tenure').textContent = avgTenure;
+            
+            // Financial metrics
+            const totalPayroll = activeEmployees.reduce((sum, e) => sum + parseFloat(e['Salary'] || 0), 0);
+            const totalCTC = activeEmployees.reduce((sum, e) => sum + parseFloat(e['Total Cost to Company'] || 0), 0);
+            document.getElementById('total-payroll').textContent = 'PKR ' + totalPayroll.toLocaleString(undefined, {maximumFractionDigits: 0});
+            
+            // Employment type
+            const regularCount = employees.filter(e => e['Employment Type'] === 'Regular').length;
+            const contractualCount = employees.filter(e => e['Employment Type'] === 'Contractual').length;
+            document.getElementById('regular-employees').textContent = regularCount;
+            document.getElementById('contractual-employees').textContent = contractualCount;
+            
+            // Turnover rate (last 365 days)
+            const oneYearAgo = new Date(new Date().setDate(today.getDate() - 365));
+            const leaversLastYear = employees.filter(e => {
+                const leaveDate = parseDate(e['Date of Leaving']);
+                return leaveDate && leaveDate >= oneYearAgo;
+            }).length;
+            const avgHeadcount = employees.length > 0 ? employees.length : 1;
+            const turnoverRate = ((leaversLastYear / avgHeadcount) * 100).toFixed(1);
+            document.getElementById('turnover-rate').textContent = turnoverRate + '%';
+            
+            // Recent activity
+            document.getElementById('joiners-30days').textContent = employees.filter(e => parseDate(e['Date of Joining']) >= thirtyOneDaysAgo).length;
+            document.getElementById('leavers-30days').textContent = employees.filter(e => parseDate(e['Date of Leaving']) >= thirtyOneDaysAgo).length;
+            document.getElementById('joiners-90days').textContent = employees.filter(e => parseDate(e['Date of Joining']) >= ninetyDaysAgo).length;
+            document.getElementById('leavers-90days').textContent = employees.filter(e => parseDate(e['Date of Leaving']) >= ninetyDaysAgo).length;
+            
+            // Render analytics charts
+            renderGenderByDeptChart();
+            renderEmploymentTypeChart();
+            renderDeptHeadcountChart();
+            renderDeptSalaryChart();
+            
+            const recentHires = employees.filter(e => e.Status === 'Active').sort((a, b) => parseDate(b['Date of Joining']) - parseDate(a['Date of Joining'])).slice(0, 5);
+            renderTable(recentHiresTableBody, recentHires, ['Name', 'Department', 'Position', 'Status']);
+        };
+        
+        // Chart rendering functions
+        const renderGenderByDeptChart = () => {
+            const deptGender = {};
+            employees.forEach(emp => {
+                const dept = emp.Department || 'Unassigned';
+                if (!deptGender[dept]) deptGender[dept] = { Male: 0, Female: 0, Other: 0 };
+                deptGender[dept][emp.Gender || 'Other']++;
+            });
+            
+            let html = '<div style="font-size: 0.9rem;">';
+            Object.entries(deptGender).sort((a, b) => (b[1].Male + b[1].Female + b[1].Other) - (a[1].Male + a[1].Female + a[1].Other)).slice(0, 6).forEach(([dept, counts]) => {
+                const total = counts.Male + counts.Female + counts.Other;
+                const malePercent = (counts.Male / total * 100).toFixed(0);
+                const femalePercent = (counts.Female / total * 100).toFixed(0);
+                html += `<div style="margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span style="font-weight: 500;">${dept}</span>
+                        <span style="color: var(--secondary-color);">${total} employees</span>
+                    </div>
+                    <div style="display: flex; gap: 2px; height: 24px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: #6B9BD1; width: ${malePercent}%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem;">${counts.Male > 0 ? counts.Male + 'M' : ''}</div>
+                        <div style="background: #CF9999; width: ${femalePercent}%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem;">${counts.Female > 0 ? counts.Female + 'F' : ''}</div>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-top: 4px; font-size: 0.75rem; color: var(--secondary-color);">
+                        <span><span style="display: inline-block; width: 10px; height: 10px; background: #6B9BD1; border-radius: 2px; margin-right: 4px;"></span>Male: ${malePercent}%</span>
+                        <span><span style="display: inline-block; width: 10px; height: 10px; background: #CF9999; border-radius: 2px; margin-right: 4px;"></span>Female: ${femalePercent}%</span>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            document.getElementById('gender-by-dept-chart').innerHTML = html;
+        };
+        
+        const renderEmploymentTypeChart = () => {
+            const types = {};
+            employees.forEach(emp => {
+                const type = emp['Employment Type'] || 'Unspecified';
+                types[type] = (types[type] || 0) + 1;
+            });
+            
+            const total = employees.length;
+            let html = '<div style="font-size: 0.9rem;">';
+            Object.entries(types).sort((a, b) => b[1] - a[1]).forEach(([type, count]) => {
+                const percent = (count / total * 100).toFixed(1);
+                const color = type === 'Regular' ? '#A05252' : type === 'Contractual' ? '#666666' : '#999999';
+                html += `<div style="margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span style="font-weight: 500;">${type}</span>
+                        <span style="color: var(--secondary-color);">${count} (${percent}%)</span>
+                    </div>
+                    <div style="background: var(--border-color); height: 24px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: ${color}; width: ${percent}%; height: 100%; display: flex; align-items: center; padding-left: 8px; color: white; font-size: 0.8rem; font-weight: 500;">
+                            ${percent}%
+                        </div>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            document.getElementById('employment-type-chart').innerHTML = html;
+        };
+        
+        const renderDeptHeadcountChart = () => {
+            const depts = {};
+            employees.forEach(emp => {
+                const dept = emp.Department || 'Unassigned';
+                depts[dept] = (depts[dept] || 0) + 1;
+            });
+            
+            const total = employees.length;
+            const maxCount = Math.max(...Object.values(depts));
+            let html = '<div style="font-size: 0.9rem;">';
+            Object.entries(depts).sort((a, b) => b[1] - a[1]).slice(0, 5).forEach(([dept, count]) => {
+                const percent = (count / total * 100).toFixed(1);
+                const barWidth = (count / maxCount * 100).toFixed(1);
+                html += `<div style="margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span style="font-weight: 500;">${dept}</span>
+                        <span style="color: var(--secondary-color);">${count} (${percent}%)</span>
+                    </div>
+                    <div style="background: var(--border-color); height: 28px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: var(--primary-color); width: ${barWidth}%; height: 100%; display: flex; align-items: center; padding-left: 8px; color: white; font-size: 0.85rem; font-weight: 500;">
+                            ${count}
+                        </div>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            document.getElementById('dept-headcount-chart').innerHTML = html;
+        };
+        
+        const renderDeptSalaryChart = () => {
+            const depts = {};
+            employees.filter(e => e.Status === 'Active').forEach(emp => {
+                const dept = emp.Department || 'Unassigned';
+                if (!depts[dept]) depts[dept] = { total: 0, count: 0 };
+                depts[dept].total += parseFloat(emp['Salary'] || 0);
+                depts[dept].count++;
+            });
+            
+            const avgSalaries = Object.entries(depts).map(([dept, data]) => [dept, data.total / data.count]).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            const maxSalary = Math.max(...avgSalaries.map(d => d[1]));
+            
+            let html = '<div style="font-size: 0.9rem;">';
+            avgSalaries.forEach(([dept, avgSal]) => {
+                const barWidth = (avgSal / maxSalary * 100).toFixed(1);
+                html += `<div style="margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span style="font-weight: 500;">${dept}</span>
+                        <span style="color: var(--secondary-color);">PKR ${avgSal.toLocaleString(undefined, {maximumFractionDigits: 0})}</span>
+                    </div>
+                    <div style="background: var(--border-color); height: 28px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: linear-gradient(90deg, #A05252, #CF9999); width: ${barWidth}%; height: 100%; display: flex; align-items: center; padding-left: 8px; color: white; font-size: 0.8rem; font-weight: 500;"></div>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            document.getElementById('dept-salary-chart').innerHTML = html;
+        };
+
+        const renderEmployees = () => {
+            const filters = { search: employeeSearch.value.toLowerCase(), gender: genderFilter.value, department: departmentFilter.value, status: statusFilter.value };
+            const filtered = employees.filter(emp => 
+                (!filters.gender || emp.Gender === filters.gender) &&
+                (!filters.department || emp.Department === filters.department) &&
+                (!filters.status || emp.Status === filters.status) &&
+                (Object.values(emp).some(val => String(val).toLowerCase().includes(filters.search)))
+            );
+            renderTable(employeesTableBody, filtered, ['Name', 'Department', 'Position', 'Status', 'Actions']);
+        };
+
+        const renderPayroll = () => renderTable(payrollTableBody, employees, ['Name', 'Department', 'Base Salary', 'Total Cost to Company', 'PayrollActions']);
+        
+        const renderTransactions = () => {
+            transactionTableBody.innerHTML = mockTransactionLog.sort((a, b) => new Date(b.date) - new Date(a.date)).map(log => `<tr><td>${new Date(log.date).toLocaleDateString()}</td><td>${log.type}</td><td>${log.employeeID}</td><td>${log.details}</td></tr>`).join('') || `<tr><td colspan="4" style="text-align: center;">No transactions recorded.</td></tr>`;
+        };
+        
+        const renderDepartments = () => {
+            const activeEmps = employees.filter(e => e.Status === 'Active');
+            const depts = activeEmps.reduce((acc, emp) => {
+                const deptName = emp.Department || 'Unassigned';
+                if (!acc[deptName]) acc[deptName] = { name: deptName, employees: [], employeeCount: 0, maleCount: 0, femaleCount: 0, totalCTC: 0 };
+                acc[deptName].employees.push(emp);
+                acc[deptName].employeeCount++;
+                acc[deptName].totalCTC += parseFloat(emp['Total Cost to Company'] || 0);
+                if (emp.Gender === 'Male') acc[deptName].maleCount++;
+                else if (emp.Gender === 'Female') acc[deptName].femaleCount++;
+                return acc;
+            }, {});
+            departmentGrid.innerHTML = Object.values(depts).map(dept => {
+                const femalePercent = dept.employeeCount > 0 ? ((dept.femaleCount / dept.employeeCount) * 100).toFixed(0) : 0;
+                return `<div class="card department-card" onclick="openDepartmentDetailsModal(${JSON.stringify(dept).replace(/"/g, "'")})">
+                    <div class="metric-content" style="width: 100%;">
+                        <h3 style="margin-bottom: 12px;">${dept.name}</h3>
+                        <div style="display: flex; gap: 16px; margin-bottom: 12px;">
+                            <div>
+                                <div class="value" style="font-size: 2rem;">${dept.employeeCount}</div>
+                                <p style="font-size: 0.85rem;">Active Employees</p>
+                            </div>
+                            <div style="flex: 1; padding-left: 16px; border-left: 1px solid var(--border-color);">
+                                <div style="display: flex; gap: 12px; margin-bottom: 6px;">
+                                    <div>
+                                        <div style="font-size: 1.3rem; font-weight: 600; color: #6B9BD1;">${dept.maleCount}</div>
+                                        <p style="font-size: 0.75rem; color: var(--secondary-color);">Male</p>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 1.3rem; font-weight: 600; color: #CF9999;">${dept.femaleCount}</div>
+                                        <p style="font-size: 0.75rem; color: var(--secondary-color);">Female</p>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 2px; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 8px;">
+                                    <div style="background: #6B9BD1; width: ${100 - femalePercent}%;"></div>
+                                    <div style="background: #CF9999; width: ${femalePercent}%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="padding-top: 12px; border-top: 1px solid var(--border-color);">
+                            <p style="color: var(--secondary-color); margin-bottom: 4px; font-size: 0.85rem;">Total Department Cost</p>
+                            <div style="font-weight: 700; color: var(--primary-color); font-size: 1.5rem;">PKR ${dept.totalCTC.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        };
+
+        function renderTable(tableBody, data, columns) {
+            tableBody.innerHTML = '';
+            if (data.length === 0) { tableBody.innerHTML = `<tr><td colspan="${columns.length}" style="text-align:center; padding: 20px;">No data available.</td></tr>`; return; }
+            data.forEach((employee) => {
+                const row = document.createElement('tr');
+                const originalIndex = employees.findIndex(e => e.ID === employee.ID);
+                columns.forEach(col => {
+                    const cell = document.createElement('td');
+                    if (col === 'Name') cell.innerHTML = `<a href="#" onclick="openDetailsModal(employees[${originalIndex}])">${employee[col]}</a>`;
+                    else if (col === 'Status') cell.innerHTML = `<span class="status-badge status-${(employee[col] || '').toLowerCase().replace('-', '')}">${employee[col] || 'N/A'}</span>`;
+                    else if (col === 'Actions') cell.innerHTML = `<div class="table-actions"><button onclick="openEmployeeModal(employees[${originalIndex}])" title="Edit"><i class="fas fa-edit"></i></button><button onclick="deleteEmployee(${originalIndex})" title="Delete"><i class="fas fa-trash"></i></button></div>`;
+                    else if (col === 'PayrollActions') cell.innerHTML = `<div class="table-actions"><button onclick="openPayrollModal(employees[${originalIndex}], ${originalIndex})" title="Edit Payroll"><i class="fas fa-pencil-alt"></i></button></div>`;
+                    else if (['Base Salary', 'Total Cost to Company'].includes(col)) cell.textContent = `PKR ${parseFloat(employee[col] || 0).toLocaleString()}`;
+                    else cell.textContent = employee[col] || 'N/A';
+                    row.appendChild(cell);
+                });
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // --- Form/Filter Population ---
+        const populateFilters = () => {
+            const departments = [...new Set(employees.map(emp => emp.Department).filter(Boolean))];
+            departmentFilter.innerHTML = '<option value="">All Departments</option>' + departments.map(dept => `<option value="${dept}">${dept}</option>`).join('');
+        };
+        const populateReportDepartments = () => {
+            const departments = [...new Set(employees.map(emp => emp.Department).filter(Boolean))];
+            reportDepartmentSelect.innerHTML = '<option value="">All Departments</option>' + departments.map(dept => `<option value="${dept}">${dept}</option>`).join('');
+        };
+        const populateTransactionEmployees = () => {
+            transactionEmployeeSelect.innerHTML = '<option value="">Select Employee...</option>' + employees.map(emp => `<option value="${emp.ID}">${emp.Name} (${emp.ID})</option>`).join('');
+        };
+
+        // --- Data Utility & Calculations ---
+        const parseCSV = text => {
+            const lines = text.split('\n').filter(line => line.trim());
+            if (lines.length < 2) return [];
+            const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim().replace(/^"|"$/g, ''));
+            return lines.slice(1).map(line => {
+                const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
+                if (values.length !== headers.length) return null;
+                return headers.reduce((obj, header, i) => {
+                    obj[header] = values[i];
+                    return obj;
+                }, {});
+            }).filter(Boolean);
+        };
+        const calculateTotalCost = employee => {
+            const sumFields = (fields) => fields.reduce((acc, field) => acc + parseFloat(employee[field] || 0), 0);
+            const salary = sumFields(['Base Salary', 'Travel Allowance', 'Fuel/Grocery Allowance', 'Other Allowance']);
+            const totalCost = salary + sumFields(['Provident Fund', 'EOBI']);
+            return { salary, totalCost };
+        };
+        const parseDate = dateStr => dateStr ? new Date(dateStr) : null;
+        
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            showPage('dashboard');
+            document.getElementById('add-employee-button').addEventListener('click', () => openEmployeeModal());
+            document.getElementById('import-button').addEventListener('click', openImportModal);
+            themeToggleBtn.addEventListener('click', () => {
+                body.classList.toggle('dark-theme');
+                localStorage.setItem('theme', body.classList.contains('dark-theme') ? 'dark' : 'light');
+                themeToggleBtn.innerHTML = body.classList.contains('dark-theme') ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+                updateUI();
+            });
+            navLinks.forEach(link => link.addEventListener('click', e => { e.preventDefault(); showPage(link.dataset.page); }));
+            [employeeSearch, genderFilter, departmentFilter, statusFilter].forEach(el => el.addEventListener('input', renderEmployees));
+            window.addEventListener('click', e => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; });
+            
+            employeeForm.addEventListener('submit', handleEmployeeFormSubmit);
+            importForm.addEventListener('submit', handleImportFormSubmit);
+            payrollForm.addEventListener('submit', handlePayrollFormSubmit);
+            transactionForm.addEventListener('submit', handleTransactionFormSubmit);
+            reportForm.addEventListener('submit', handleReportFormSubmit);
+            
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', e => {
+                    document.querySelectorAll('.tab-content, .tab-button').forEach(el => el.classList.remove('active'));
+                    document.getElementById(`tab-${e.target.dataset.tab}`).classList.add('active');
+                    e.target.classList.add('active');
+                });
+            });
+
+            employeeProfilePicInput.addEventListener('change', e => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = e => { profilePicPreview.src = e.target.result; profilePicPreview.style.display = 'block'; };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Load data from Google Sheets on page load
+            loadDataFromGoogleSheets();
+        });
+
+        // --- Form Handlers ---
+        function handleEmployeeFormSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(employeeForm);
+            const employeeData = Object.fromEntries(formData.entries());
+            ['Date of Joining', 'Date of Leaving'].forEach(key => {
+                if (employeeData[key]) employeeData[key] = new Date(employeeData[key]).toLocaleDateString('en-US');
+            });
+            const { salary, totalCost } = calculateTotalCost(employeeData);
+            employeeData['Salary'] = salary.toFixed(2);
+            employeeData['Total Cost to Company'] = totalCost.toFixed(2);
+            employeeData.ProfilePic = profilePicPreview.src;
+            
+            const index = formData.get('index');
+            if (index) {
+                employees[index] = { ...employees[index], ...employeeData };
+            } else {
+                employees.push(employeeData);
+                mockTransactionLog.push({ date: new Date(), type: 'NEW HIRE', employeeID: employeeData.ID, details: `Hired as ${employeeData.Position}.` });
+            }
+            closeEmployeeModal();
+            updateUI();
+        }
+
+        function handleImportFormSubmit(e) {
+            e.preventDefault();
+            const file = document.getElementById('csv-file').files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const imported = parseCSV(e.target.result);
+                employees = imported.map(emp => {
+                    const { salary, totalCost } = calculateTotalCost(emp);
+                    emp['Salary'] = salary.toFixed(2);
+                    emp['Total Cost to Company'] = totalCost.toFixed(2);
+                    return emp;
+                });
+                mockTransactionLog = [];
+                closeImportModal();
+                updateUI();
+            };
+            reader.readAsText(file);
+        }
+
+        function handlePayrollFormSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(payrollForm);
+            const index = formData.get('index');
+            if (index === '' || !employees[index]) return;
+            const employee = employees[index];
+            ['Base Salary', 'Travel Allowance', 'Fuel/Grocery Allowance', 'Other Allowance'].forEach(key => {
+                employee[key] = formData.get(key);
+            });
+            const { salary, totalCost } = calculateTotalCost(employee);
+            employee['Salary'] = salary.toFixed(2);
+            employee['Total Cost to Company'] = totalCost.toFixed(2);
+            closePayrollModal();
+            updateUI();
+        }
+
+        function handleTransactionFormSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(transactionForm);
+            const type = formData.get('type');
+            const employeeId = formData.get('employee_id');
+            const employeeIndex = employees.findIndex(emp => emp.ID === employeeId);
+            const employee = employees[employeeIndex];
+            const notes = formData.get('notes');
+            const date = formData.get('effective_date');
+
+            if (!employee) { return; }
+
+            let details = '';
+            if (type === 'promotion') {
+                employee['Base Salary'] = formData.get('new_salary');
+                employee.Position = formData.get('new_position');
+                details = `Promoted to ${employee.Position} with new salary.`;
+            } else if (type === 'termination') {
+                employee.Status = 'Inactive';
+                employee['Date of Leaving'] = new Date(formData.get('termination_date')).toLocaleDateString('en-US');
+                employee['Termination Reason'] = formData.get('termination_reason');
+                details = `Terminated. Reason: ${employee['Termination Reason']}.`;
+            } else if (type === 'lwp') {
+                details = `LWP from ${new Date(formData.get('lwp_start_date')).toLocaleDateString('en-US')} to ${new Date(formData.get('lwp_end_date')).toLocaleDateString('en-US')}.`;
+            }
+            const { salary, totalCost } = calculateTotalCost(employee);
+            employee['Salary'] = salary.toFixed(2);
+            employee['Total Cost to Company'] = totalCost.toFixed(2);
+            
+            mockTransactionLog.push({ date, type: type.toUpperCase(), employeeID: employeeId, details, notes });
+            closeTransactionModal();
+            updateUI();
+        }
+        
+        function handleReportFormSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(reportForm);
+            const reportType = formData.get('reportType');
+            const department = formData.get('department');
+            const startDate = parseDate(formData.get('startDate'));
+            const endDate = parseDate(formData.get('endDate'));
+            
+            let filteredData = employees.filter(emp => !department || emp.Department === department);
+            let columns;
+            
+            if (reportType === 'joining') {
+                filteredData = filteredData.filter(emp => { const d = parseDate(emp['Date of Joining']); return (!startDate || d >= startDate) && (!endDate || d <= endDate); });
+                columns = ['ID', 'Name', 'Department', 'Position', 'Date of Joining'];
+            } else if (reportType === 'leaving') {
+                filteredData = filteredData.filter(emp => { const d = parseDate(emp['Date of Leaving']); return emp.Status === 'Inactive' && (!startDate || d >= startDate) && (!endDate || d <= endDate); });
+                columns = ['ID', 'Name', 'Department', 'Date of Leaving', 'Termination Reason'];
+            } else if (reportType === 'payroll') {
+                columns = ['ID', 'Name', 'Department', 'Base Salary', 'Total Cost to Company'];
+            } else if (reportType === 'contact') {
+                columns = ['ID', 'Name', 'Contact Number', 'Address', 'Emergency Phone'];
+            } else if (reportType === 'department-salary') {
+                // Filter only active employees for department salary report
+                filteredData = filteredData.filter(emp => emp.Status === 'Active');
+                
+                // Calculate total cost for percentage
+                const totalOrgCost = filteredData.reduce((sum, emp) => sum + parseFloat(emp['Total Cost to Company'] || 0), 0);
+                
+                // Enhance data with percentage calculations by department
+                const deptTotals = {};
+                filteredData.forEach(emp => {
+                    const dept = emp.Department || 'Unassigned';
+                    if (!deptTotals[dept]) deptTotals[dept] = 0;
+                    deptTotals[dept] += parseFloat(emp['Total Cost to Company'] || 0);
+                });
+                
+                filteredData = filteredData.map(emp => {
+                    const deptTotal = deptTotals[emp.Department || 'Unassigned'];
+                    const deptPercent = deptTotal > 0 ? ((parseFloat(emp['Total Cost to Company'] || 0) / deptTotal) * 100).toFixed(2) : '0.00';
+                    const orgPercent = totalOrgCost > 0 ? ((parseFloat(emp['Total Cost to Company'] || 0) / totalOrgCost) * 100).toFixed(2) : '0.00';
+                    return {
+                        ...emp,
+                        '% of Dept Cost': deptPercent + '%',
+                        '% of Total Cost': orgPercent + '%'
+                    };
+                });
+                
+                // Sort by department, then by total cost descending
+                filteredData.sort((a, b) => {
+                    if (a.Department !== b.Department) return (a.Department || 'Unassigned').localeCompare(b.Department || 'Unassigned');
+                    return parseFloat(b['Total Cost to Company'] || 0) - parseFloat(a['Total Cost to Company'] || 0);
+                });
+                
+                columns = ['Department', 'Name', 'Base Salary', 'Travel Allowance', 'Fuel/Grocery Allowance', 'Other Allowance', 'Provident Fund', 'EOBI', 'Salary', 'Total Cost to Company', '% of Dept Cost', '% of Total Cost'];
+            }
+            mockReportData = filteredData;
+            reportOutputContent.innerHTML = generateReportTableHTML(filteredData, columns);
+            downloadReportBtn.style.display = filteredData.length > 0 ? 'flex' : 'none';
+        }
+
+        function deleteEmployee(index) {
+             if (confirm('Are you sure you want to delete this employee?')) {
+                employees.splice(index, 1);
+                updateUI();
+            }
+        }
+
+        function fillEmployeeForm(employee) {
+            document.getElementById('employee-index').value = employees.indexOf(employee);
+            Object.keys(employee).forEach(key => {
+                const element = employeeForm.querySelector(`[name="${key}"]`);
+                if (element) {
+                    if (element.type === 'date') {
+                        element.value = employee[key] ? new Date(employee[key]).toISOString().split('T')[0] : '';
+                    } else {
+                        element.value = employee[key];
+                    }
+                }
+            });
+            if (employee.ProfilePic) {
+                profilePicPreview.src = employee.ProfilePic;
+                profilePicPreview.style.display = 'block';
+            }
+            document.querySelector('#employee-modal h3').textContent = 'Edit Employee';
+        }
+
+        function openPayrollModal(employee, index) {
+            document.getElementById('payroll-employee-index').value = index;
+            document.getElementById('payroll-name').value = employee.Name;
+            document.getElementById('payroll-salary').value = parseFloat(employee['Base Salary'] || 0);
+            document.getElementById('payroll-travel').value = parseFloat(employee['Travel Allowance'] || 0);
+            document.getElementById('payroll-fuel').value = parseFloat(employee['Fuel/Grocery Allowance'] || 0);
+            document.getElementById('payroll-other').value = parseFloat(employee['Other Allowance'] || 0);
+            payrollModal.style.display = 'flex';
+        }
+        
+        function updateTransactionForm(type) {
+            let fieldsHtml = '<div class="form-grid">';
+            if (type === 'promotion') {
+                fieldsHtml += `<div class="form-group"><label>New Position</label><input type="text" name="new_position" required></div><div class="form-group"><label>New Base Salary</label><input type="number" name="new_salary" required></div>`;
+            } else if (type === 'lwp') {
+                fieldsHtml += `<div class="form-group"><label>LWP Start Date</label><input type="date" name="lwp_start_date" required></div><div class="form-group"><label>LWP End Date</label><input type="date" name="lwp_end_date" required></div>`;
+            } else if (type === 'termination') {
+                fieldsHtml += `<div class="form-group"><label>Termination Reason</label><input type="text" name="termination_reason" required></div><div class="form-group"><label>Date of Leaving</label><input type="date" name="termination_date" required></div>`;
+            }
+            fieldsHtml += '</div>';
+            dynamicTransactionFields.innerHTML = fieldsHtml;
+        }
+
+        function dataToCSV(data, filename) {
+            if (data.length === 0) return;
+            const headers = Object.keys(data[0]);
+            const csvRows = [headers.join(','), ...data.map(row => headers.map(header => `"${(row[header] || '').toString().replace(/"/g, '""')}"`).join(','))];
+            const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function downloadReport() { dataToCSV(mockReportData, `HR_Report_${new Date().toISOString().slice(0, 10)}.csv`); }
+        function downloadTransactionLog() { dataToCSV(mockTransactionLog, `HR_Transaction_Log_${new Date().toISOString().slice(0, 10)}.csv`); }
+        
+        function generateReportTableHTML(data, columns) {
+            if (data.length === 0) return '<p>No records found.</p>';
+            const currencyFields = ['Base Salary', 'Travel Allowance', 'Fuel/Grocery Allowance', 'Other Allowance', 'Provident Fund', 'EOBI', 'Salary', 'Total Cost to Company'];
+            let head = `<thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead>`;
+            let body = `<tbody>${data.map(row => `<tr>${columns.map(c => {
+                let value = row[c] || '';
+                // Format currency fields
+                if (currencyFields.includes(c) && value && !isNaN(parseFloat(value))) {
+                    value = 'PKR ' + parseFloat(value).toLocaleString(undefined, {maximumFractionDigits: 0});
+                }
+                return `<td>${value}</td>`;
+            }).join('')}</tr>`).join('')}</tbody>`;
+            return `<div class="table-responsive"><table>${head}${body}</table></div>`;
+        }
+    </script>
+</body>
+</html>
+
