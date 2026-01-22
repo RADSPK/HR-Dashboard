@@ -413,8 +413,6 @@
         
         .status-active { background-color: #D4EDDA; color: #155724; }
         .status-inactive { background-color: #F8D7DA; color: #721C24; }
-	.status-WFH { background-color: #F9D8DA; color: #799224; }
-	.status-ShortLeave { background-color: #F4D4DA; color: #796624; }
         .status-onleave { background-color: #FFF3CD; color: #856404; }
         
         .modal {
@@ -771,21 +769,9 @@
         // PASSWORD PROTECTION
         // ===================================================
         // CHANGE YOUR PASSWORD HERE:
-        // Current password: "rads2025"
-        // To change: Replace the hash below with a new password hash
-        // Use this site to generate hash: https://emn178.github.io/online-tools/sha256.html
-        
-        const PASSWORD_HASH = '9c8c5d8e3c4f8a6b2d1e5f9a8c7b6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8'; // rads2025
+        const DASHBOARD_PASSWORD = 'rads2025';  // ← Change this to your password
         
         // Authentication functions
-        async function hashPassword(password) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(password);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
         function checkAuthentication() {
             const isAuthenticated = sessionStorage.getItem('hrDashboardAuth') === 'true';
             const loginOverlay = document.getElementById('loginOverlay');
@@ -813,13 +799,12 @@
             // Check authentication on page load
             checkAuthentication();
             
-            loginForm.addEventListener('submit', async function(e) {
+            loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
                 const enteredPassword = passwordInput.value;
-                const enteredHash = await hashPassword(enteredPassword);
                 
-                if (enteredHash === PASSWORD_HASH) {
+                if (enteredPassword === DASHBOARD_PASSWORD) {
                     // Correct password
                     sessionStorage.setItem('hrDashboardAuth', 'true');
                     document.getElementById('loginOverlay').classList.add('hidden');
@@ -827,7 +812,9 @@
                     passwordInput.value = '';
                     
                     // Load data after successful login
-                    loadDataFromGoogleSheets();
+                    setTimeout(() => {
+                        loadDataFromGoogleSheets();
+                    }, 100);
                 } else {
                     // Wrong password
                     loginError.classList.add('show');
@@ -1830,4 +1817,3 @@
     </script>
 </body>
 </html>
-
