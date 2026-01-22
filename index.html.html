@@ -54,7 +54,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #A05252 0%, #8B4666 100%);
+            background: linear-gradient(135deg, #A05252 0%, #8B4545 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -76,7 +76,7 @@
         }
 
         .login-box h1 {
-            color: #A05666;
+            color: #A05252;
             margin-bottom: 10px;
             font-size: 2rem;
         }
@@ -289,6 +289,19 @@
             transform: translateY(-5px);
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
         }
+
+        .clickable-card {
+            transition: all 0.3s ease;
+        }
+
+        .clickable-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .clickable-card:active {
+            transform: translateY(-2px) scale(0.98);
+        }
         
         .metric-content {
             flex-grow: 1;
@@ -413,8 +426,6 @@
         
         .status-active { background-color: #D4EDDA; color: #155724; }
         .status-inactive { background-color: #F8D7DA; color: #721C24; }
-        .status-shortleave { background-color: #F8D1DA; color: #533C24; }
-        .status-workfromhome { background-color: #FFF3CD; color: #856404; }
         .status-onleave { background-color: #FFF3CD; color: #856404; }
         
         .modal {
@@ -695,6 +706,16 @@
                     <div class="card"><div class="metric-content"><div class="value" id="leavers-90days">0</div><p>Leavers (Last 90 Days)</p></div><div class="metric-icon-container"><i class="fas fa-user-minus"></i></div></div>
                 </div>
 
+                <h2 style="margin: 24px 0 16px 0; font-size: 1.3rem; color: var(--secondary-color);">Status Analytics</h2>
+                <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                    <div class="card"><div class="metric-content"><div class="value" id="employees-present">0</div><p>Employees Present</p></div><div class="metric-icon-container"><i class="fas fa-user-check"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="employees-wfh">0</div><p>Work From Home</p></div><div class="metric-icon-container"><i class="fas fa-home"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="employees-annual-leave">0</div><p>Annual Leave</p></div><div class="metric-icon-container"><i class="fas fa-umbrella-beach"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="employees-short-leave">0</div><p>Short Leave</p></div><div class="metric-icon-container"><i class="fas fa-clock"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="employees-on-leave">0</div><p>On Leave (Other)</p></div><div class="metric-icon-container"><i class="fas fa-calendar-times"></i></div></div>
+                    <div class="card"><div class="metric-content"><div class="value" id="employees-inactive">0</div><p>Inactive</p></div><div class="metric-icon-container"><i class="fas fa-user-slash"></i></div></div>
+                </div>
+
                 <h2 style="margin: 24px 0 16px 0; font-size: 1.3rem; color: var(--secondary-color);">Department Analytics</h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; margin-bottom: 24px;">
                     <div class="card" style="flex-direction: column; align-items: flex-start; padding: 24px;">
@@ -723,8 +744,40 @@
             </section>
 
             <section id="employees" class="page">
-                <div class="section-header"><h2>All Employees</h2><input type="text" id="employee-search" placeholder="Search employees..." style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);"></div>
-                <div class="filter-group" style="display: flex; gap: 10px; margin-bottom: 20px;"><select id="gender-filter" style="padding: 8px;"><option value="">All Genders</option><option value="Male">Male</option><option value="Female">Female</option></select><select id="department-filter" style="padding: 8px;"><option value="">All Departments</option></select><select id="status-filter" style="padding: 8px;"><option value="">All Statuses</option><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="On-Leave">On-Leave</option></select></div>
+                <div class="section-header">
+                    <h2>All Employees</h2>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="employee-search" placeholder="Search employees..." style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <button onclick="clearAllFilters()" class="action-buttons secondary" style="padding: 8px 16px; white-space: nowrap;">
+                            <i class="fas fa-times-circle"></i> Clear Filters
+                        </button>
+                    </div>
+                </div>
+                <div class="filter-group" style="display: flex; gap: 10px; margin-bottom: 20px;"><select id="gender-filter" style="padding: 8px;"><option value="">All Genders</option><option value="Male">Male</option><option value="Female">Female</option></select><select id="department-filter" style="padding: 8px;"><option value="">All Departments</option></select><select id="status-filter" style="padding: 8px;"><option value="">All Statuses</option><option value="Active">Active</option><option value="WFH">Work From Home</option><option value="Annual Leave">Annual Leave</option><option value="Short Leave">Short Leave</option><option value="On-Leave">On Leave (Other)</option><option value="Inactive">Inactive</option></select></div>
+                
+                <div class="card-grid" style="margin-bottom: 24px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                    <div class="card clickable-card" onclick="filterByStatus('Active')" style="cursor: pointer; border: 2px solid #28a745;">
+                        <div class="metric-content"><div class="value" id="active-count-filter">0</div><p>Active</p></div>
+                        <div class="metric-icon-container"><i class="fas fa-user-check" style="color: #28a745;"></i></div>
+                    </div>
+                    <div class="card clickable-card" onclick="filterByStatus('WFH')" style="cursor: pointer; border: 2px solid #17a2b8;">
+                        <div class="metric-content"><div class="value" id="wfh-count-filter">0</div><p>Work From Home</p></div>
+                        <div class="metric-icon-container"><i class="fas fa-home" style="color: #17a2b8;"></i></div>
+                    </div>
+                    <div class="card clickable-card" onclick="filterByStatus('Annual Leave')" style="cursor: pointer; border: 2px solid #fd7e14;">
+                        <div class="metric-content"><div class="value" id="annual-leave-count-filter">0</div><p>Annual Leave</p></div>
+                        <div class="metric-icon-container"><i class="fas fa-umbrella-beach" style="color: #fd7e14;"></i></div>
+                    </div>
+                    <div class="card clickable-card" onclick="filterByStatus('Short Leave')" style="cursor: pointer; border: 2px solid #ffc107;">
+                        <div class="metric-content"><div class="value" id="short-leave-count-filter">0</div><p>Short Leave</p></div>
+                        <div class="metric-icon-container"><i class="fas fa-clock" style="color: #ffc107;"></i></div>
+                    </div>
+                    <div class="card clickable-card" onclick="filterByStatus('Inactive')" style="cursor: pointer; border: 2px solid #dc3545;">
+                        <div class="metric-content"><div class="value" id="inactive-count-filter">0</div><p>Inactive</p></div>
+                        <div class="metric-icon-container"><i class="fas fa-user-slash" style="color: #dc3545;"></i></div>
+                    </div>
+                </div>
+                
                 <div class="table-responsive"><table class="data-table" id="employees-table"><thead><tr><th>Name</th><th>Department</th><th>Position</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
             </section>
 
@@ -749,7 +802,7 @@
     </div>
 
     <!-- Employee Modal -->
-    <div id="employee-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeEmployeeModal()">&times;</span><h3 style="margin-bottom: 15px;">Add/Edit Employee Details</h3><div class="tab-controls"><button class="tab-button active" data-tab="personal">Personal & Contact</button><button class="tab-button" data-tab="employment">Employment</button><button class="tab-button" data-tab="compensation">Compensation</button></div><form id="employee-form"><input type="hidden" id="employee-index" name="index"><div id="tab-personal" class="tab-content active"><div class="form-grid"><div class="form-group"><label for="employee-name">Name</label><input type="text" id="employee-name" name="Name" required></div><div class="form-group"><label for="employee-id">ID</label><input type="text" id="employee-id" name="ID" required></div><div class="form-group"><label for="employee-gender">Gender</label><select id="employee-gender" name="Gender" required><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div><div class="form-group"><label for="employee-contact">Contact Number</label><input type="text" id="employee-contact" name="Contact Number"></div><div class="form-group"><label for="employee-address">Address</label><textarea id="employee-address" name="Address" rows="1"></textarea></div><div class="form-group"><label for="employee-profile-pic">Profile Picture</label><input type="file" id="employee-profile-pic" accept="image/*"><img id="profile-pic-preview" class="profile-pic-preview" style="display: none;" alt="Profile Preview"></div><div class="form-group"><label for="employee-emergency-name">Emergency Name</label><input type="text" id="employee-emergency-name" name="Emergency Name"></div><div class="form-group"><label for="employee-emergency-rel">Emergency Relationship</label><input type="text" id="employee-emergency-rel" name="Emergency Relationship"></div><div class="form-group"><label for="employee-emergency-phone">Emergency Phone</label><input type="text" id="employee-emergency-phone" name="Emergency Phone"></div></div></div><div id="tab-employment" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-dept">Department</label><input type="text" id="employee-dept" name="Department" required></div><div class="form-group"><label for="employee-pos">Position</label><input type="text" id="employee-pos" name="Position" required></div><div class="form-group"><label for="employee-emptype">Employment Type</label><input type="text" id="employee-emptype" name="Employment Type"></div><div class="form-group"><label for="employee-postype">Position Type</label><input type="text" id="employee-postype" name="Position Type"></div><div class="form-group"><label for="employee-supervisor">Supervisor</label><input type="text" id="employee-supervisor" name="Supervisor"></div><div class="form-group"><label for="employee-stationed">Stationed At</label><input type="text" id="employee-stationed" name="Stationed At"></div><div class="form-group"><label for="employee-fieldcity">Field Office City</label><input type="text" id="employee-fieldcity" name="Field Office City"></div><div class="form-group"><label for="employee-doj">Date of Joining</label><input type="date" id="employee-doj" name="Date of Joining" required></div><div class="form-group"><label for="employee-dol">Date of Leaving</label><input type="date" id="employee-dol" name="Date of Leaving"></div><div class="form-group"><label for="employee-status">Status</label><select id="employee-status" name="Status"><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="On-Leave">On-Leave</option></select></div><div class="form-group"><label for="employee-termination-reason">Termination Reason</label><textarea id="employee-termination-reason" name="Termination Reason" rows="1"></textarea></div><div class="form-group"><label for="employee-skills">Skills</label><textarea id="employee-skills" name="Skills" rows="1"></textarea></div></div></div><div id="tab-compensation" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-salary">Base Salary (PKR)</label><input type="number" id="employee-salary" name="Base Salary" required></div><div class="form-group"><label for="employee-travel">Travel Allowance (PKR)</label><input type="number" id="employee-travel" name="Travel Allowance"></div><div class="form-group"><label for="employee-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="employee-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="employee-other">Other Allowance (PKR)</label><input type="number" id="employee-other" name="Other Allowance"></div><div class="form-group"><label for="employee-pf">Provident Fund (PKR)</label><input type="number" id="employee-pf" name="Provident Fund"></div><div class="form-group"><label for="employee-eobi">EOBI (PKR)</label><input type="number" id="employee-eobi" name="EOBI"></div><div class="form-group"><label for="employee-cost-center">Cost Center</label><input type="text" id="employee-cost-center" name="Cost Center"></div></div></div><button type="submit" style="margin-top: 20px; width: 100%;">Save Employee</button></form></div></div>
+    <div id="employee-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeEmployeeModal()">&times;</span><h3 style="margin-bottom: 15px;">Add/Edit Employee Details</h3><div class="tab-controls"><button class="tab-button active" data-tab="personal">Personal & Contact</button><button class="tab-button" data-tab="employment">Employment</button><button class="tab-button" data-tab="compensation">Compensation</button></div><form id="employee-form"><input type="hidden" id="employee-index" name="index"><div id="tab-personal" class="tab-content active"><div class="form-grid"><div class="form-group"><label for="employee-name">Name</label><input type="text" id="employee-name" name="Name" required></div><div class="form-group"><label for="employee-id">ID</label><input type="text" id="employee-id" name="ID" required></div><div class="form-group"><label for="employee-gender">Gender</label><select id="employee-gender" name="Gender" required><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div><div class="form-group"><label for="employee-contact">Contact Number</label><input type="text" id="employee-contact" name="Contact Number"></div><div class="form-group"><label for="employee-address">Address</label><textarea id="employee-address" name="Address" rows="1"></textarea></div><div class="form-group"><label for="employee-profile-pic">Profile Picture</label><input type="file" id="employee-profile-pic" accept="image/*"><img id="profile-pic-preview" class="profile-pic-preview" style="display: none;" alt="Profile Preview"></div><div class="form-group"><label for="employee-emergency-name">Emergency Name</label><input type="text" id="employee-emergency-name" name="Emergency Name"></div><div class="form-group"><label for="employee-emergency-rel">Emergency Relationship</label><input type="text" id="employee-emergency-rel" name="Emergency Relationship"></div><div class="form-group"><label for="employee-emergency-phone">Emergency Phone</label><input type="text" id="employee-emergency-phone" name="Emergency Phone"></div></div></div><div id="tab-employment" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-dept">Department</label><input type="text" id="employee-dept" name="Department" required></div><div class="form-group"><label for="employee-pos">Position</label><input type="text" id="employee-pos" name="Position" required></div><div class="form-group"><label for="employee-emptype">Employment Type</label><input type="text" id="employee-emptype" name="Employment Type"></div><div class="form-group"><label for="employee-postype">Position Type</label><input type="text" id="employee-postype" name="Position Type"></div><div class="form-group"><label for="employee-supervisor">Supervisor</label><input type="text" id="employee-supervisor" name="Supervisor"></div><div class="form-group"><label for="employee-stationed">Stationed At</label><input type="text" id="employee-stationed" name="Stationed At"></div><div class="form-group"><label for="employee-fieldcity">Field Office City</label><input type="text" id="employee-fieldcity" name="Field Office City"></div><div class="form-group"><label for="employee-doj">Date of Joining</label><input type="date" id="employee-doj" name="Date of Joining" required></div><div class="form-group"><label for="employee-dol">Date of Leaving</label><input type="date" id="employee-dol" name="Date of Leaving"></div><div class="form-group"><label for="employee-status">Status</label><select id="employee-status" name="Status"><option value="Active">Active</option><option value="WFH">Work From Home (WFH)</option><option value="Annual Leave">Annual Leave</option><option value="Short Leave">Short Leave</option><option value="On-Leave">On Leave (Other)</option><option value="Inactive">Inactive</option></select></div><div class="form-group"><label for="employee-termination-reason">Termination Reason</label><textarea id="employee-termination-reason" name="Termination Reason" rows="1"></textarea></div><div class="form-group"><label for="employee-skills">Skills</label><textarea id="employee-skills" name="Skills" rows="1"></textarea></div></div></div><div id="tab-compensation" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-salary">Base Salary (PKR)</label><input type="number" id="employee-salary" name="Base Salary" required></div><div class="form-group"><label for="employee-travel">Travel Allowance (PKR)</label><input type="number" id="employee-travel" name="Travel Allowance"></div><div class="form-group"><label for="employee-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="employee-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="employee-other">Other Allowance (PKR)</label><input type="number" id="employee-other" name="Other Allowance"></div><div class="form-group"><label for="employee-pf">Provident Fund (PKR)</label><input type="number" id="employee-pf" name="Provident Fund"></div><div class="form-group"><label for="employee-eobi">EOBI (PKR)</label><input type="number" id="employee-eobi" name="EOBI"></div><div class="form-group"><label for="employee-cost-center">Cost Center</label><input type="text" id="employee-cost-center" name="Cost Center"></div></div></div><button type="submit" style="margin-top: 20px; width: 100%;">Save Employee</button></form></div></div>
 
     <!-- Payroll Modal -->
     <div id="payroll-modal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-button" onclick="closePayrollModal()">&times;</span><h3>Update Payroll Allowances</h3><form id="payroll-form"><input type="hidden" id="payroll-employee-index" name="index"><div class="form-group"><label for="payroll-name">Employee</label><input type="text" id="payroll-name" name="Name" readonly></div><div class="form-group"><label for="payroll-salary">Base Salary (PKR)</label><input type="number" id="payroll-salary" name="Base Salary" required></div><div class="form-group"><label for="payroll-travel">Travel Allowance (PKR)</label><input type="number" id="payroll-travel" name="Travel Allowance"></div><div class="form-group"><label for="payroll-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="payroll-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="payroll-other">Other Allowance (PKR)</label><input type="number" id="payroll-other" name="Other Allowance"></div><button type="submit">Save Payroll</button></form></div></div>
@@ -771,7 +824,7 @@
         // PASSWORD PROTECTION
         // ===================================================
         // CHANGE YOUR PASSWORD HERE:
-        const DASHBOARD_PASSWORD = 'rads2026';  // ← Change this to your password
+        const DASHBOARD_PASSWORD = 'rads2025';  // ← Change this to your password
         
         // Authentication functions
         function checkAuthentication() {
@@ -1241,7 +1294,17 @@
             const today = new Date();
             const thirtyOneDaysAgo = new Date(new Date().setDate(today.getDate() - 31));
             const ninetyDaysAgo = new Date(new Date().setDate(today.getDate() - 90));
-            const activeEmployees = employees.filter(e => e.Status === 'Active');
+            
+            // Count employees by status
+            const employeesPresent = employees.filter(e => e.Status === 'Active').length;
+            const employeesWFH = employees.filter(e => e.Status === 'WFH' || e.Status === 'Work From Home').length;
+            const employeesAnnualLeave = employees.filter(e => e.Status === 'Annual Leave').length;
+            const employeesShortLeave = employees.filter(e => e.Status === 'Short Leave').length;
+            const employeesOnLeave = employees.filter(e => e.Status === 'On-Leave' || e.Status === 'On Leave').length;
+            const employeesInactive = employees.filter(e => e.Status === 'Inactive').length;
+            
+            // Active employees = All employees EXCEPT Inactive
+            const activeEmployees = employees.filter(e => e.Status !== 'Inactive');
             
             // Basic metrics
             document.getElementById('total-employees').textContent = employees.length;
@@ -1250,6 +1313,14 @@
             const femaleCount = employees.filter(e => e.Gender === 'Female').length;
             document.getElementById('male-employees').textContent = maleCount;
             document.getElementById('female-employees').textContent = femaleCount;
+            
+            // Status analytics
+            document.getElementById('employees-present').textContent = employeesPresent;
+            document.getElementById('employees-wfh').textContent = employeesWFH;
+            document.getElementById('employees-annual-leave').textContent = employeesAnnualLeave;
+            document.getElementById('employees-short-leave').textContent = employeesShortLeave;
+            document.getElementById('employees-on-leave').textContent = employeesOnLeave;
+            document.getElementById('employees-inactive').textContent = employeesInactive;
             
             // Gender ratio
             const femaleRatio = employees.length > 0 ? ((femaleCount / employees.length) * 100).toFixed(1) : 0;
@@ -1428,8 +1499,31 @@
                 (!filters.status || emp.Status === filters.status) &&
                 (Object.values(emp).some(val => String(val).toLowerCase().includes(filters.search)))
             );
+            
+            // Update status count boxes in employees section
+            document.getElementById('active-count-filter').textContent = employees.filter(e => e.Status === 'Active').length;
+            document.getElementById('wfh-count-filter').textContent = employees.filter(e => e.Status === 'WFH' || e.Status === 'Work From Home').length;
+            document.getElementById('annual-leave-count-filter').textContent = employees.filter(e => e.Status === 'Annual Leave').length;
+            document.getElementById('short-leave-count-filter').textContent = employees.filter(e => e.Status === 'Short Leave').length;
+            document.getElementById('inactive-count-filter').textContent = employees.filter(e => e.Status === 'Inactive').length;
+            
             renderTable(employeesTableBody, filtered, ['Name', 'Department', 'Position', 'Status', 'Actions']);
         };
+
+        // Function to filter by status when clicking status boxes
+        function filterByStatus(status) {
+            document.getElementById('status-filter').value = status;
+            renderEmployees();
+        }
+
+        // Function to clear all filters
+        function clearAllFilters() {
+            document.getElementById('employee-search').value = '';
+            document.getElementById('gender-filter').value = '';
+            document.getElementById('department-filter').value = '';
+            document.getElementById('status-filter').value = '';
+            renderEmployees();
+        }
 
         const renderPayroll = () => renderTable(payrollTableBody, employees, ['Name', 'Department', 'Base Salary', 'Total Cost to Company', 'PayrollActions']);
         
