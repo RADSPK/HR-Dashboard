@@ -650,7 +650,7 @@
     <div class="dashboard-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <h2>HR Dashboard <br> Research & Development Solutions</h2>
+            <h2><strong style="font-weight: 800;">RESEARCH & DEVELOPMENT SOLUTIONS</strong><br><br>HR Dashboard</h2>
             <nav>
                 <a href="#dashboard" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i><span>Dashboard</span></a>
                 <a href="#employees" class="nav-link" data-page="employees"><i class="fas fa-users"></i><span>Employees</span></a>
@@ -658,6 +658,11 @@
                 <a href="#departments" class="nav-link" data-page="departments"><i class="fas fa-sitemap"></i><span>Departments</span></a>
                 <a href="#reports" class="nav-link" data-page="reports"><i class="fas fa-chart-line"></i><span>Reports</span></a>
             </nav>
+            
+            <!-- Footer in Sidebar -->
+            <div style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color); text-align: center; color: var(--secondary-color); font-size: 0.75rem; line-height: 1.4;">
+                Designed and made by<br>Finance Department - RADS
+            </div>
         </aside>
 
         <!-- Main Content -->
@@ -673,8 +678,6 @@
                     <button class="toggle-button" onclick="logout()" title="Logout">
                         <i class="fas fa-sign-out-alt"></i>
                     </button>
-                    <a href="#" class="nav-link" id="import-button"><i class="fas fa-upload"></i> Import CSV</a>
-                    <a href="#" class="nav-link" id="add-employee-button"><i class="fas fa-plus"></i> Add Employee</a>
                 </div>
             </header>
 
@@ -682,38 +685,38 @@
             <section id="dashboard" class="page active">
                 <h2 style="margin-bottom: 16px; font-size: 1.3rem; color: var(--secondary-color);">Overview Metrics</h2>
                 <div class="card-grid">
-                    <div class="card"><div class="metric-content"><div class="value" id="total-employees">0</div><p>Total Employees</p></div><div class="metric-icon-container"><i class="fas fa-users"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="active-employees">0</div><p>Active Employees</p></div><div class="metric-icon-container"><i class="fas fa-user-check"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="male-employees">0</div><p>Male Employees</p></div><div class="metric-icon-container"><i class="fas fa-mars"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="female-employees">0</div><p>Female Employees</p></div><div class="metric-icon-container"><i class="fas fa-venus"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="gender-ratio">0%</div><p>Female Ratio</p></div><div class="metric-icon-container"><i class="fas fa-balance-scale"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="avg-tenure">0</div><p>Avg Tenure (Years)</p></div><div class="metric-icon-container"><i class="fas fa-calendar-alt"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('total-employees')"><div class="metric-content"><div class="value" id="total-employees">0</div><p>Total Employees</p></div><div class="metric-icon-container"><i class="fas fa-users"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('active-employees')"><div class="metric-content"><div class="value" id="active-employees">0</div><p>Active Employees</p></div><div class="metric-icon-container"><i class="fas fa-user-check"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('male-employees')"><div class="metric-content"><div class="value" id="male-employees">0</div><p>Male Employees</p></div><div class="metric-icon-container"><i class="fas fa-mars"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('female-employees')"><div class="metric-content"><div class="value" id="female-employees">0</div><p>Female Employees</p></div><div class="metric-icon-container"><i class="fas fa-venus"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('gender-ratio')"><div class="metric-content"><div class="value" id="gender-ratio">0%</div><p>Female Ratio</p></div><div class="metric-icon-container"><i class="fas fa-balance-scale"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('avg-tenure')"><div class="metric-content"><div class="value" id="avg-tenure">0</div><p>Avg Tenure (Years)</p></div><div class="metric-icon-container"><i class="fas fa-calendar-alt"></i></div></div>
                 </div>
 
                 <h2 style="margin: 24px 0 16px 0; font-size: 1.3rem; color: var(--secondary-color);">Financial Metrics</h2>
                 <div class="card-grid">
-                    <div class="card"><div class="metric-content"><div class="value" id="total-payroll">PKR 0</div><p>Total Monthly Payroll</p></div><div class="metric-icon-container"><i class="fas fa-coins"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="regular-employees">0</div><p>Regular Employees</p></div><div class="metric-icon-container"><i class="fas fa-user-tie"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="contractual-employees">0</div><p>Contractual Employees</p></div><div class="metric-icon-container"><i class="fas fa-file-contract"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="turnover-rate">0%</div><p>Annual Turnover Rate</p></div><div class="metric-icon-container"><i class="fas fa-sync-alt"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('total-payroll')"><div class="metric-content"><div class="value" id="total-payroll">PKR 0</div><p>Total Monthly Payroll</p></div><div class="metric-icon-container"><i class="fas fa-coins"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('regular-employees')"><div class="metric-content"><div class="value" id="regular-employees">0</div><p>Regular Employees</p></div><div class="metric-icon-container"><i class="fas fa-user-tie"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('contractual-employees')"><div class="metric-content"><div class="value" id="contractual-employees">0</div><p>Contractual Employees</p></div><div class="metric-icon-container"><i class="fas fa-file-contract"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('turnover-rate')"><div class="metric-content"><div class="value" id="turnover-rate">0%</div><p>Annual Turnover Rate</p></div><div class="metric-icon-container"><i class="fas fa-sync-alt"></i></div></div>
                 </div>
 
                 <h2 style="margin: 24px 0 16px 0; font-size: 1.3rem; color: var(--secondary-color);">Recent Activity</h2>
                 <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
-                    <div class="card"><div class="metric-content"><div class="value" id="joiners-30days">0</div><p>Joiners (Last 31 Days)</p></div><div class="metric-icon-container"><i class="fas fa-user-plus"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="leavers-30days">0</div><p>Leavers (Last 31 Days)</p></div><div class="metric-icon-container"><i class="fas fa-user-minus"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="joiners-90days">0</div><p>Joiners (Last 90 Days)</p></div><div class="metric-icon-container"><i class="fas fa-user-plus"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="leavers-90days">0</div><p>Leavers (Last 90 Days)</p></div><div class="metric-icon-container"><i class="fas fa-user-minus"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('joiners-30days')"><div class="metric-content"><div class="value" id="joiners-30days">0</div><p>Joiners (Last 31 Days)</p></div><div class="metric-icon-container"><i class="fas fa-user-plus"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('leavers-30days')"><div class="metric-content"><div class="value" id="leavers-30days">0</div><p>Leavers (Last 31 Days)</p></div><div class="metric-icon-container"><i class="fas fa-user-minus"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('joiners-90days')"><div class="metric-content"><div class="value" id="joiners-90days">0</div><p>Joiners (Last 90 Days)</p></div><div class="metric-icon-container"><i class="fas fa-user-plus"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('leavers-90days')"><div class="metric-content"><div class="value" id="leavers-90days">0</div><p>Leavers (Last 90 Days)</p></div><div class="metric-icon-container"><i class="fas fa-user-minus"></i></div></div>
                 </div>
 
                 <h2 style="margin: 24px 0 16px 0; font-size: 1.3rem; color: var(--secondary-color);">Status Analytics</h2>
                 <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
-                    <div class="card"><div class="metric-content"><div class="value" id="employees-present">0</div><p>Employees Present</p></div><div class="metric-icon-container"><i class="fas fa-user-check"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="employees-wfh">0</div><p>Work From Home</p></div><div class="metric-icon-container"><i class="fas fa-home"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="employees-annual-leave">0</div><p>Annual Leave</p></div><div class="metric-icon-container"><i class="fas fa-umbrella-beach"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="employees-short-leave">0</div><p>Short Leave</p></div><div class="metric-icon-container"><i class="fas fa-clock"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="employees-on-leave">0</div><p>On Leave (Other)</p></div><div class="metric-icon-container"><i class="fas fa-calendar-times"></i></div></div>
-                    <div class="card"><div class="metric-content"><div class="value" id="employees-inactive">0</div><p>Inactive</p></div><div class="metric-icon-container"><i class="fas fa-user-slash"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('employees-present')"><div class="metric-content"><div class="value" id="employees-present">0</div><p>Employees Present</p></div><div class="metric-icon-container"><i class="fas fa-user-check"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('employees-wfh')"><div class="metric-content"><div class="value" id="employees-wfh">0</div><p>Work From Home</p></div><div class="metric-icon-container"><i class="fas fa-home"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('employees-annual-leave')"><div class="metric-content"><div class="value" id="employees-annual-leave">0</div><p>Annual Leave</p></div><div class="metric-icon-container"><i class="fas fa-umbrella-beach"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('employees-short-leave')"><div class="metric-content"><div class="value" id="employees-short-leave">0</div><p>Short Leave</p></div><div class="metric-icon-container"><i class="fas fa-clock"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('employees-on-leave')"><div class="metric-content"><div class="value" id="employees-on-leave">0</div><p>On Leave (Other)</p></div><div class="metric-icon-container"><i class="fas fa-calendar-times"></i></div></div>
+                    <div class="card clickable-card" onclick="showMetricDetails('employees-inactive')"><div class="metric-content"><div class="value" id="employees-inactive">0</div><p>Inactive</p></div><div class="metric-icon-container"><i class="fas fa-user-slash"></i></div></div>
                 </div>
 
                 <h2 style="margin: 24px 0 16px 0; font-size: 1.3rem; color: var(--secondary-color);">Department Analytics</h2>
@@ -794,9 +797,9 @@
                 <div class="section-header"><h2>Reports & Analytics</h2></div>
                 <div class="card" style="flex-direction: column; align-items: flex-start;">
                     <h3>Generate Custom Report</h3>
-                    <form id="report-form" style="width: 100%;"><div class="form-grid"><div class="form-group"><label for="report-type">Report Type</label><select id="report-type" name="reportType" required><option value="joining">Joining Report</option><option value="leaving">Leaving/Termination Report</option><option value="payroll">Detailed Payroll Report</option><option value="contact">Full Contact List</option><option value="department-salary">Department-wise Salary Breakdown</option></select></div><div class="form-group"><label for="report-start-date">Start Date</label><input type="date" id="report-start-date" name="startDate"></div><div class="form-group"><label for="report-end-date">End Date</label><input type="date" id="report-end-date" name="endDate"></div><div class="form-group"><label for="report-department">Department</label><select id="report-department" name="department"><option value="">All Departments</option></select></div></div><button type="submit">Generate Report</button></form>
+                    <form id="report-form" style="width: 100%;"><div class="form-grid"><div class="form-group"><label for="report-type">Report Type</label><select id="report-type" name="reportType" required><option value="">Select Report Type...</option><optgroup label="Employee Reports"><option value="joining">New Joinings Report</option><option value="leaving">Leaving/Termination Report</option><option value="contact">Complete Employee Directory</option><option value="employee-status">Employee Status Analysis</option><option value="tenure-analysis">Employee Tenure Analysis</option></optgroup><optgroup label="Financial Reports"><option value="payroll">Detailed Payroll Report</option><option value="department-salary">Department-wise Salary Breakdown</option><option value="salary-distribution">Salary Range Distribution</option><option value="allowances-breakdown">Allowances & Benefits Breakdown</option><option value="cost-center-analysis">Cost Center Analysis</option></optgroup><optgroup label="Analytical Reports"><option value="gender-analytics">Gender Distribution Analytics</option><option value="turnover-analysis">Turnover & Retention Analysis</option><option value="headcount-trends">Headcount Trends Report</option><option value="department-comparison">Department Performance Comparison</option><option value="work-mode-analysis">Work Mode & Leave Analysis</option><option value="recruitment-efficiency">Recruitment Efficiency Report</option></optgroup><optgroup label="Compliance Reports"><option value="provident-fund">Provident Fund Report</option><option value="eobi-report">EOBI Contribution Report</option><option value="tax-summary">Tax Deduction Summary</option></optgroup></select></div><div class="form-group"><label for="report-start-date">Start Date (Optional)</label><input type="date" id="report-start-date" name="startDate"></div><div class="form-group"><label for="report-end-date">End Date (Optional)</label><input type="date" id="report-end-date" name="endDate"></div><div class="form-group"><label for="report-department">Department Filter</label><select id="report-department" name="department"><option value="">All Departments</option></select></div><div class="form-group"><label for="report-status">Status Filter</label><select id="report-status" name="status"><option value="">All Statuses</option><option value="Active">Active Only</option><option value="Inactive">Inactive Only</option><option value="WFH">WFH Only</option><option value="On Leave">On Leave</option></select></div><div class="form-group"><label for="report-gender">Gender Filter</label><select id="report-gender" name="gender"><option value="">All</option><option value="Male">Male</option><option value="Female">Female</option></select></div></div><button type="submit" style="margin-top: 10px;">Generate Report</button></form>
                 </div>
-                <div class="card" style="margin-top: 20px; flex-direction: column; align-items: flex-start;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px;"><h3>Report Output Preview</h3><button class="action-buttons primary" id="download-report-btn" style="display: none; padding: 6px 12px;" onclick="downloadReport()"><i class="fas fa-download"></i> Download CSV</button></div><div id="report-output-content" style="width: 100%; min-height: 100px;"><p style="color: var(--secondary-color);">Generated report data will appear here.</p></div></div>
+                <div class="card" style="margin-top: 20px; flex-direction: column; align-items: flex-start;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px;"><h3>Report Output & Analytics</h3><button class="action-buttons primary" id="download-report-btn" style="display: none; padding: 6px 12px;" onclick="downloadReport()"><i class="fas fa-download"></i> Download CSV</button></div><div id="report-output-content" style="width: 100%; min-height: 100px;"><p style="color: var(--secondary-color);">Select a report type and click "Generate Report" to view detailed analytics.</p></div></div>
             </section>
         </main>
     </div>
@@ -807,14 +810,14 @@
     <!-- Payroll Modal -->
     <div id="payroll-modal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-button" onclick="closePayrollModal()">&times;</span><h3>Update Payroll Allowances</h3><form id="payroll-form"><input type="hidden" id="payroll-employee-index" name="index"><div class="form-group"><label for="payroll-name">Employee</label><input type="text" id="payroll-name" name="Name" readonly></div><div class="form-group"><label for="payroll-salary">Base Salary (PKR)</label><input type="number" id="payroll-salary" name="Base Salary" required></div><div class="form-group"><label for="payroll-travel">Travel Allowance (PKR)</label><input type="number" id="payroll-travel" name="Travel Allowance"></div><div class="form-group"><label for="payroll-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="payroll-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="payroll-other">Other Allowance (PKR)</label><input type="number" id="payroll-other" name="Other Allowance"></div><button type="submit">Save Payroll</button></form></div></div>
 
-    <!-- Import Modal -->
-    <div id="import-modal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-button" onclick="closeImportModal()">&times;</span><h3>Import Data</h3><p style="margin-bottom: 15px; text-align: center; color: var(--secondary-color);">Select your detailed CSV file. All dashboard data will be loaded from this file.</p><form id="import-form"><div class="form-group"><label for="csv-file">Choose a CSV file:</label><input type="file" id="csv-file" accept=".csv" required></div><button type="submit">Import</button></form></div></div>
-
     <!-- Details Modal -->
     <div id="details-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeDetailsModal()">&times;</span><div id="employee-details-content"></div><div class="action-buttons"><button class="secondary" onclick="closeDetailsModal()">Close</button></div></div></div>
     
     <!-- Department Details Modal -->
     <div id="department-details-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeDepartmentDetailsModal()">&times;</span><h3 id="department-details-title" style="margin-bottom: 20px;"></h3><div id="department-details-content"></div><div class="action-buttons"><button class="secondary" onclick="closeDepartmentDetailsModal()">Close</button></div></div></div>
+
+    <!-- Metric Details Modal -->
+    <div id="metric-details-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeMetricDetailsModal()">&times;</span><h3 id="metric-details-title" style="margin-bottom: 20px;"></h3><div id="metric-details-content"></div><div class="action-buttons"><button class="secondary" onclick="closeMetricDetailsModal()">Close</button></div></div></div>
 
     <!-- HR Transaction Modal -->
     <div id="transaction-modal" class="modal"><div class="modal-content" style="max-width: 600px;"><span class="close-button" onclick="closeTransactionModal()">&times;</span><h3>Record HR Transaction</h3><form id="transaction-form"><div class="form-grid"><div class="form-group"><label for="transaction-type">Transaction Type</label><select id="transaction-type" name="type" required onchange="updateTransactionForm(this.value)"><option value="">Select Action...</option><option value="promotion">Salary/Position Change</option><option value="lwp">Leave Without Pay (LWP)</option><option value="termination">Termination / Leaver</option></select></div><div class="form-group"><label for="transaction-employee-id">Employee</label><select id="transaction-employee-id" name="employee_id" required><option value="">Select Employee...</option></select></div></div><div id="dynamic-transaction-fields" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;"></div><div class="form-grid"><div class="form-group"><label for="transaction-date">Effective Date</label><input type="date" id="transaction-date" name="effective_date" required></div></div><div class="form-group"><label for="transaction-notes">Detailed Notes</label><textarea id="transaction-notes" name="notes" rows="3" placeholder="Enter full details and rationale..."></textarea></div><button type="submit" id="transaction-submit-btn" style="width: 100%;">Log Transaction</button></form></div></div>
@@ -923,8 +926,6 @@
         
         const payrollModal = document.getElementById('payroll-modal');
         const payrollForm = document.getElementById('payroll-form');
-        const importModal = document.getElementById('import-modal');
-        const importForm = document.getElementById('import-form');
         
         const employeesTableBody = document.getElementById('employees-table').querySelector('tbody');
         const recentHiresTableBody = document.getElementById('recent-hires-table').querySelector('tbody');
@@ -1271,13 +1272,166 @@
 
         function closeEmployeeModal() { employeeModal.style.display = 'none'; }
         function closePayrollModal() { payrollModal.style.display = 'none'; }
-        function openImportModal() { importModal.style.display = 'flex'; }
-        function closeImportModal() { importModal.style.display = 'none'; }
         function closeDetailsModal() { detailsModal.style.display = 'none'; }
         function closeDepartmentDetailsModal() { departmentDetailsModal.style.display = 'none'; }
         function openTransactionModal() { transactionModal.style.display = 'flex'; }
         function closeTransactionModal() { transactionModal.style.display = 'none'; }
-
+        
+        // Metric Details Modal Functions
+        const metricDetailsModal = document.getElementById('metric-details-modal');
+        const metricDetailsTitle = document.getElementById('metric-details-title');
+        const metricDetailsContent = document.getElementById('metric-details-content');
+        
+        function closeMetricDetailsModal() { metricDetailsModal.style.display = 'none'; }
+        
+        function showMetricDetails(metricId) {
+            let title = '';
+            let content = '';
+            const activeEmps = employees.filter(e => e.Status === 'Active');
+            
+            switch(metricId) {
+                case 'total-employees':
+                    title = 'Total Employees Breakdown';
+                    const byDept = {};
+                    employees.forEach(emp => {
+                        const dept = emp.Department || 'Unassigned';
+                        if (!byDept[dept]) byDept[dept] = { active: 0, inactive: 0 };
+                        if (emp.Status === 'Active') byDept[dept].active++;
+                        else byDept[dept].inactive++;
+                    });
+                    content = `<div class="table-responsive"><table class="data-table"><thead><tr><th>Department</th><th>Active</th><th>Inactive</th><th>Total</th></tr></thead><tbody>` +
+                        Object.entries(byDept).map(([dept, counts]) => 
+                            `<tr><td>${dept}</td><td>${counts.active}</td><td>${counts.inactive}</td><td>${counts.active + counts.inactive}</td></tr>`
+                        ).join('') + `</tbody></table></div>`;
+                    break;
+                    
+                case 'active-employees':
+                    title = 'Active Employees by Department';
+                    const deptCounts = {};
+                    activeEmps.forEach(emp => {
+                        const dept = emp.Department || 'Unassigned';
+                        deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+                    });
+                    content = `<div class="table-responsive"><table class="data-table"><thead><tr><th>Department</th><th>Count</th></tr></thead><tbody>` +
+                        Object.entries(deptCounts).sort((a,b) => b[1] - a[1]).map(([dept, count]) => 
+                            `<tr><td>${dept}</td><td>${count}</td></tr>`
+                        ).join('') + `</tbody></table></div>`;
+                    break;
+                    
+                case 'male-employees':
+                case 'female-employees':
+                    const gender = metricId === 'male-employees' ? 'Male' : 'Female';
+                    title = `${gender} Employees by Department`;
+                    const genderDepts = {};
+                    activeEmps.filter(e => e.Gender === gender).forEach(emp => {
+                        const dept = emp.Department || 'Unassigned';
+                        genderDepts[dept] = (genderDepts[dept] || 0) + 1;
+                    });
+                    content = `<div class="table-responsive"><table class="data-table"><thead><tr><th>Department</th><th>Count</th></tr></thead><tbody>` +
+                        Object.entries(genderDepts).sort((a,b) => b[1] - a[1]).map(([dept, count]) => 
+                            `<tr><td>${dept}</td><td>${count}</td></tr>`
+                        ).join('') + `</tbody></table></div>`;
+                    break;
+                    
+                case 'gender-ratio':
+                    title = 'Gender Distribution by Department';
+                    const genderByDept = {};
+                    activeEmps.forEach(emp => {
+                        const dept = emp.Department || 'Unassigned';
+                        if (!genderByDept[dept]) genderByDept[dept] = { Male: 0, Female: 0 };
+                        genderByDept[dept][emp.Gender] = (genderByDept[dept][emp.Gender] || 0) + 1;
+                    });
+                    content = `<div class="table-responsive"><table class="data-table"><thead><tr><th>Department</th><th>Male</th><th>Female</th><th>Female %</th></tr></thead><tbody>` +
+                        Object.entries(genderByDept).map(([dept, counts]) => {
+                            const total = counts.Male + counts.Female;
+                            const femalePercent = total > 0 ? ((counts.Female / total) * 100).toFixed(1) : '0.0';
+                            return `<tr><td>${dept}</td><td>${counts.Male}</td><td>${counts.Female}</td><td>${femalePercent}%</td></tr>`;
+                        }).join('') + `</tbody></table></div>`;
+                    break;
+                    
+                case 'total-payroll':
+                    title = 'Payroll by Department';
+                    const payrollByDept = {};
+                    activeEmps.forEach(emp => {
+                        const dept = emp.Department || 'Unassigned';
+                        payrollByDept[dept] = (payrollByDept[dept] || 0) + parseFloat(emp['Total Cost to Company'] || 0);
+                    });
+                    const totalPayroll = Object.values(payrollByDept).reduce((sum, val) => sum + val, 0);
+                    content = `<div class="table-responsive"><table class="data-table"><thead><tr><th>Department</th><th>Total Cost</th><th>% of Total</th></tr></thead><tbody>` +
+                        Object.entries(payrollByDept).sort((a,b) => b[1] - a[1]).map(([dept, cost]) => 
+                            `<tr><td>${dept}</td><td>PKR ${cost.toLocaleString(undefined, {maximumFractionDigits: 0})}</td><td>${((cost/totalPayroll)*100).toFixed(1)}%</td></tr>`
+                        ).join('') + `</tbody></table></div>`;
+                    break;
+                    
+                case 'employees-wfh':
+                    title = 'Work From Home Employees';
+                    const wfhEmps = activeEmps.filter(e => e.Status === 'WFH');
+                    content = wfhEmps.length > 0 ? `<div class="table-responsive"><table class="data-table"><thead><tr><th>Name</th><th>Department</th><th>Position</th></tr></thead><tbody>` +
+                        wfhEmps.map(emp => `<tr><td>${emp.Name}</td><td>${emp.Department}</td><td>${emp.Position}</td></tr>`).join('') + 
+                        `</tbody></table></div>` : '<p>No employees working from home.</p>';
+                    break;
+                    
+                case 'employees-annual-leave':
+                case 'employees-short-leave':
+                case 'employees-on-leave':
+                    const statusMap = {
+                        'employees-annual-leave': 'Annual Leave',
+                        'employees-short-leave': 'Short Leave',
+                        'employees-on-leave': 'On-Leave'
+                    };
+                    const status = statusMap[metricId];
+                    title = `${status} Employees`;
+                    const leaveEmps = employees.filter(e => e.Status === status);
+                    content = leaveEmps.length > 0 ? `<div class="table-responsive"><table class="data-table"><thead><tr><th>Name</th><th>Department</th><th>Position</th></tr></thead><tbody>` +
+                        leaveEmps.map(emp => `<tr><td>${emp.Name}</td><td>${emp.Department}</td><td>${emp.Position}</td></tr>`).join('') + 
+                        `</tbody></table></div>` : `<p>No employees on ${status.toLowerCase()}.</p>`;
+                    break;
+                    
+                case 'employees-inactive':
+                    title = 'Inactive Employees';
+                    const inactiveEmps = employees.filter(e => e.Status === 'Inactive');
+                    content = inactiveEmps.length > 0 ? `<div class="table-responsive"><table class="data-table"><thead><tr><th>Name</th><th>Department</th><th>Position</th><th>Date of Leaving</th><th>Reason</th></tr></thead><tbody>` +
+                        inactiveEmps.map(emp => `<tr><td>${emp.Name}</td><td>${emp.Department}</td><td>${emp.Position}</td><td>${emp['Date of Leaving'] || 'N/A'}</td><td>${emp['Termination Reason'] || 'N/A'}</td></tr>`).join('') + 
+                        `</tbody></table></div>` : '<p>No inactive employees.</p>';
+                    break;
+                    
+                case 'joiners-30days':
+                case 'joiners-90days':
+                    const days = metricId === 'joiners-30days' ? 31 : 90;
+                    title = `Joiners in Last ${days} Days`;
+                    const cutoffDate = new Date(new Date().setDate(new Date().getDate() - days));
+                    const joiners = employees.filter(e => {
+                        const doj = parseDate(e['Date of Joining']);
+                        return doj && doj >= cutoffDate;
+                    }).sort((a,b) => new Date(b['Date of Joining']) - new Date(a['Date of Joining']));
+                    content = joiners.length > 0 ? `<div class="table-responsive"><table class="data-table"><thead><tr><th>Name</th><th>Department</th><th>Position</th><th>Date of Joining</th></tr></thead><tbody>` +
+                        joiners.map(emp => `<tr><td>${emp.Name}</td><td>${emp.Department}</td><td>${emp.Position}</td><td>${emp['Date of Joining']}</td></tr>`).join('') + 
+                        `</tbody></table></div>` : '<p>No joiners in this period.</p>';
+                    break;
+                    
+                case 'leavers-30days':
+                case 'leavers-90days':
+                    const leaveDays = metricId === 'leavers-30days' ? 31 : 90;
+                    title = `Leavers in Last ${leaveDays} Days`;
+                    const leaveCutoff = new Date(new Date().setDate(new Date().getDate() - leaveDays));
+                    const leavers = employees.filter(e => {
+                        const dol = parseDate(e['Date of Leaving']);
+                        return dol && dol >= leaveCutoff;
+                    }).sort((a,b) => new Date(b['Date of Leaving']) - new Date(a['Date of Leaving']));
+                    content = leavers.length > 0 ? `<div class="table-responsive"><table class="data-table"><thead><tr><th>Name</th><th>Department</th><th>Position</th><th>Date of Leaving</th><th>Reason</th></tr></thead><tbody>` +
+                        leavers.map(emp => `<tr><td>${emp.Name}</td><td>${emp.Department}</td><td>${emp.Position}</td><td>${emp['Date of Leaving']}</td><td>${emp['Termination Reason'] || 'N/A'}</td></tr>`).join('') + 
+                        `</tbody></table></div>` : '<p>No leavers in this period.</p>';
+                    break;
+                    
+                default:
+                    title = 'Details';
+                    content = '<p>No detailed information available for this metric.</p>';
+            }
+            
+            metricDetailsTitle.textContent = title;
+            metricDetailsContent.innerHTML = content;
+            metricDetailsModal.style.display = 'flex';
+        }
         // --- Core Data & UI Rendering Functions ---
         const updateUI = () => {
             renderDashboard();
@@ -1535,13 +1689,16 @@
             const activeEmps = employees.filter(e => e.Status === 'Active');
             const depts = activeEmps.reduce((acc, emp) => {
                 const deptName = emp.Department || 'Unassigned';
-                if (!acc[deptName]) acc[deptName] = { name: deptName, employees: [], employeeCount: 0, maleCount: 0, femaleCount: 0, totalCTC: 0 };
+                if (!acc[deptName]) acc[deptName] = { name: deptName, employees: [], employeeCount: 0, maleCount: 0, femaleCount: 0, wfhCount: 0, onLeaveCount: 0, totalCTC: 0 };
                 acc[deptName].employees.push(emp);
                 acc[deptName].employeeCount++;
                 acc[deptName].totalCTC += parseFloat(emp['Total Cost to Company'] || 0);
                 if (emp.Gender === 'Male') acc[deptName].maleCount++;
                 else if (emp.Gender === 'Female') acc[deptName].femaleCount++;
-                return acc;
+                // Track WFH employees
+                if (emp['Work Mode'] === 'WFH' || emp['Work Mode'] === 'Hybrid') acc[deptName].wfhCount++;
+                // Track employees on leave
+                if (emp['Leave Status'] && emp['Leave Status'] !== 'Active') acc[deptName].onLeaveCount++;                return acc;
             }, {});
             departmentGrid.innerHTML = Object.values(depts).map(dept => {
                 const femalePercent = dept.employeeCount > 0 ? ((dept.femaleCount / dept.employeeCount) * 100).toFixed(0) : 0;
@@ -1556,6 +1713,16 @@
                             <div style="flex: 1; padding-left: 16px; border-left: 1px solid var(--border-color);">
                                 <div style="display: flex; gap: 12px; margin-bottom: 6px;">
                                     <div>
+                                        <div style="font-size: 1.1rem; font-weight: 600; color: var(--primary-color);">${dept.wfhCount}</div>
+                                        <p style="font-size: 0.75rem; color: var(--secondary-color);">WFH</p>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 1.1rem; font-weight: 600; color: var(--primary-color);">${dept.onLeaveCount}</div>
+                                        <p style="font-size: 0.75rem; color: var(--secondary-color);">On Leave</p>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 12px; margin-bottom: 6px;">
+                                    <div>
                                         <div style="font-size: 1.3rem; font-weight: 600; color: #6B9BD1;">${dept.maleCount}</div>
                                         <p style="font-size: 0.75rem; color: var(--secondary-color);">Male</p>
                                     </div>
@@ -1564,7 +1731,7 @@
                                         <p style="font-size: 0.75rem; color: var(--secondary-color);">Female</p>
                                     </div>
                                 </div>
-                                <div style="display: flex; gap: 2px; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 8px;">
+                                <div style="display: flex; gap: 2px; height: 8px; border-radius: 4px; overflow: hidden;">
                                     <div style="background: #6B9BD1; width: ${100 - femalePercent}%;"></div>
                                     <div style="background: #CF9999; width: ${femalePercent}%;"></div>
                                 </div>
@@ -1637,8 +1804,6 @@
         // --- Event Listeners ---
         document.addEventListener('DOMContentLoaded', () => {
             showPage('dashboard');
-            document.getElementById('add-employee-button').addEventListener('click', () => openEmployeeModal());
-            document.getElementById('import-button').addEventListener('click', openImportModal);
             themeToggleBtn.addEventListener('click', () => {
                 body.classList.toggle('dark-theme');
                 localStorage.setItem('theme', body.classList.contains('dark-theme') ? 'dark' : 'light');
@@ -1650,7 +1815,6 @@
             window.addEventListener('click', e => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; });
             
             employeeForm.addEventListener('submit', handleEmployeeFormSubmit);
-            importForm.addEventListener('submit', handleImportFormSubmit);
             payrollForm.addEventListener('submit', handlePayrollFormSubmit);
             transactionForm.addEventListener('submit', handleTransactionFormSubmit);
             reportForm.addEventListener('submit', handleReportFormSubmit);
@@ -1698,26 +1862,6 @@
             }
             closeEmployeeModal();
             updateUI();
-        }
-
-        function handleImportFormSubmit(e) {
-            e.preventDefault();
-            const file = document.getElementById('csv-file').files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = e => {
-                const imported = parseCSV(e.target.result);
-                employees = imported.map(emp => {
-                    const { salary, totalCost } = calculateTotalCost(emp);
-                    emp['Salary'] = salary.toFixed(2);
-                    emp['Total Cost to Company'] = totalCost.toFixed(2);
-                    return emp;
-                });
-                mockTransactionLog = [];
-                closeImportModal();
-                updateUI();
-            };
-            reader.readAsText(file);
         }
 
         function handlePayrollFormSubmit(e) {
@@ -1775,30 +1919,145 @@
             const formData = new FormData(reportForm);
             const reportType = formData.get('reportType');
             const department = formData.get('department');
+            const status = formData.get('status');
+            const gender = formData.get('gender');
             const startDate = parseDate(formData.get('startDate'));
             const endDate = parseDate(formData.get('endDate'));
             
-            let filteredData = employees.filter(emp => !department || emp.Department === department);
-            let columns;
+            let filteredData = employees.filter(emp => {
+                let match = true;
+                if (department) match = match && emp.Department === department;
+                if (status) match = match && emp.Status === status;
+                if (gender) match = match && emp.Gender === gender;
+                return match;
+            });
+            
+            let columns, analyticsHtml = '';
             
             if (reportType === 'joining') {
                 filteredData = filteredData.filter(emp => { const d = parseDate(emp['Date of Joining']); return (!startDate || d >= startDate) && (!endDate || d <= endDate); });
-                columns = ['ID', 'Name', 'Department', 'Position', 'Date of Joining'];
+                columns = ['ID', 'Name', 'Department', 'Position', 'Gender', 'Date of Joining', 'Status'];
+                
+                // Analytics
+                const byDept = {};
+                filteredData.forEach(emp => {
+                    const dept = emp.Department || 'Unassigned';
+                    byDept[dept] = (byDept[dept] || 0) + 1;
+                });
+                analyticsHtml = `<div style="background: var(--background-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">Analytics Summary</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                        <div><strong>Total Joiners:</strong> ${filteredData.length}</div>
+                        <div><strong>Most Hiring Dept:</strong> ${Object.entries(byDept).sort((a,b) => b[1] - a[1])[0]?.[0] || 'N/A'}</div>
+                        <div><strong>Male:</strong> ${filteredData.filter(e => e.Gender === 'Male').length}</div>
+                        <div><strong>Female:</strong> ${filteredData.filter(e => e.Gender === 'Female').length}</div>
+                    </div>
+                </div>`;
+                
             } else if (reportType === 'leaving') {
                 filteredData = filteredData.filter(emp => { const d = parseDate(emp['Date of Leaving']); return emp.Status === 'Inactive' && (!startDate || d >= startDate) && (!endDate || d <= endDate); });
-                columns = ['ID', 'Name', 'Department', 'Date of Leaving', 'Termination Reason'];
-            } else if (reportType === 'payroll') {
-                columns = ['ID', 'Name', 'Department', 'Base Salary', 'Total Cost to Company'];
-            } else if (reportType === 'contact') {
-                columns = ['ID', 'Name', 'Contact Number', 'Address', 'Emergency Phone'];
-            } else if (reportType === 'department-salary') {
-                // Filter only active employees for department salary report
-                filteredData = filteredData.filter(emp => emp.Status === 'Active');
+                columns = ['ID', 'Name', 'Department', 'Position', 'Date of Joining', 'Date of Leaving', 'Tenure (Years)', 'Termination Reason'];
                 
-                // Calculate total cost for percentage
+                // Calculate tenure
+                filteredData = filteredData.map(emp => {
+                    const doj = parseDate(emp['Date of Joining']);
+                    const dol = parseDate(emp['Date of Leaving']);
+                    const tenure = doj && dol ? ((dol - doj) / (365.25 * 24 * 60 * 60 * 1000)).toFixed(1) : 'N/A';
+                    return { ...emp, 'Tenure (Years)': tenure };
+                });
+                
+                // Analytics
+                const avgTenure = filteredData.reduce((sum, emp) => sum + (parseFloat(emp['Tenure (Years)']) || 0), 0) / filteredData.length;
+                analyticsHtml = `<div style="background: var(--background-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">Turnover Analytics</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                        <div><strong>Total Leavers:</strong> ${filteredData.length}</div>
+                        <div><strong>Avg Tenure:</strong> ${avgTenure.toFixed(1)} years</div>
+                        <div><strong>Voluntary:</strong> ${filteredData.filter(e => e['Termination Reason']?.includes('Resign')).length}</div>
+                        <div><strong>Involuntary:</strong> ${filteredData.filter(e => e['Termination Reason']?.includes('Termin')).length}</div>
+                    </div>
+                </div>`;
+                
+            } else if (reportType === 'payroll') {
+                filteredData = filteredData.filter(emp => emp.Status === 'Active');
+                columns = ['ID', 'Name', 'Department', 'Position', 'Base Salary', 'Travel Allowance', 'Fuel/Grocery Allowance', 'Other Allowance', 'Provident Fund', 'EOBI', 'Total Cost to Company'];
+                
+                // Analytics
+                const totalPayroll = filteredData.reduce((sum, emp) => sum + parseFloat(emp['Total Cost to Company'] || 0), 0);
+                const avgSalary = totalPayroll / filteredData.length;
+                analyticsHtml = `<div style="background: var(--background-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">Payroll Summary</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                        <div><strong>Total Employees:</strong> ${filteredData.length}</div>
+                        <div><strong>Total Payroll:</strong> PKR ${totalPayroll.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                        <div><strong>Avg Cost/Employee:</strong> PKR ${avgSalary.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                        <div><strong>Highest Paid Dept:</strong> ${(() => {
+                            const deptTotals = {};
+                            filteredData.forEach(e => {
+                                const d = e.Department || 'Unassigned';
+                                deptTotals[d] = (deptTotals[d] || 0) + parseFloat(e['Total Cost to Company'] || 0);
+                            });
+                            return Object.entries(deptTotals).sort((a,b) => b[1] - a[1])[0]?.[0] || 'N/A';
+                        })()}</div>
+                    </div>
+                </div>`;
+                
+            } else if (reportType === 'contact') {
+                columns = ['ID', 'Name', 'Department', 'Position', 'Contact Number', 'Email', 'Address', 'Emergency Phone'];
+                
+            } else if (reportType === 'employee-status') {
+                columns = ['ID', 'Name', 'Department', 'Position', 'Status', 'Work Mode', 'Leave Status'];
+                
+                // Analytics
+                const statusCount = {};
+                filteredData.forEach(emp => {
+                    const s = emp.Status || 'Unknown';
+                    statusCount[s] = (statusCount[s] || 0) + 1;
+                });
+                analyticsHtml = `<div style="background: var(--background-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">Status Distribution</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+                        ${Object.entries(statusCount).map(([status, count]) => 
+                            `<div><strong>${status}:</strong> ${count} (${((count/filteredData.length)*100).toFixed(1)}%)</div>`
+                        ).join('')}
+                    </div>
+                </div>`;
+                
+            } else if (reportType === 'tenure-analysis') {
+                filteredData = filteredData.filter(emp => emp.Status === 'Active');
+                columns = ['ID', 'Name', 'Department', 'Position', 'Date of Joining', 'Tenure (Years)', 'Tenure Category'];
+                
+                // Calculate tenure
+                const today = new Date();
+                filteredData = filteredData.map(emp => {
+                    const doj = parseDate(emp['Date of Joining']);
+                    const tenure = doj ? ((today - doj) / (365.25 * 24 * 60 * 60 * 1000)).toFixed(1) : 'N/A';
+                    let category = 'New (0-1 year)';
+                    if (tenure > 5) category = 'Veteran (5+ years)';
+                    else if (tenure > 3) category = 'Experienced (3-5 years)';
+                    else if (tenure > 1) category = 'Mid-level (1-3 years)';
+                    return { ...emp, 'Tenure (Years)': tenure, 'Tenure Category': category };
+                });
+                
+                // Analytics
+                const categories = {};
+                filteredData.forEach(emp => {
+                    const cat = emp['Tenure Category'];
+                    categories[cat] = (categories[cat] || 0) + 1;
+                });
+                analyticsHtml = `<div style="background: var(--background-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">Tenure Analysis</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                        ${Object.entries(categories).map(([cat, count]) => 
+                            `<div><strong>${cat}:</strong> ${count} employees</div>`
+                        ).join('')}
+                    </div>
+                </div>`;
+                
+            } else if (reportType === 'department-salary') {
+                filteredData = filteredData.filter(emp => emp.Status === 'Active');
                 const totalOrgCost = filteredData.reduce((sum, emp) => sum + parseFloat(emp['Total Cost to Company'] || 0), 0);
                 
-                // Enhance data with percentage calculations by department
                 const deptTotals = {};
                 filteredData.forEach(emp => {
                     const dept = emp.Department || 'Unassigned';
@@ -1817,16 +2076,205 @@
                     };
                 });
                 
-                // Sort by department, then by total cost descending
                 filteredData.sort((a, b) => {
                     if (a.Department !== b.Department) return (a.Department || 'Unassigned').localeCompare(b.Department || 'Unassigned');
                     return parseFloat(b['Total Cost to Company'] || 0) - parseFloat(a['Total Cost to Company'] || 0);
                 });
                 
-                columns = ['Department', 'Name', 'Base Salary', 'Travel Allowance', 'Fuel/Grocery Allowance', 'Other Allowance', 'Provident Fund', 'EOBI', 'Salary', 'Total Cost to Company', '% of Dept Cost', '% of Total Cost'];
+                columns = ['Department', 'Name', 'Position', 'Base Salary', 'Travel Allowance', 'Fuel/Grocery Allowance', 'Other Allowance', 'Provident Fund', 'EOBI', 'Total Cost to Company', '% of Dept Cost', '% of Total Cost'];
+                
+                // Analytics by department
+                analyticsHtml = `<div style="background: var(--background-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">Department Cost Analysis</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;">
+                        ${Object.entries(deptTotals).sort((a,b) => b[1] - a[1]).map(([dept, cost]) => 
+                            `<div><strong>${dept}:</strong> PKR ${cost.toLocaleString(undefined, {maximumFractionDigits: 0})} (${((cost/totalOrgCost)*100).toFixed(1)}%)</div>`
+                        ).join('')}
+                    </div>
+                </div>`;
+                
+            } else if (reportType === 'salary-distribution') {
+                filteredData = filteredData.filter(emp => emp.Status === 'Active');
+                columns = ['Salary Range', 'Count', 'Percentage', 'Total Cost'];
+                
+                const ranges = {
+                    'Under 50K': { min: 0, max: 50000, count: 0, cost: 0 },
+                    '50K - 100K': { min: 50000, max: 100000, count: 0, cost: 0 },
+                    '100K - 150K': { min: 100000, max: 150000, count: 0, cost: 0 },
+                    '150K - 200K': { min: 150000, max: 200000, count: 0, cost: 0 },
+                    'Over 200K': { min: 200000, max: Infinity, count: 0, cost: 0 }
+                };
+                
+                filteredData.forEach(emp => {
+                    const cost = parseFloat(emp['Total Cost to Company'] || 0);
+                    Object.values(ranges).forEach(range => {
+                        if (cost >= range.min && cost < range.max) {
+                            range.count++;
+                            range.cost += cost;
+                        }
+                    });
+                });
+                
+                const total = filteredData.length;
+                filteredData = Object.entries(ranges).map(([name, data]) => ({
+                    'Salary Range': name,
+                    'Count': data.count,
+                    'Percentage': ((data.count / total) * 100).toFixed(1) + '%',
+                    'Total Cost': 'PKR ' + data.cost.toLocaleString(undefined, {maximumFractionDigits: 0})
+                }));
+                
+            } else if (reportType === 'allowances-breakdown') {
+                filteredData = filteredData.filter(emp => emp.Status === 'Active');
+                columns = ['ID', 'Name', 'Department', 'Base Salary', 'Travel Allowance', 'Fuel/Grocery Allowance', 'Other Allowance', 'Total Allowances', '% of Base'];
+                
+                filteredData = filteredData.map(emp => {
+                    const base = parseFloat(emp['Base Salary'] || 0);
+                    const travel = parseFloat(emp['Travel Allowance'] || 0);
+                    const fuel = parseFloat(emp['Fuel/Grocery Allowance'] || 0);
+                    const other = parseFloat(emp['Other Allowance'] || 0);
+                    const totalAllowances = travel + fuel + other;
+                    const percent = base > 0 ? ((totalAllowances / base) * 100).toFixed(1) : '0.0';
+                    return { ...emp, 'Total Allowances': totalAllowances, '% of Base': percent + '%' };
+                });
+                
+            } else if (reportType === 'gender-analytics') {
+                columns = ['Department', 'Male', 'Female', 'Total', 'Female %', 'Gender Diversity Score'];
+                
+                const deptGender = {};
+                filteredData.forEach(emp => {
+                    const dept = emp.Department || 'Unassigned';
+                    if (!deptGender[dept]) deptGender[dept] = { male: 0, female: 0 };
+                    if (emp.Gender === 'Male') deptGender[dept].male++;
+                    if (emp.Gender === 'Female') deptGender[dept].female++;
+                });
+                
+                filteredData = Object.entries(deptGender).map(([dept, counts]) => {
+                    const total = counts.male + counts.female;
+                    const femalePercent = total > 0 ? ((counts.female / total) * 100).toFixed(1) : '0.0';
+                    // Diversity score: closer to 50/50 = higher score
+                    const diversityScore = total > 0 ? (100 - Math.abs(50 - parseFloat(femalePercent))).toFixed(1) : '0.0';
+                    return {
+                        'Department': dept,
+                        'Male': counts.male,
+                        'Female': counts.female,
+                        'Total': total,
+                        'Female %': femalePercent + '%',
+                        'Gender Diversity Score': diversityScore
+                    };
+                }).sort((a, b) => b.Total - a.Total);
+                
+            } else if (reportType === 'turnover-analysis') {
+                const activeEmps = employees.filter(e => e.Status === 'Active');
+                const inactiveEmps = employees.filter(e => e.Status === 'Inactive');
+                
+                columns = ['Metric', 'Value'];
+                
+                const today = new Date();
+                const lastYear = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+                const leaversLastYear = inactiveEmps.filter(emp => {
+                    const dol = parseDate(emp['Date of Leaving']);
+                    return dol && dol >= lastYear;
+                });
+                
+                const turnoverRate = activeEmps.length > 0 ? ((leaversLastYear.length / activeEmps.length) * 100).toFixed(1) : '0.0';
+                
+                filteredData = [
+                    { 'Metric': 'Current Active Employees', 'Value': activeEmps.length },
+                    { 'Metric': 'Total Inactive Employees', 'Value': inactiveEmps.length },
+                    { 'Metric': 'Leavers in Last 12 Months', 'Value': leaversLastYear.length },
+                    { 'Metric': 'Annual Turnover Rate', 'Value': turnoverRate + '%' },
+                    { 'Metric': 'Retention Rate', 'Value': (100 - parseFloat(turnoverRate)).toFixed(1) + '%' },
+                    { 'Metric': 'Avg Tenure of Leavers', 'Value': (() => {
+                        const avgTenure = leaversLastYear.reduce((sum, emp) => {
+                            const doj = parseDate(emp['Date of Joining']);
+                            const dol = parseDate(emp['Date of Leaving']);
+                            const tenure = doj && dol ? ((dol - doj) / (365.25 * 24 * 60 * 60 * 1000)) : 0;
+                            return sum + tenure;
+                        }, 0) / (leaversLastYear.length || 1);
+                        return avgTenure.toFixed(1) + ' years';
+                    })() }
+                ];
+                
+            } else if (reportType === 'work-mode-analysis') {
+                filteredData = filteredData.filter(emp => emp.Status === 'Active');
+                columns = ['Department', 'Office', 'WFH', 'Hybrid', 'On Leave', 'Total'];
+                
+                const deptWorkMode = {};
+                filteredData.forEach(emp => {
+                    const dept = emp.Department || 'Unassigned';
+                    if (!deptWorkMode[dept]) deptWorkMode[dept] = { office: 0, wfh: 0, hybrid: 0, leave: 0 };
+                    
+                    const workMode = emp['Work Mode'] || 'Office';
+                    const leaveStatus = emp['Leave Status'] || 'Active';
+                    
+                    if (leaveStatus !== 'Active') deptWorkMode[dept].leave++;
+                    else if (workMode === 'WFH') deptWorkMode[dept].wfh++;
+                    else if (workMode === 'Hybrid') deptWorkMode[dept].hybrid++;
+                    else deptWorkMode[dept].office++;
+                });
+                
+                filteredData = Object.entries(deptWorkMode).map(([dept, modes]) => {
+                    const total = modes.office + modes.wfh + modes.hybrid + modes.leave;
+                    return {
+                        'Department': dept,
+                        'Office': modes.office,
+                        'WFH': modes.wfh,
+                        'Hybrid': modes.hybrid,
+                        'On Leave': modes.leave,
+                        'Total': total
+                    };
+                }).sort((a, b) => b.Total - a.Total);
+                
+            } else if (reportType === 'provident-fund') {
+                filteredData = filteredData.filter(emp => emp.Status === 'Active');
+                columns = ['ID', 'Name', 'Department', 'Base Salary', 'PF Contribution', 'Monthly PF'];
+                
+                filteredData = filteredData.map(emp => {
+                    const baseSalary = parseFloat(emp['Base Salary'] || 0);
+                    const pfRate = 10; // 10% of base salary
+                    const monthlyPF = (baseSalary * pfRate / 100);
+                    return {
+                        ...emp,
+                        'PF Contribution': pfRate + '%',
+                        'Monthly PF': 'PKR ' + monthlyPF.toLocaleString(undefined, {maximumFractionDigits: 0})
+                    };
+                });
+                
+                const totalPF = filteredData.reduce((sum, emp) => {
+                    return sum + parseFloat(emp['Monthly PF'].replace('PKR ', '').replace(/,/g, ''));
+                }, 0);
+                
+                analyticsHtml = `<div style="background: var(--background-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">PF Summary</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                        <div><strong>Total Employees:</strong> ${filteredData.length}</div>
+                        <div><strong>Monthly PF Total:</strong> PKR ${totalPF.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                        <div><strong>Annual PF Total:</strong> PKR ${(totalPF * 12).toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                    </div>
+                </div>`;
+                
+            } else if (reportType === 'eobi-report') {
+                filteredData = filteredData.filter(emp => emp.Status === 'Active');
+                columns = ['ID', 'Name', 'Department', 'EOBI Contribution'];
+                
+                const eobi = 2550; // Fixed EOBI amount
+                filteredData = filteredData.map(emp => ({
+                    ...emp,
+                    'EOBI Contribution': 'PKR ' + eobi.toLocaleString()
+                }));
+                
+                analyticsHtml = `<div style="background: var(--background-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">EOBI Summary</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                        <div><strong>Total Employees:</strong> ${filteredData.length}</div>
+                        <div><strong>Monthly EOBI Total:</strong> PKR ${(eobi * filteredData.length).toLocaleString()}</div>
+                        <div><strong>Annual EOBI Total:</strong> PKR ${(eobi * filteredData.length * 12).toLocaleString()}</div>
+                    </div>
+                </div>`;
             }
+            
             mockReportData = filteredData;
-            reportOutputContent.innerHTML = generateReportTableHTML(filteredData, columns);
+            reportOutputContent.innerHTML = analyticsHtml + generateReportTableHTML(filteredData, columns);
             downloadReportBtn.style.display = filteredData.length > 0 ? 'flex' : 'none';
         }
 
