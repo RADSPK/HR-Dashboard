@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -795,6 +793,10 @@
                         <div class="metric-content"><div class="value" id="short-leave-count-filter">0</div><p>Short Leave</p></div>
                         <div class="metric-icon-container"><i class="fas fa-clock" style="color: #ffc107;"></i></div>
                     </div>
+                    <div class="card clickable-card" onclick="filterByStatus('On Leave')" style="cursor: pointer; border: 2px solid #6f42c1;">
+                        <div class="metric-content"><div class="value" id="on-leave-count-filter">0</div><p>On Leave (Other)</p></div>
+                        <div class="metric-icon-container"><i class="fas fa-calendar-times" style="color: #6f42c1;"></i></div>
+                    </div>
                     <div class="card clickable-card" onclick="filterByStatus('Inactive')" style="cursor: pointer; border: 2px solid #dc3545;">
                         <div class="metric-content"><div class="value" id="inactive-count-filter">0</div><p>Inactive</p></div>
                         <div class="metric-icon-container"><i class="fas fa-user-slash" style="color: #dc3545;"></i></div>
@@ -841,7 +843,7 @@
                 <div class="section-header"><h2>Reports & Analytics</h2></div>
                 <div class="card" style="flex-direction: column; align-items: flex-start;">
                     <h3>Generate Custom Report</h3>
-                    <form id="report-form" style="width: 100%;"><div class="form-grid"><div class="form-group"><label for="report-type">Report Type</label><select id="report-type" name="reportType" required><option value="">Select Report Type...</option><optgroup label="Employee Reports"><option value="joining">New Joinings Report</option><option value="leaving">Leaving/Termination Report</option><option value="contact">Complete Employee Directory</option><option value="employee-status">Employee Status Analysis</option><option value="tenure-analysis">Employee Tenure Analysis</option></optgroup><optgroup label="Financial Reports"><option value="payroll">Detailed Payroll Report</option><option value="department-salary">Department-wise Salary Breakdown</option><option value="salary-distribution">Salary Range Distribution</option><option value="allowances-breakdown">Allowances & Benefits Breakdown</option><option value="cost-center-analysis">Cost Center Analysis</option></optgroup><optgroup label="Analytical Reports"><option value="gender-analytics">Gender Distribution Analytics</option><option value="turnover-analysis">Turnover & Retention Analysis</option><option value="headcount-trends">Headcount Trends Report</option><option value="department-comparison">Department Performance Comparison</option><option value="work-mode-analysis">Work Mode & Leave Analysis</option><option value="recruitment-efficiency">Recruitment Efficiency Report</option></optgroup><optgroup label="Compliance Reports"><option value="provident-fund">Provident Fund Report</option><option value="eobi-report">EOBI Contribution Report</option><option value="tax-summary">Tax Deduction Summary</option></optgroup></select></div><div class="form-group"><label for="report-start-date">Start Date (Optional)</label><input type="date" id="report-start-date" name="startDate"></div><div class="form-group"><label for="report-end-date">End Date (Optional)</label><input type="date" id="report-end-date" name="endDate"></div><div class="form-group"><label for="report-department">Department Filter</label><select id="report-department" name="department"><option value="">All Departments</option></select></div><div class="form-group"><label for="report-status">Status Filter</label><select id="report-status" name="status"><option value="">All Statuses</option><option value="Active">Active Only</option><option value="Inactive">Inactive Only</option><option value="WFH">WFH Only</option><option value="On Leave">On Leave</option></select></div><div class="form-group"><label for="report-gender">Gender Filter</label><select id="report-gender" name="gender"><option value="">All</option><option value="Male">Male</option><option value="Female">Female</option></select></div></div><button type="submit" style="margin-top: 10px;">Generate Report</button></form>
+                    <form id="report-form" style="width: 100%;"><div class="form-grid"><div class="form-group"><label for="report-type">Report Type</label><select id="report-type" name="reportType" required><option value="">Select Report Type...</option><optgroup label="Employee Reports"><option value="joining">New Joinings Report</option><option value="leaving">Leaving/Termination Report</option><option value="contact">Complete Employee Directory</option><option value="employee-status">Employee Status Analysis</option><option value="tenure-analysis">Employee Tenure Analysis</option><option value="staff-type-breakdown">Staff Type Breakdown (Regular/Project/Core)</option><option value="employment-type-report">Employment Type Report</option><option value="fixed-term-staff">Fixed Term Staff Report</option></optgroup><optgroup label="Financial Reports"><option value="payroll">Detailed Payroll Report</option><option value="department-salary">Department-wise Salary Breakdown</option><option value="salary-distribution">Salary Range Distribution</option><option value="allowances-breakdown">Allowances & Benefits Breakdown</option><option value="cost-center-analysis">Cost Center Analysis</option></optgroup><optgroup label="Analytical Reports"><option value="gender-analytics">Gender Distribution Analytics</option><option value="turnover-analysis">Turnover & Retention Analysis</option><option value="headcount-trends">Headcount Trends Report</option><option value="department-comparison">Department Performance Comparison</option><option value="work-mode-analysis">Work Mode & Leave Analysis</option><option value="recruitment-efficiency">Recruitment Efficiency Report</option></optgroup><optgroup label="Compliance Reports"><option value="provident-fund">Provident Fund Report</option><option value="eobi-report">EOBI Contribution Report</option><option value="tax-summary">Tax Deduction Summary</option></optgroup></select></div><div class="form-group"><label for="report-start-date">Start Date (Optional)</label><input type="date" id="report-start-date" name="startDate"></div><div class="form-group"><label for="report-end-date">End Date (Optional)</label><input type="date" id="report-end-date" name="endDate"></div><div class="form-group"><label for="report-department">Department Filter</label><select id="report-department" name="department"><option value="">All Departments</option></select></div><div class="form-group"><label for="report-status">Status Filter</label><select id="report-status" name="status"><option value="">All Statuses</option><option value="Active">Active Only</option><option value="Inactive">Inactive Only</option><option value="WFH">WFH Only</option><option value="On Leave">On Leave</option></select></div><div class="form-group"><label for="report-gender">Gender Filter</label><select id="report-gender" name="gender"><option value="">All</option><option value="Male">Male</option><option value="Female">Female</option></select></div></div><button type="submit" style="margin-top: 10px;">Generate Report</button></form>
                 </div>
                 <div class="card" style="margin-top: 20px; flex-direction: column; align-items: flex-start;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px;"><h3>Report Output & Analytics</h3><button class="action-buttons primary" id="download-report-btn" style="display: none; padding: 6px 12px;" onclick="downloadReport()"><i class="fas fa-download"></i> Download CSV</button></div><div id="report-output-content" style="width: 100%; min-height: 100px;"><p style="color: var(--secondary-color);">Select a report type and click "Generate Report" to view detailed analytics.</p></div></div>
             </section>
@@ -1767,6 +1769,7 @@
             document.getElementById('wfh-count-filter').textContent = employees.filter(e => e.Status === 'WFH' || e.Status === 'Work From Home').length;
             document.getElementById('annual-leave-count-filter').textContent = employees.filter(e => e.Status === 'Annual Leave').length;
             document.getElementById('short-leave-count-filter').textContent = employees.filter(e => e.Status === 'Short Leave').length;
+            document.getElementById('on-leave-count-filter').textContent = employees.filter(e => e.Status === 'On Leave' || e.Status === 'On-Leave').length;
             document.getElementById('inactive-count-filter').textContent = employees.filter(e => e.Status === 'Inactive').length;
             
             renderTable(employeesTableBody, filtered, ['Name', 'Department', 'Position', 'Status', 'Actions']);
@@ -2433,6 +2436,86 @@
                         <div><strong>Total Employees:</strong> ${filteredData.length}</div>
                         <div><strong>Monthly EOBI Total:</strong> PKR ${(eobi * filteredData.length).toLocaleString()}</div>
                         <div><strong>Annual EOBI Total:</strong> PKR ${(eobi * filteredData.length * 12).toLocaleString()}</div>
+                    </div>
+                </div>`;
+                
+            } else if (reportType === 'staff-type-breakdown') {
+                columns = ['Employment Type', 'Count', 'Percentage', 'Total Monthly Cost'];
+                
+                const empTypes = {};
+                filteredData.forEach(emp => {
+                    const type = emp['Employment Type'] || emp['Position Type'] || 'Unspecified';
+                    if (!empTypes[type]) empTypes[type] = { count: 0, totalCost: 0 };
+                    empTypes[type].count++;
+                    empTypes[type].totalCost += parseFloat(emp['Total Cost to Company'] || 0);
+                });
+                
+                const total = filteredData.length;
+                const totalCost = Object.values(empTypes).reduce((sum, type) => sum + type.totalCost, 0);
+                
+                filteredData = Object.entries(empTypes).map(([type, data]) => ({
+                    'Employment Type': type,
+                    'Count': data.count,
+                    'Percentage': ((data.count / total) * 100).toFixed(1) + '%',
+                    'Total Monthly Cost': 'PKR ' + data.totalCost.toLocaleString(undefined, {maximumFractionDigits: 0})
+                })).sort((a, b) => parseInt(b.Count) - parseInt(a.Count));
+                
+                analyticsHtml = `<div style="background: var(--background-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">Staff Type Analysis</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                        <div><strong>Total Employees:</strong> ${total}</div>
+                        <div><strong>Total Monthly Cost:</strong> PKR ${totalCost.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                        <div><strong>Staff Categories:</strong> ${Object.keys(empTypes).length}</div>
+                    </div>
+                </div>`;
+                
+            } else if (reportType === 'employment-type-report') {
+                filteredData = filteredData.filter(emp => emp.Status !== 'Inactive');
+                columns = ['ID', 'Name', 'Department', 'Position', 'Employment Type', 'Position Type', 'Base Salary', 'Total Cost to Company'];
+                
+                const typeBreakdown = {};
+                filteredData.forEach(emp => {
+                    const type = emp['Employment Type'] || 'Not Specified';
+                    typeBreakdown[type] = (typeBreakdown[type] || 0) + 1;
+                });
+                
+                analyticsHtml = `<div style="background: var(--background-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">Employment Type Summary</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                        ${Object.entries(typeBreakdown).sort((a,b) => b[1] - a[1]).map(([type, count]) => 
+                            `<div><strong>${type}:</strong> ${count} employees</div>`
+                        ).join('')}
+                    </div>
+                </div>`;
+                
+            } else if (reportType === 'fixed-term-staff') {
+                // Filter for contractual/fixed term staff
+                filteredData = filteredData.filter(emp => 
+                    emp['Employment Type'] === 'Contractual' || 
+                    emp['Employment Type'] === 'Fixed Term' ||
+                    emp['Position Type'] === 'Fixed Term'
+                );
+                columns = ['ID', 'Name', 'Department', 'Position', 'Employment Type', 'Date of Joining', 'Contract Duration (Months)', 'Base Salary'];
+                
+                filteredData = filteredData.map(emp => {
+                    const doj = parseDate(emp['Date of Joining']);
+                    const today = new Date();
+                    const months = doj ? Math.floor((today - doj) / (30.44 * 24 * 60 * 60 * 1000)) : 0;
+                    return {
+                        ...emp,
+                        'Contract Duration (Months)': months
+                    };
+                });
+                
+                const avgSalary = filteredData.length > 0 ? 
+                    filteredData.reduce((sum, emp) => sum + parseFloat(emp['Base Salary'] || 0), 0) / filteredData.length : 0;
+                
+                analyticsHtml = `<div style="background: var(--background-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">Fixed Term Staff Summary</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                        <div><strong>Total Fixed Term Staff:</strong> ${filteredData.length}</div>
+                        <div><strong>Average Base Salary:</strong> PKR ${avgSalary.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                        <div><strong>Longest Contract:</strong> ${Math.max(...filteredData.map(e => e['Contract Duration (Months)'] || 0))} months</div>
                     </div>
                 </div>`;
             }
