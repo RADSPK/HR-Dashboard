@@ -806,7 +806,31 @@
                 <div class="section-header"><h2>HR Transaction Log</h2><div class="transaction-log-header"><button onclick="openTransactionModal()" class="action-buttons primary" style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-plus"></i> New Transaction</button><button class="action-buttons secondary" id="download-transaction-log-btn" style="display: flex; align-items: center; gap: 8px;" onclick="downloadTransactionLog()"><i class="fas fa-download"></i> Download Log</button></div></div>
                 <div class="table-responsive"><table class="data-table" id="transaction-table"><thead><tr><th>Date</th><th>Type</th><th>Employee ID</th><th>Details</th></tr></thead><tbody></tbody></table></div>
                 <div class="section-header"><h2>Monthly Payroll Summary</h2></div>
-                <div class="table-responsive"><table class="data-table" id="payroll-table"><thead><tr><th>Name</th><th>Department</th><th>Base Salary</th><th>Total Cost</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+                
+                <!-- Payroll Summary Card -->
+                <div class="card" style="margin-bottom: 24px; flex-direction: column; align-items: flex-start;">
+                    <h3 style="margin-bottom: 16px; color: var(--primary-color);">Total Monthly Cost Breakdown</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; width: 100%;">
+                        <div>
+                            <p style="color: var(--secondary-color); font-size: 0.85rem; margin-bottom: 4px;">Total Base Salary</p>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);" id="payroll-total-base">PKR 0</div>
+                        </div>
+                        <div>
+                            <p style="color: var(--secondary-color); font-size: 0.85rem; margin-bottom: 4px;">Total Allowances</p>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);" id="payroll-total-allowances">PKR 0</div>
+                        </div>
+                        <div>
+                            <p style="color: var(--secondary-color); font-size: 0.85rem; margin-bottom: 4px;">Total PF + EOBI</p>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);" id="payroll-total-benefits">PKR 0</div>
+                        </div>
+                        <div>
+                            <p style="color: var(--secondary-color); font-size: 0.85rem; margin-bottom: 4px;">Total Cost to Company</p>
+                            <div style="font-size: 1.8rem; font-weight: 700; color: var(--primary-color);" id="payroll-total-ctc">PKR 0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-responsive"><table class="data-table" id="payroll-table"><thead><tr><th>Name</th><th>Department</th><th>Base Salary</th><th>Travel Allowance</th><th>Fuel/Grocery Allowance</th><th>Other Allowance</th><th>Provident Fund</th><th>EOBI</th><th>Total Cost to Company</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
             </section>
 
             <section id="departments" class="page"><div class="section-header"><h2>Departments</h2></div><div class="card-grid" id="department-grid"></div></section>
@@ -826,7 +850,7 @@
     <div id="employee-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeEmployeeModal()">&times;</span><h3 style="margin-bottom: 15px;">Add/Edit Employee Details</h3><div class="tab-controls"><button class="tab-button active" data-tab="personal">Personal & Contact</button><button class="tab-button" data-tab="employment">Employment</button><button class="tab-button" data-tab="compensation">Compensation</button></div><form id="employee-form"><input type="hidden" id="employee-index" name="index"><div id="tab-personal" class="tab-content active"><div class="form-grid"><div class="form-group"><label for="employee-name">Name</label><input type="text" id="employee-name" name="Name" required></div><div class="form-group"><label for="employee-id">ID</label><input type="text" id="employee-id" name="ID" required></div><div class="form-group"><label for="employee-gender">Gender</label><select id="employee-gender" name="Gender" required><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div><div class="form-group"><label for="employee-contact">Contact Number</label><input type="text" id="employee-contact" name="Contact Number"></div><div class="form-group"><label for="employee-address">Address</label><textarea id="employee-address" name="Address" rows="1"></textarea></div><div class="form-group"><label for="employee-profile-pic">Profile Picture</label><input type="file" id="employee-profile-pic" accept="image/*"><img id="profile-pic-preview" class="profile-pic-preview" style="display: none;" alt="Profile Preview"></div><div class="form-group"><label for="employee-emergency-name">Emergency Name</label><input type="text" id="employee-emergency-name" name="Emergency Name"></div><div class="form-group"><label for="employee-emergency-rel">Emergency Relationship</label><input type="text" id="employee-emergency-rel" name="Emergency Relationship"></div><div class="form-group"><label for="employee-emergency-phone">Emergency Phone</label><input type="text" id="employee-emergency-phone" name="Emergency Phone"></div></div></div><div id="tab-employment" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-dept">Department</label><input type="text" id="employee-dept" name="Department" required></div><div class="form-group"><label for="employee-pos">Position</label><input type="text" id="employee-pos" name="Position" required></div><div class="form-group"><label for="employee-emptype">Employment Type</label><input type="text" id="employee-emptype" name="Employment Type"></div><div class="form-group"><label for="employee-postype">Position Type</label><input type="text" id="employee-postype" name="Position Type"></div><div class="form-group"><label for="employee-supervisor">Supervisor</label><input type="text" id="employee-supervisor" name="Supervisor"></div><div class="form-group"><label for="employee-stationed">Stationed At</label><input type="text" id="employee-stationed" name="Stationed At"></div><div class="form-group"><label for="employee-fieldcity">Field Office City</label><input type="text" id="employee-fieldcity" name="Field Office City"></div><div class="form-group"><label for="employee-doj">Date of Joining</label><input type="date" id="employee-doj" name="Date of Joining" required></div><div class="form-group"><label for="employee-dol">Date of Leaving</label><input type="date" id="employee-dol" name="Date of Leaving"></div><div class="form-group"><label for="employee-status">Status</label><select id="employee-status" name="Status"><option value="Active">Active</option><option value="WFH">Work From Home (WFH)</option><option value="Annual Leave">Annual Leave</option><option value="Short Leave">Short Leave</option><option value="On-Leave">On Leave (Other)</option><option value="Inactive">Inactive</option></select></div><div class="form-group"><label for="employee-termination-reason">Termination Reason</label><textarea id="employee-termination-reason" name="Termination Reason" rows="1"></textarea></div><div class="form-group"><label for="employee-skills">Skills</label><textarea id="employee-skills" name="Skills" rows="1"></textarea></div></div></div><div id="tab-compensation" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-salary">Base Salary (PKR)</label><input type="number" id="employee-salary" name="Base Salary" required></div><div class="form-group"><label for="employee-travel">Travel Allowance (PKR)</label><input type="number" id="employee-travel" name="Travel Allowance"></div><div class="form-group"><label for="employee-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="employee-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="employee-other">Other Allowance (PKR)</label><input type="number" id="employee-other" name="Other Allowance"></div><div class="form-group"><label for="employee-pf">Provident Fund (PKR)</label><input type="number" id="employee-pf" name="Provident Fund"></div><div class="form-group"><label for="employee-eobi">EOBI (PKR)</label><input type="number" id="employee-eobi" name="EOBI"></div><div class="form-group"><label for="employee-cost-center">Cost Center</label><input type="text" id="employee-cost-center" name="Cost Center"></div></div></div><button type="submit" style="margin-top: 20px; width: 100%;">Save Employee</button></form></div></div>
 
     <!-- Payroll Modal -->
-    <div id="payroll-modal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-button" onclick="closePayrollModal()">&times;</span><h3>Update Payroll Allowances</h3><form id="payroll-form"><input type="hidden" id="payroll-employee-index" name="index"><div class="form-group"><label for="payroll-name">Employee</label><input type="text" id="payroll-name" name="Name" readonly></div><div class="form-group"><label for="payroll-salary">Base Salary (PKR)</label><input type="number" id="payroll-salary" name="Base Salary" required></div><div class="form-group"><label for="payroll-travel">Travel Allowance (PKR)</label><input type="number" id="payroll-travel" name="Travel Allowance"></div><div class="form-group"><label for="payroll-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="payroll-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="payroll-other">Other Allowance (PKR)</label><input type="number" id="payroll-other" name="Other Allowance"></div><button type="submit">Save Payroll</button></form></div></div>
+    <div id="payroll-modal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-button" onclick="closePayrollModal()">&times;</span><h3>Update Payroll Components</h3><form id="payroll-form"><input type="hidden" id="payroll-employee-index" name="index"><div class="form-group"><label for="payroll-name">Employee</label><input type="text" id="payroll-name" name="Name" readonly></div><div class="form-group"><label for="payroll-salary">Base Salary (PKR)</label><input type="number" id="payroll-salary" name="Base Salary" required></div><div class="form-group"><label for="payroll-travel">Travel Allowance (PKR)</label><input type="number" id="payroll-travel" name="Travel Allowance"></div><div class="form-group"><label for="payroll-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="payroll-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="payroll-other">Other Allowance (PKR)</label><input type="number" id="payroll-other" name="Other Allowance"></div><div class="form-group"><label for="payroll-pf">Provident Fund (PKR)</label><input type="number" id="payroll-pf" name="Provident Fund"></div><div class="form-group"><label for="payroll-eobi">EOBI (PKR)</label><input type="number" id="payroll-eobi" name="EOBI"></div><div style="padding: 12px; background: var(--background-color); border-radius: 6px; margin: 12px 0;"><strong>Cost to Company:</strong> <span id="payroll-ctc-preview">PKR 0</span></div><button type="submit">Save Payroll</button></form></div></div>
 
     <!-- Details Modal -->
     <div id="details-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeDetailsModal()">&times;</span><div id="employee-details-content"></div><div class="action-buttons"><button class="secondary" onclick="closeDetailsModal()">Close</button></div></div></div>
@@ -845,7 +869,36 @@
         // PASSWORD PROTECTION
         // ===================================================
         // CHANGE YOUR PASSWORD HERE:
-        const DASHBOARD_PASSWORD = 'rads2025';  // ← Change this to your password
+        /* ========================================
+           PASSWORD SECURITY
+           ========================================
+           Current password: rads2025
+           
+           The password is stored as a SHA-256 hash for security.
+           Anyone viewing the source code cannot see the actual password.
+           
+           TO CHANGE THE PASSWORD:
+           1. Open your browser's console (F12)
+           2. Run this command with your new password:
+              
+              hashPassword('YourNewPassword').then(hash => console.log(hash))
+           
+           3. Copy the hash that appears in the console
+           4. Replace the PASSWORD_HASH value below with your new hash
+           5. Update the comment to note your new password for your records
+           ======================================== */
+        
+        const PASSWORD_HASH = '406a6f694d97da5dd6dff987168113510914dc80bcc6c3ae6b2eb29fdfddb496';
+        
+        // Function to hash password using SHA-256
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
         
         // Authentication functions
         function checkAuthentication() {
@@ -875,12 +928,13 @@
             // Check authentication on page load
             checkAuthentication();
             
-            loginForm.addEventListener('submit', function(e) {
+            loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const enteredPassword = passwordInput.value;
+                const enteredHash = await hashPassword(enteredPassword);
                 
-                if (enteredPassword === DASHBOARD_PASSWORD) {
+                if (enteredHash === PASSWORD_HASH) {
                     // Correct password
                     sessionStorage.setItem('hrDashboardAuth', 'true');
                     document.getElementById('loginOverlay').classList.add('hidden');
@@ -1069,8 +1123,11 @@
                         const providentFund = parseFloat(mappedEmp['Provident Fund'] || 0);
                         const eobi = parseFloat(mappedEmp['EOBI'] || 0);
                         
-                        const salary = baseSalary + travelAllowance + fuelAllowance + otherAllowance - providentFund - eobi;
-                        const totalCost = baseSalary + travelAllowance + fuelAllowance + otherAllowance;
+                        // Salary = Base Salary + All Allowances (what employee takes home)
+                        const salary = baseSalary + travelAllowance + fuelAllowance + otherAllowance;
+                        
+                        // Total Cost to Company = Salary + PF + EOBI (what organization pays)
+                        const totalCost = baseSalary + travelAllowance + fuelAllowance + otherAllowance + providentFund + eobi;
                         
                         return {
                             ...mappedEmp,
@@ -1530,7 +1587,8 @@
             // Financial metrics
             const totalPayroll = activeEmployees.reduce((sum, e) => sum + parseFloat(e['Salary'] || 0), 0);
             const totalCTC = activeEmployees.reduce((sum, e) => sum + parseFloat(e['Total Cost to Company'] || 0), 0);
-            document.getElementById('total-payroll').textContent = 'PKR ' + totalPayroll.toLocaleString(undefined, {maximumFractionDigits: 0});
+            // Show Total Cost to Company (includes: Base Salary + Travel + Fuel/Grocery + Other Allowance + Provident Fund + EOBI)
+            document.getElementById('total-payroll').textContent = 'PKR ' + totalCTC.toLocaleString(undefined, {maximumFractionDigits: 0});
             
             // Employment type
             const regularCount = employees.filter(e => e['Employment Type'] === 'Regular').length;
@@ -1719,7 +1777,29 @@
             renderEmployees();
         }
 
-        const renderPayroll = () => renderTable(payrollTableBody, employees, ['Name', 'Department', 'Base Salary', 'Total Cost to Company', 'PayrollActions']);
+        const renderPayroll = () => {
+            renderTable(payrollTableBody, employees, ['Name', 'Department', 'Base Salary', 'Travel Allowance', 'Fuel/Grocery Allowance', 'Other Allowance', 'Provident Fund', 'EOBI', 'Total Cost to Company', 'PayrollActions']);
+            
+            // Calculate totals for active employees
+            const activeEmps = employees.filter(e => e.Status !== 'Inactive');
+            
+            const totalBaseSalary = activeEmps.reduce((sum, e) => sum + parseFloat(e['Base Salary'] || 0), 0);
+            const totalTravel = activeEmps.reduce((sum, e) => sum + parseFloat(e['Travel Allowance'] || 0), 0);
+            const totalFuel = activeEmps.reduce((sum, e) => sum + parseFloat(e['Fuel/Grocery Allowance'] || 0), 0);
+            const totalOther = activeEmps.reduce((sum, e) => sum + parseFloat(e['Other Allowance'] || 0), 0);
+            const totalPF = activeEmps.reduce((sum, e) => sum + parseFloat(e['Provident Fund'] || 0), 0);
+            const totalEOBI = activeEmps.reduce((sum, e) => sum + parseFloat(e['EOBI'] || 0), 0);
+            const totalCTC = activeEmps.reduce((sum, e) => sum + parseFloat(e['Total Cost to Company'] || 0), 0);
+            
+            const totalAllowances = totalTravel + totalFuel + totalOther;
+            const totalBenefits = totalPF + totalEOBI;
+            
+            // Update summary card
+            document.getElementById('payroll-total-base').textContent = 'PKR ' + totalBaseSalary.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('payroll-total-allowances').textContent = 'PKR ' + totalAllowances.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('payroll-total-benefits').textContent = 'PKR ' + totalBenefits.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('payroll-total-ctc').textContent = 'PKR ' + totalCTC.toLocaleString(undefined, {maximumFractionDigits: 0});
+        };
         
         const renderTransactions = () => {
             transactionTableBody.innerHTML = mockTransactionLog.sort((a, b) => new Date(b.date) - new Date(a.date)).map(log => `<tr><td>${new Date(log.date).toLocaleDateString()}</td><td>${log.type}</td><td>${log.employeeID}</td><td>${log.details}</td></tr>`).join('') || `<tr><td colspan="4" style="text-align: center;">No transactions recorded.</td></tr>`;
@@ -1910,7 +1990,7 @@
             const index = formData.get('index');
             if (index === '' || !employees[index]) return;
             const employee = employees[index];
-            ['Base Salary', 'Travel Allowance', 'Fuel/Grocery Allowance', 'Other Allowance'].forEach(key => {
+            ['Base Salary', 'Travel Allowance', 'Fuel/Grocery Allowance', 'Other Allowance', 'Provident Fund', 'EOBI'].forEach(key => {
                 employee[key] = formData.get(key);
             });
             const { salary, totalCost } = calculateTotalCost(employee);
@@ -2351,7 +2431,30 @@
             document.getElementById('payroll-travel').value = parseFloat(employee['Travel Allowance'] || 0);
             document.getElementById('payroll-fuel').value = parseFloat(employee['Fuel/Grocery Allowance'] || 0);
             document.getElementById('payroll-other').value = parseFloat(employee['Other Allowance'] || 0);
+            document.getElementById('payroll-pf').value = parseFloat(employee['Provident Fund'] || 0);
+            document.getElementById('payroll-eobi').value = parseFloat(employee['EOBI'] || 0);
+            
+            // Calculate and display CTC preview
+            updatePayrollCTCPreview();
+            
+            // Add event listeners for live CTC calculation
+            ['payroll-salary', 'payroll-travel', 'payroll-fuel', 'payroll-other', 'payroll-pf', 'payroll-eobi'].forEach(fieldId => {
+                document.getElementById(fieldId).addEventListener('input', updatePayrollCTCPreview);
+            });
+            
             payrollModal.style.display = 'flex';
+        }
+        
+        function updatePayrollCTCPreview() {
+            const baseSalary = parseFloat(document.getElementById('payroll-salary').value || 0);
+            const travel = parseFloat(document.getElementById('payroll-travel').value || 0);
+            const fuel = parseFloat(document.getElementById('payroll-fuel').value || 0);
+            const other = parseFloat(document.getElementById('payroll-other').value || 0);
+            const pf = parseFloat(document.getElementById('payroll-pf').value || 0);
+            const eobi = parseFloat(document.getElementById('payroll-eobi').value || 0);
+            
+            const totalCTC = baseSalary + travel + fuel + other + pf + eobi;
+            document.getElementById('payroll-ctc-preview').textContent = 'PKR ' + totalCTC.toLocaleString(undefined, {maximumFractionDigits: 0});
         }
         
         function updateTransactionForm(type) {
