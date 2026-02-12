@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -623,10 +624,10 @@
 </head>
 <body>
     <!-- Password Protection Overlay -->
-    <div class="login-overlay" id="loginOverlay">
+    <div class="login-overlay hidden" id="loginOverlay">
         <div class="login-box">
             <h1>🔐 HR Dashboard</h1>
-            <p>Research & Development Solutions</p>
+            <p>RESEARCH & DEVELOPMENT SOLUTIONS</p>
             <form class="login-form" id="loginForm">
                 <input 
                     type="password" 
@@ -650,7 +651,7 @@
     <div class="dashboard-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <h2><strong style="font-weight: 800;">RESEARCH & DEVELOPMENT SOLUTIONS</strong><br><br>HR Dashboard</h2>
+            <h2><strong style="font-weight: 800;">AKHTER HAMEED KHAN FOUNDATION</strong><br><br>HR Dashboard</h2>
             <nav>
                 <a href="#dashboard" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i><span>Dashboard</span></a>
                 <a href="#employees" class="nav-link" data-page="employees"><i class="fas fa-users"></i><span>Employees</span></a>
@@ -735,6 +736,17 @@
                     <div class="card clickable-card" onclick="showMetricDetails('employees-short-leave')"><div class="metric-content"><div class="value" id="employees-short-leave">0</div><p>Short Leave</p></div><div class="metric-icon-container"><i class="fas fa-clock"></i></div></div>
                     <div class="card clickable-card" onclick="showMetricDetails('employees-on-leave')"><div class="metric-content"><div class="value" id="employees-on-leave">0</div><p>On Leave (Other)</p></div><div class="metric-icon-container"><i class="fas fa-calendar-times"></i></div></div>
                     <div class="card clickable-card" onclick="showMetricDetails('employees-inactive')"><div class="metric-content"><div class="value" id="employees-inactive">0</div><p>Inactive</p></div><div class="metric-icon-container"><i class="fas fa-user-slash"></i></div></div>
+                </div>
+
+                
+                <h2 style="margin: 24px 0 16px 0; font-size: 1.3rem; color: var(--secondary-color);">🎂 Birthday Calendar - <span id="birthday-month-name"></span></h2>
+                <div class="card" style="padding: 24px;">
+                    <div id="birthday-calendar" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 16px;">
+                        <!-- Calendar will be generated here -->
+                    </div>
+                    <div id="birthday-list" style="margin-top: 20px;">
+                        <!-- Birthday list will be generated here -->
+                    </div>
                 </div>
 
                 <h2 style="margin: 24px 0 16px 0; font-size: 1.3rem; color: var(--secondary-color);">Department Analytics</h2>
@@ -847,7 +859,7 @@
     </div>
 
     <!-- Employee Modal -->
-    <div id="employee-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeEmployeeModal()">&times;</span><h3 style="margin-bottom: 15px;">Add/Edit Employee Details</h3><div class="tab-controls"><button class="tab-button active" data-tab="personal">Personal & Contact</button><button class="tab-button" data-tab="employment">Employment</button><button class="tab-button" data-tab="compensation">Compensation</button></div><form id="employee-form"><input type="hidden" id="employee-index" name="index"><div id="tab-personal" class="tab-content active"><div class="form-grid"><div class="form-group"><label for="employee-name">Name</label><input type="text" id="employee-name" name="Name" required></div><div class="form-group"><label for="employee-id">ID</label><input type="text" id="employee-id" name="ID" required></div><div class="form-group"><label for="employee-gender">Gender</label><select id="employee-gender" name="Gender" required><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div><div class="form-group"><label for="employee-contact">Contact Number</label><input type="text" id="employee-contact" name="Contact Number"></div><div class="form-group"><label for="employee-address">Address</label><textarea id="employee-address" name="Address" rows="1"></textarea></div><div class="form-group"><label for="employee-profile-pic">Profile Picture</label><input type="file" id="employee-profile-pic" accept="image/*"><img id="profile-pic-preview" class="profile-pic-preview" style="display: none;" alt="Profile Preview"></div><div class="form-group"><label for="employee-emergency-name">Emergency Name</label><input type="text" id="employee-emergency-name" name="Emergency Name"></div><div class="form-group"><label for="employee-emergency-rel">Emergency Relationship</label><input type="text" id="employee-emergency-rel" name="Emergency Relationship"></div><div class="form-group"><label for="employee-emergency-phone">Emergency Phone</label><input type="text" id="employee-emergency-phone" name="Emergency Phone"></div></div></div><div id="tab-employment" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-dept">Department</label><input type="text" id="employee-dept" name="Department" required></div><div class="form-group"><label for="employee-pos">Position</label><input type="text" id="employee-pos" name="Position" required></div><div class="form-group"><label for="employee-emptype">Employment Type</label><input type="text" id="employee-emptype" name="Employment Type"></div><div class="form-group"><label for="employee-postype">Position Type</label><input type="text" id="employee-postype" name="Position Type"></div><div class="form-group"><label for="employee-supervisor">Supervisor</label><input type="text" id="employee-supervisor" name="Supervisor"></div><div class="form-group"><label for="employee-stationed">Stationed At</label><input type="text" id="employee-stationed" name="Stationed At"></div><div class="form-group"><label for="employee-fieldcity">Field Office City</label><input type="text" id="employee-fieldcity" name="Field Office City"></div><div class="form-group"><label for="employee-doj">Date of Joining</label><input type="date" id="employee-doj" name="Date of Joining" required></div><div class="form-group"><label for="employee-dol">Date of Leaving</label><input type="date" id="employee-dol" name="Date of Leaving"></div><div class="form-group"><label for="employee-status">Status</label><select id="employee-status" name="Status"><option value="Active">Active</option><option value="WFH">Work From Home (WFH)</option><option value="Annual Leave">Annual Leave</option><option value="Short Leave">Short Leave</option><option value="On Leave">On Leave (Other)</option><option value="Inactive">Inactive</option></select></div><div class="form-group"><label for="employee-termination-reason">Termination Reason</label><textarea id="employee-termination-reason" name="Termination Reason" rows="1"></textarea></div><div class="form-group"><label for="employee-skills">Skills</label><textarea id="employee-skills" name="Skills" rows="1"></textarea></div></div></div><div id="tab-compensation" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-salary">Base Salary (PKR)</label><input type="number" id="employee-salary" name="Base Salary" required></div><div class="form-group"><label for="employee-travel">Travel Allowance (PKR)</label><input type="number" id="employee-travel" name="Travel Allowance"></div><div class="form-group"><label for="employee-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="employee-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="employee-other">Other Allowance (PKR)</label><input type="number" id="employee-other" name="Other Allowance"></div><div class="form-group"><label for="employee-pf">Provident Fund (PKR)</label><input type="number" id="employee-pf" name="Provident Fund"></div><div class="form-group"><label for="employee-eobi">EOBI (PKR)</label><input type="number" id="employee-eobi" name="EOBI"></div><div class="form-group"><label for="employee-cost-center">Cost Center</label><input type="text" id="employee-cost-center" name="Cost Center"></div></div></div><button type="submit" style="margin-top: 20px; width: 100%;">Save Employee</button></form></div></div>
+    <div id="employee-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeEmployeeModal()">&times;</span><h3 style="margin-bottom: 15px;">Add/Edit Employee Details</h3><div class="tab-controls"><button class="tab-button active" data-tab="personal">Personal & Contact</button><button class="tab-button" data-tab="employment">Employment</button><button class="tab-button" data-tab="compensation">Compensation</button></div><form id="employee-form"><input type="hidden" id="employee-index" name="index"><div id="tab-personal" class="tab-content active"><div class="form-grid"><div class="form-group"><label for="employee-name">Name</label><input type="text" id="employee-name" name="Name" required></div><div class="form-group"><label for="employee-id">ID</label><input type="text" id="employee-id" name="ID" required></div><div class="form-group"><label for="employee-gender">Gender</label><select id="employee-gender" name="Gender" required><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div><div class="form-group"><label for="employee-cnic">CNIC No.</label><input type="text" id="employee-cnic" name="CNIC No." placeholder="XXXXX-XXXXXXX-X"></div><div class="form-group"><label for="employee-dob">Date of Birth</label><input type="date" id="employee-dob" name="Date of Birth"></div><div class="form-group"><label for="employee-contact">Contact Number</label><input type="text" id="employee-contact" name="Contact Number"></div><div class="form-group"><label for="employee-address">Address</label><textarea id="employee-address" name="Address" rows="1"></textarea></div><div class="form-group"><label for="employee-profile-pic">Profile Picture</label><input type="file" id="employee-profile-pic" accept="image/*"><img id="profile-pic-preview" class="profile-pic-preview" style="display: none;" alt="Profile Preview"></div><div class="form-group"><label for="employee-emergency-name">Emergency Name</label><input type="text" id="employee-emergency-name" name="Emergency Name"></div><div class="form-group"><label for="employee-emergency-rel">Emergency Relationship</label><input type="text" id="employee-emergency-rel" name="Emergency Relationship"></div><div class="form-group"><label for="employee-emergency-phone">Emergency Phone</label><input type="text" id="employee-emergency-phone" name="Emergency Phone"></div></div></div><div id="tab-employment" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-dept">Department</label><input type="text" id="employee-dept" name="Department" required></div><div class="form-group"><label for="employee-pos">Position</label><input type="text" id="employee-pos" name="Position" required></div><div class="form-group"><label for="employee-emptype">Employment Type</label><input type="text" id="employee-emptype" name="Employment Type"></div><div class="form-group"><label for="employee-postype">Position Type</label><input type="text" id="employee-postype" name="Position Type"></div><div class="form-group"><label for="employee-supervisor">Supervisor</label><input type="text" id="employee-supervisor" name="Supervisor"></div><div class="form-group"><label for="employee-stationed">Stationed At</label><input type="text" id="employee-stationed" name="Stationed At"></div><div class="form-group"><label for="employee-fieldcity">Field Office City</label><input type="text" id="employee-fieldcity" name="Field Office City"></div><div class="form-group"><label for="employee-doj">Date of Joining</label><input type="date" id="employee-doj" name="Date of Joining" required></div><div class="form-group"><label for="employee-dol">Date of Leaving</label><input type="date" id="employee-dol" name="Date of Leaving"></div><div class="form-group"><label for="employee-status">Status</label><select id="employee-status" name="Status"><option value="Active">Active</option><option value="WFH">Work From Home (WFH)</option><option value="Annual Leave">Annual Leave</option><option value="Short Leave">Short Leave</option><option value="On Leave">On Leave (Other)</option><option value="Inactive">Inactive</option></select></div><div class="form-group"><label for="employee-termination-reason">Termination Reason</label><textarea id="employee-termination-reason" name="Termination Reason" rows="1"></textarea></div><div class="form-group"><label for="employee-skills">Skills</label><textarea id="employee-skills" name="Skills" rows="1"></textarea></div></div></div><div id="tab-compensation" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-salary">Base Salary (PKR)</label><input type="number" id="employee-salary" name="Base Salary" required></div><div class="form-group"><label for="employee-travel">Travel Allowance (PKR)</label><input type="number" id="employee-travel" name="Travel Allowance"></div><div class="form-group"><label for="employee-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="employee-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="employee-other">Other Allowance (PKR)</label><input type="number" id="employee-other" name="Other Allowance"></div><div class="form-group"><label for="employee-pf">Provident Fund (PKR)</label><input type="number" id="employee-pf" name="Provident Fund"></div><div class="form-group"><label for="employee-eobi">EOBI (PKR)</label><input type="number" id="employee-eobi" name="EOBI"></div><div class="form-group"><label for="employee-cost-center">Cost Center</label><input type="text" id="employee-cost-center" name="Cost Center"></div></div></div><button type="submit" style="margin-top: 20px; width: 100%;">Save Employee</button></form></div></div>
 
     <!-- Payroll Modal -->
     <div id="payroll-modal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-button" onclick="closePayrollModal()">&times;</span><h3>Update Payroll Components</h3><form id="payroll-form"><input type="hidden" id="payroll-employee-index" name="index"><div class="form-group"><label for="payroll-name">Employee</label><input type="text" id="payroll-name" name="Name" readonly></div><div class="form-group"><label for="payroll-salary">Base Salary (PKR)</label><input type="number" id="payroll-salary" name="Base Salary" required></div><div class="form-group"><label for="payroll-travel">Travel Allowance (PKR)</label><input type="number" id="payroll-travel" name="Travel Allowance"></div><div class="form-group"><label for="payroll-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="payroll-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="payroll-other">Other Allowance (PKR)</label><input type="number" id="payroll-other" name="Other Allowance"></div><div class="form-group"><label for="payroll-pf">Provident Fund (PKR)</label><input type="number" id="payroll-pf" name="Provident Fund"></div><div class="form-group"><label for="payroll-eobi">EOBI (PKR)</label><input type="number" id="payroll-eobi" name="EOBI"></div><div style="padding: 12px; background: var(--background-color); border-radius: 6px; margin: 12px 0;"><strong>Cost to Company:</strong> <span id="payroll-ctc-preview">PKR 0</span></div><button type="submit">Save Payroll</button></form></div></div>
@@ -977,7 +989,7 @@
         // ===================================================
 
         // Google Sheets CSV Configuration
-        const GOOGLE_SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRTf2qj4n3jmOGT1vkd1QUChdZbazTynus5-AgNUTrGPfGjbmLoWWKk_YneSHnNWjMphgDmcmt_m5Ac/pub?output=csv';
+        const GOOGLE_SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRHWk6vIdNCKL9fHh4c0O45fHwT88OKaKOWxhuY51IPwAdBXZVO6A_6JuWI3N6LXMBRi44zgvN57NJA/pub?output=csv';
         const AUTO_REFRESH_INTERVAL = 300000; // 5 minutes
 
         let employees = [];
@@ -1193,6 +1205,8 @@
             
             // Map other fields
             mapped['Gender'] = emp['Gender'] || emp['Sex'] || '';
+            mapped['CNIC No.'] = emp['CNIC No.'] || emp['CNIC'] || emp['NIC'] || '';
+            mapped['Date of Birth'] = emp['Date of Birth'] || emp['DOB'] || emp['Birth Date'] || '';
             mapped['Contact Number'] = emp['Contact Number'] || emp['Phone'] || emp['Mobile'] || '';
             mapped['Email'] = emp['Email'] || emp['Email Address'] || '';
             mapped['Address'] = emp['Address'] || '';
@@ -1259,7 +1273,7 @@
                 <h3 style="font-size: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 10px;">Personal & Contact</h3>
                 <div class="details-grid">
                     <div class="details-item"><h4>Employee ID</h4><p>${employee.ID || N_A}</p></div>
-                    <div class="details-item"><h4>Gender</h4><p>${employee.Gender || N_A}</p></div>
+                    <div class="details-item"><h4>Gender</h4><p>${employee.Gender || N_A}</p></div><div class="details-item"><h4>CNIC No.</h4><p>${employee['CNIC No.'] || N_A}</p></div><div class="details-item"><h4>Date of Birth</h4><p>${employee['Date of Birth'] || N_A}</p></div>
                     <div class="details-item"><h4>Contact Number</h4><p>${employee['Contact Number'] || N_A}</p></div>
                     <div class="details-item" style="grid-column: 1 / -1;"><h4>Address</h4><p>${employee.Address || N_A}</p></div>
                 </div>
@@ -1547,6 +1561,106 @@
             populateTransactionEmployees();
         };
 
+        
+        // Birthday Calendar Function
+        function generateBirthdayCalendar() {
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            const currentDay = today.getDate();
+            
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('birthday-month-name').textContent = monthNames[currentMonth] + ' ' + currentYear;
+            
+            const birthdaysThisMonth = employees
+                .filter(emp => emp.Status !== 'Inactive' && emp['Date of Birth'])
+                .map(emp => {
+                    const dob = parseDate(emp['Date of Birth']);
+                    if (!dob) return null;
+                    return {
+                        name: emp.Name,
+                        department: emp.Department,
+                        day: dob.getDate(),
+                        month: dob.getMonth()
+                    };
+                })
+                .filter(b => b && b.month === currentMonth);
+            
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            let calendarHTML = '<div style="display: contents;">';
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            
+            dayNames.forEach(day => {
+                calendarHTML += `<div style="text-align: center; font-weight: 600; color: var(--secondary-color); padding: 8px; border-bottom: 2px solid var(--border-color);">${day}</div>`;
+            });
+            
+            for (let i = 0; i < firstDay; i++) {
+                calendarHTML += '<div></div>';
+            }
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const hasBirthday = birthdaysThisMonth.some(b => b.day === day);
+                const isToday = day === currentDay;
+                
+                let cellStyle = 'padding: 12px; text-align: center; border: 1px solid var(--border-color); border-radius: 8px;';
+                if (isToday) {
+                    cellStyle += ' background: var(--primary-color); color: white; font-weight: 700;';
+                } else if (hasBirthday) {
+                    cellStyle += ' background: linear-gradient(135deg, #FFC1CC 0%, #FFE5E5 100%); font-weight: 600;';
+                } else {
+                    cellStyle += ' background: var(--card-bg);';
+                }
+                
+                let cellContent = `<div style="${cellStyle}">`;
+                cellContent += `<div style="font-size: 1.1rem;">${day}</div>`;
+                if (hasBirthday) {
+                    const count = birthdaysThisMonth.filter(b => b.day === day).length;
+                    cellContent += `<div style="font-size: 0.75rem; margin-top: 4px;">🎂 ${count}</div>`;
+                }
+                cellContent += '</div>';
+                
+                calendarHTML += cellContent;
+            }
+            
+            calendarHTML += '</div>';
+            document.getElementById('birthday-calendar').innerHTML = calendarHTML;
+            
+            if (birthdaysThisMonth.length > 0) {
+                birthdaysThisMonth.sort((a, b) => a.day - b.day);
+                
+                let listHTML = '<h4 style="margin-bottom: 12px; color: var(--primary-color);">🎉 Birthdays This Month</h4>';
+                listHTML += '<div style="display: grid; gap: 12px;">';
+                
+                birthdaysThisMonth.forEach(birthday => {
+                    const isToday = birthday.day === currentDay;
+                    const isPast = birthday.day < currentDay;
+                    
+                    let bgColor = isToday ? 'linear-gradient(135deg, #A05252 0%, #8B4545 100%)' : (isPast ? 'var(--card-bg)' : '#FFF8F8');
+                    let borderColor = isToday ? '#A05252' : (isPast ? 'var(--border-color)' : '#FFE5E5');
+                    
+                    listHTML += `<div style="padding: 16px; background: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 12px; display: flex; align-items: center; gap: 16px; ${isToday ? 'color: white;' : ''}">`;
+                    listHTML += `<div style="font-size: 2rem;">🎂</div>`;
+                    listHTML += `<div style="flex: 1;">`;
+                    listHTML += `<div style="font-weight: 600; font-size: 1.1rem; ${isToday ? 'color: white;' : 'color: var(--text-color);'}">${birthday.name}</div>`;
+                    listHTML += `<div style="font-size: 0.9rem; ${isToday ? 'color: rgba(255,255,255,0.8);' : 'color: var(--secondary-color);'}">${birthday.department}</div>`;
+                    listHTML += `</div>`;
+                    listHTML += `<div style="text-align: right;">`;
+                    listHTML += `<div style="font-size: 1.5rem; font-weight: 700; ${isToday ? 'color: white;' : 'color: var(--primary-color);'}">${monthNames[currentMonth]} ${birthday.day}</div>`;
+                    if (isToday) listHTML += `<div style="font-size: 0.85rem; color: rgba(255,255,255,0.9); margin-top: 4px;">🎊 Today!</div>`;
+                    listHTML += `</div>`;
+                    listHTML += `</div>`;
+                });
+                
+                listHTML += '</div>';
+                document.getElementById('birthday-list').innerHTML = listHTML;
+            } else {
+                document.getElementById('birthday-list').innerHTML = '<p style="text-align: center; color: var(--secondary-color); padding: 20px;">No birthdays this month</p>';
+            }
+        }
+
         const renderDashboard = () => {
             const today = new Date();
             const thirtyOneDaysAgo = new Date(new Date().setDate(today.getDate() - 31));
@@ -1627,6 +1741,9 @@
             renderEmploymentTypeChart();
             renderDeptHeadcountChart();
             renderDeptSalaryChart();
+            
+            // Generate birthday calendar
+            generateBirthdayCalendar();
             
             const recentHires = employees.filter(e => e.Status === 'Active').sort((a, b) => parseDate(b['Date of Joining']) - parseDate(a['Date of Joining'])).slice(0, 5);
             renderTable(recentHiresTableBody, recentHires, ['Name', 'Department', 'Position', 'Status']);
