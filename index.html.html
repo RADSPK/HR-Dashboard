@@ -527,6 +527,27 @@
         .tab-content.active {
             display: block;
         }
+        .pf-tab-button {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-weight: 600;
+            color: var(--secondary-color);
+            transition: color 0.3s;
+        }
+        .pf-tab-button.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            margin-bottom: -2px;
+        }
+        .pf-tab-content {
+            display: none;
+            padding: 10px 0;
+        }
+        .pf-tab-content.active {
+            display: block;
+        }
 
         .details-grid {
             display: grid;
@@ -1062,7 +1083,7 @@
                     <h2>Payroll Handoff</h2>
                 </div>
                 <p style="color: var(--secondary-color); margin-bottom: 16px;">Monthly payroll figures shared by HR for Finance's records.</p>
-                <div class="table-responsive"><table class="data-table" id="payroll-handoff-table"><thead><tr><th>Month</th><th>Shared By</th><th>Shared At</th><th>Employees</th><th>Total Cost</th><th>Notes</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+                <div class="table-responsive"><table class="data-table" id="payroll-handoff-table"><thead><tr><th>Month</th><th>Shared By</th><th>Shared At</th><th>New Hires</th><th>Leavers</th><th>Salary Changes</th><th>Notes</th><th>Action</th></tr></thead><tbody></tbody></table></div>
             </section>
 
             <section id="users" class="page">
@@ -1081,7 +1102,7 @@
     </div>
 
     <!-- Employee Modal -->
-    <div id="employee-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeEmployeeModal()">&times;</span><h3 style="margin-bottom: 15px;">Add/Edit Employee Details</h3><div class="tab-controls"><button class="tab-button active" data-tab="personal">Personal & Contact</button><button class="tab-button" data-tab="employment">Employment</button><button class="tab-button" data-tab="compensation">Compensation</button></div><form id="employee-form"><input type="hidden" id="employee-index" name="index"><div id="tab-personal" class="tab-content active"><div class="form-grid"><div class="form-group"><label for="employee-name">Name</label><input type="text" id="employee-name" name="Name" required></div><div class="form-group"><label for="employee-id">ID</label><input type="text" id="employee-id" name="ID" required></div><div class="form-group"><label for="employee-gender">Gender</label><select id="employee-gender" name="Gender" required><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div><div class="form-group"><label for="employee-cnic">CNIC No.</label><input type="text" id="employee-cnic" name="CNIC No." placeholder="XXXXX-XXXXXXX-X"></div><div class="form-group"><label for="employee-dob">Date of Birth</label><input type="date" id="employee-dob" name="Date of Birth"></div><div class="form-group"><label for="employee-contact">Contact Number</label><input type="text" id="employee-contact" name="Contact Number"></div><div class="form-group"><label for="employee-address">Address</label><textarea id="employee-address" name="Address" rows="1"></textarea></div><div class="form-group"><label for="employee-profile-pic">Profile Picture</label><input type="file" id="employee-profile-pic" accept="image/*"><img id="profile-pic-preview" class="profile-pic-preview" style="display: none;" alt="Profile Preview"></div><div class="form-group"><label for="employee-emergency-name">Emergency Name</label><input type="text" id="employee-emergency-name" name="Emergency Name"></div><div class="form-group"><label for="employee-emergency-rel">Emergency Relationship</label><input type="text" id="employee-emergency-rel" name="Emergency Relationship"></div><div class="form-group"><label for="employee-emergency-phone">Emergency Phone</label><input type="text" id="employee-emergency-phone" name="Emergency Phone"></div></div></div><div id="tab-employment" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-dept">Department</label><input type="text" id="employee-dept" name="Department" required></div><div class="form-group"><label for="employee-pos">Position</label><input type="text" id="employee-pos" name="Position" required></div><div class="form-group"><label for="employee-emptype">Employment Type</label><input type="text" id="employee-emptype" name="Employment Type"></div><div class="form-group"><label for="employee-postype">Position Type</label><input type="text" id="employee-postype" name="Position Type"></div><div class="form-group"><label for="employee-supervisor">Supervisor</label><input type="text" id="employee-supervisor" name="Supervisor"></div><div class="form-group"><label for="employee-stationed">Stationed At</label><input type="text" id="employee-stationed" name="Stationed At"></div><div class="form-group"><label for="employee-fieldcity">Field Office City</label><input type="text" id="employee-fieldcity" name="Field Office City"></div><div class="form-group"><label for="employee-doj">Date of Joining</label><input type="date" id="employee-doj" name="Date of Joining" required></div><div class="form-group"><label for="employee-dol">Date of Leaving</label><input type="date" id="employee-dol" name="Date of Leaving"></div><div class="form-group"><label for="employee-status">Status</label><select id="employee-status" name="Status"><option value="Active">Active</option><option value="WFH">Work From Home (WFH)</option><option value="Annual Leave">Annual Leave</option><option value="Short Leave">Short Leave</option><option value="On Leave">On Leave (Other)</option><option value="Inactive">Inactive</option></select></div><div class="form-group"><label for="employee-termination-reason">Termination Reason</label><textarea id="employee-termination-reason" name="Termination Reason" rows="1"></textarea></div><div class="form-group"><label for="employee-skills">Skills</label><textarea id="employee-skills" name="Skills" rows="1"></textarea></div></div></div><div id="tab-compensation" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-salary">Base Salary (PKR)</label><input type="number" id="employee-salary" name="Base Salary" required></div><div class="form-group"><label for="employee-travel">Travel Allowance (PKR)</label><input type="number" id="employee-travel" name="Travel Allowance"></div><div class="form-group"><label for="employee-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="employee-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="employee-other">Other Allowance (PKR)</label><input type="number" id="employee-other" name="Other Allowance"></div><div class="form-group"><label for="employee-pf">Provident Fund (PKR)</label><input type="number" id="employee-pf" name="Provident Fund"></div><div class="form-group"><label for="employee-eobi">EOBI (PKR)</label><input type="number" id="employee-eobi" name="EOBI"></div><div class="form-group"><label for="employee-cost-center">Cost Center</label><input type="text" id="employee-cost-center" name="Cost Center"></div></div></div><button type="submit" style="margin-top: 20px; width: 100%;">Save Employee</button></form></div></div>
+    <div id="employee-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeEmployeeModal()">&times;</span><h3 style="margin-bottom: 15px;">Add/Edit Employee Details</h3><div class="tab-controls"><button class="tab-button active" data-tab="personal">Personal & Contact</button><button class="tab-button" data-tab="employment">Employment</button><button class="tab-button" data-tab="compensation">Compensation</button></div><form id="employee-form"><input type="hidden" id="employee-index" name="index"><div id="tab-personal" class="tab-content active"><div class="form-grid"><div class="form-group"><label for="employee-name">Name</label><input type="text" id="employee-name" name="Name" required></div><div class="form-group"><label for="employee-id">ID</label><input type="text" id="employee-id" name="ID" required></div><div class="form-group"><label for="employee-gender">Gender</label><select id="employee-gender" name="Gender" required><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div><div class="form-group"><label for="employee-cnic">CNIC No.</label><input type="text" id="employee-cnic" name="CNIC No." placeholder="XXXXX-XXXXXXX-X"></div><div class="form-group"><label for="employee-dob">Date of Birth</label><input type="date" id="employee-dob" name="Date of Birth"></div><div class="form-group"><label for="employee-contact">Contact Number</label><input type="text" id="employee-contact" name="Contact Number"></div><div class="form-group"><label for="employee-address">Address</label><textarea id="employee-address" name="Address" rows="1"></textarea></div><div class="form-group"><label for="employee-profile-pic">Profile Picture</label><input type="file" id="employee-profile-pic" accept="image/*"><img id="profile-pic-preview" class="profile-pic-preview" style="display: none;" alt="Profile Preview"></div><div class="form-group"><label for="employee-emergency-name">Emergency Name</label><input type="text" id="employee-emergency-name" name="Emergency Name"></div><div class="form-group"><label for="employee-emergency-rel">Emergency Relationship</label><input type="text" id="employee-emergency-rel" name="Emergency Relationship"></div><div class="form-group"><label for="employee-emergency-phone">Emergency Phone</label><input type="text" id="employee-emergency-phone" name="Emergency Phone"></div></div></div><div id="tab-employment" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-dept">Department</label><input type="text" id="employee-dept" name="Department" required></div><div class="form-group"><label for="employee-pos">Position</label><input type="text" id="employee-pos" name="Position" required></div><div class="form-group"><label for="employee-emptype">Employment Type</label><input type="text" id="employee-emptype" name="Employment Type"></div><div class="form-group"><label for="employee-postype">Position Type</label><input type="text" id="employee-postype" name="Position Type"></div><div class="form-group"><label for="employee-supervisor">Supervisor</label><input type="text" id="employee-supervisor" name="Supervisor"></div><div class="form-group"><label for="employee-stationed">Stationed At</label><input type="text" id="employee-stationed" name="Stationed At"></div><div class="form-group"><label for="employee-fieldcity">Field Office City</label><input type="text" id="employee-fieldcity" name="Field Office City"></div><div class="form-group"><label for="employee-doj">Date of Joining</label><input type="date" id="employee-doj" name="Date of Joining" required></div><div class="form-group"><label for="employee-dol">Date of Leaving</label><input type="date" id="employee-dol" name="Date of Leaving"></div><div class="form-group"><label for="employee-status">Status</label><select id="employee-status" name="Status"><option value="Active">Active</option><option value="WFH">Work From Home (WFH)</option><option value="Annual Leave">Annual Leave</option><option value="Short Leave">Short Leave</option><option value="On Leave">On Leave (Other)</option><option value="Inactive">Inactive</option></select></div><div class="form-group"><label for="employee-termination-reason">Termination Reason</label><textarea id="employee-termination-reason" name="Termination Reason" rows="1"></textarea></div><div class="form-group"><label for="employee-skills">Skills</label><textarea id="employee-skills" name="Skills" rows="1"></textarea></div></div></div><div id="tab-compensation" class="tab-content"><div class="form-grid"><div class="form-group"><label for="employee-salary">Base Salary (PKR)</label><input type="number" id="employee-salary" name="Base Salary" required></div><div class="form-group"><label for="employee-travel">Travel Allowance (PKR)</label><input type="number" id="employee-travel" name="Travel Allowance"></div><div class="form-group"><label for="employee-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="employee-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="employee-other">Other Allowance (PKR)</label><input type="number" id="employee-other" name="Other Allowance"></div><div class="form-group"><label for="employee-pf">Provident Fund (PKR)</label><input type="number" id="employee-pf" name="Provident Fund"></div><div class="form-group"><label for="employee-eobi">EOBI (PKR)</label><input type="number" id="employee-eobi" name="EOBI"></div><div class="form-group"><label for="employee-cost-center">Cost Center</label><input type="text" id="employee-cost-center" name="Cost Center"></div><div class="form-group"><label for="employee-bank-account">Bank Account Number</label><input type="text" id="employee-bank-account" name="Bank Account Number"></div></div></div><button type="submit" style="margin-top: 20px; width: 100%;">Save Employee</button></form></div></div>
 
     <!-- Payroll Modal -->
     <div id="payroll-modal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-button" onclick="closePayrollModal()">&times;</span><h3>Update Payroll Components</h3><form id="payroll-form"><input type="hidden" id="payroll-employee-index" name="index"><div class="form-group"><label for="payroll-name">Employee</label><input type="text" id="payroll-name" name="Name" readonly></div><div class="form-group"><label for="payroll-salary">Base Salary (PKR)</label><input type="number" id="payroll-salary" name="Base Salary" required></div><div class="form-group"><label for="payroll-travel">Travel Allowance (PKR)</label><input type="number" id="payroll-travel" name="Travel Allowance"></div><div class="form-group"><label for="payroll-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="payroll-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="payroll-other">Other Allowance (PKR)</label><input type="number" id="payroll-other" name="Other Allowance"></div><div class="form-group"><label for="payroll-pf">Provident Fund (PKR)</label><input type="number" id="payroll-pf" name="Provident Fund"></div><div class="form-group"><label for="payroll-eobi">EOBI (PKR)</label><input type="number" id="payroll-eobi" name="EOBI"></div><div style="padding: 12px; background: var(--background-color); border-radius: 6px; margin: 12px 0;"><strong>Cost to Company:</strong> <span id="payroll-ctc-preview">PKR 0</span></div><button type="submit">Save Payroll</button></form></div></div>
@@ -1279,22 +1300,30 @@
 
     <!-- Employee Personal File Modal -->
     <div id="personal-file-modal" class="modal">
-        <div class="modal-content" style="max-width: 780px;">
+        <div class="modal-content" style="max-width: 820px;">
             <span class="close-button" onclick="closePersonalFileModal()">&times;</span>
-            <h3 style="margin-bottom: 4px;">Employee Personal File</h3>
-            <p style="color: var(--secondary-color); margin-bottom: 16px;" id="pf-employee-subtitle"></p>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+                <div>
+                    <h3 style="margin-bottom: 4px;">Employee Personal File</h3>
+                    <p style="color: var(--secondary-color); margin-bottom: 16px;" id="pf-employee-subtitle"></p>
+                </div>
+                <button type="button" class="action-buttons primary" style="padding: 8px 16px; white-space: nowrap;" onclick="downloadPersonalFilePDF()"><i class="fas fa-file-pdf"></i> Download PDF</button>
+            </div>
             <input type="hidden" id="pf-employee-id">
             <input type="hidden" id="pf-employee-name">
 
             <div class="tab-controls">
-                <button type="button" class="tab-button active" data-pftab="leaves" onclick="switchPersonalFileTab('leaves')">Leaves</button>
-                <button type="button" class="tab-button" data-pftab="wfh" onclick="switchPersonalFileTab('wfh')">WFH</button>
-                <button type="button" class="tab-button" data-pftab="loans" onclick="switchPersonalFileTab('loans')">Loans &amp; Advances</button>
-                <button type="button" class="tab-button" data-pftab="increments" onclick="switchPersonalFileTab('increments')">Increments</button>
+                <button type="button" class="pf-tab-button active" data-pftab="leaves" onclick="switchPersonalFileTab('leaves')">Leaves</button>
+                <button type="button" class="pf-tab-button" data-pftab="wfh" onclick="switchPersonalFileTab('wfh')">WFH</button>
+                <button type="button" class="pf-tab-button" data-pftab="loans" onclick="switchPersonalFileTab('loans')">Loans &amp; Advances</button>
+                <button type="button" class="pf-tab-button" data-pftab="increments" onclick="switchPersonalFileTab('increments')">Increments</button>
+                <button type="button" class="pf-tab-button" data-pftab="payrollchanges" onclick="switchPersonalFileTab('payrollchanges')">Payroll Changes</button>
+                <button type="button" class="pf-tab-button" data-pftab="evaluations" onclick="switchPersonalFileTab('evaluations')">Evaluations</button>
+                <button type="button" class="pf-tab-button" data-pftab="changes" onclick="switchPersonalFileTab('changes')">Changes</button>
             </div>
 
             <!-- Leaves tab -->
-            <div id="pf-tab-leaves" class="tab-content active">
+            <div id="pf-tab-leaves" class="pf-tab-content active">
                 <form id="pf-leave-form" style="margin-bottom: 16px;">
                     <div class="form-grid">
                         <div class="form-group"><label>Start Date</label><input type="date" id="pf-leave-start" required></div>
@@ -1309,7 +1338,7 @@
             </div>
 
             <!-- WFH tab -->
-            <div id="pf-tab-wfh" class="tab-content">
+            <div id="pf-tab-wfh" class="pf-tab-content">
                 <form id="pf-wfh-form" style="margin-bottom: 16px;">
                     <div class="form-grid">
                         <div class="form-group"><label>Start Date</label><input type="date" id="pf-wfh-start" required></div>
@@ -1322,7 +1351,7 @@
             </div>
 
             <!-- Loans & Advances tab -->
-            <div id="pf-tab-loans" class="tab-content">
+            <div id="pf-tab-loans" class="pf-tab-content">
                 <form id="pf-loan-form" style="margin-bottom: 16px;">
                     <div class="form-grid">
                         <div class="form-group"><label>Entry Type</label><select id="pf-loan-type"><option value="Loan">New Loan</option><option value="Advance">New Advance</option><option value="Repayment">Repayment</option></select></div>
@@ -1338,7 +1367,7 @@
             </div>
 
             <!-- Increments tab -->
-            <div id="pf-tab-increments" class="tab-content">
+            <div id="pf-tab-increments" class="pf-tab-content">
                 <form id="pf-increment-form" style="margin-bottom: 16px;">
                     <div class="form-grid">
                         <div class="form-group"><label>Effective Date</label><input type="date" id="pf-increment-date" required></div>
@@ -1349,6 +1378,53 @@
                     <button type="submit" style="padding: 8px 16px;">Add Increment Record</button>
                 </form>
                 <div class="table-responsive"><table class="data-table" id="pf-increment-table"><thead><tr><th>Effective Date</th><th>Old Salary</th><th>New Salary</th><th>Change</th><th>Notes</th><th>Recorded By</th></tr></thead><tbody></tbody></table></div>
+            </div>
+
+            <!-- Payroll Changes tab: deductions, salary holds, bank account changes -->
+            <div id="pf-tab-payrollchanges" class="pf-tab-content">
+                <h4 style="color: var(--primary-color); margin-bottom: 8px;">Deductions</h4>
+                <form id="pf-deduction-form" style="margin-bottom: 12px;">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Date</label><input type="date" id="pf-deduction-date" required></div>
+                        <div class="form-group"><label>Amount (PKR)</label><input type="number" id="pf-deduction-amount" min="0" required></div>
+                        <div class="form-group"><label>Reason</label><input type="text" id="pf-deduction-reason" required></div>
+                    </div>
+                    <button type="submit" style="padding: 8px 16px;">Add Deduction</button>
+                </form>
+                <div class="table-responsive" style="margin-bottom: 20px;"><table class="data-table" id="pf-deduction-table"><thead><tr><th>Date</th><th>Amount</th><th>Reason</th><th>Recorded By</th></tr></thead><tbody></tbody></table></div>
+
+                <h4 style="color: var(--primary-color); margin-bottom: 8px;">Salary Hold</h4>
+                <form id="pf-salaryhold-form" style="margin-bottom: 12px;">
+                    <div class="form-grid">
+                        <div class="form-group"><label>For Month</label><input type="month" id="pf-salaryhold-month" required></div>
+                        <div class="form-group"><label>Reason</label><input type="text" id="pf-salaryhold-reason" required></div>
+                    </div>
+                    <button type="submit" style="padding: 8px 16px;">Add Salary Hold</button>
+                </form>
+                <div class="table-responsive" style="margin-bottom: 20px;"><table class="data-table" id="pf-salaryhold-table"><thead><tr><th>Month</th><th>Reason</th><th>Recorded By</th></tr></thead><tbody></tbody></table></div>
+
+                <h4 style="color: var(--primary-color); margin-bottom: 8px;">Bank Account Change</h4>
+                <form id="pf-bankchange-form" style="margin-bottom: 12px;">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Date</label><input type="date" id="pf-bankchange-date" required></div>
+                        <div class="form-group"><label>Old Account Number</label><input type="text" id="pf-bankchange-old"></div>
+                        <div class="form-group"><label>New Account Number</label><input type="text" id="pf-bankchange-new" required></div>
+                    </div>
+                    <button type="submit" style="padding: 8px 16px;">Add Bank Account Change</button>
+                </form>
+                <div class="table-responsive"><table class="data-table" id="pf-bankchange-table"><thead><tr><th>Date</th><th>Old Account</th><th>New Account</th><th>Recorded By</th></tr></thead><tbody></tbody></table></div>
+            </div>
+
+            <!-- Evaluations tab (read-only — evaluations are submitted from the Approvals workflow) -->
+            <div id="pf-tab-evaluations" class="pf-tab-content">
+                <p style="color: var(--secondary-color); margin-bottom: 12px; font-size: 0.85rem;">All probation and periodic performance evaluations for this employee. Submit new ones from the Dashboard banner or the Approvals page.</p>
+                <div class="table-responsive"><table class="data-table" id="pf-evaluations-table"><thead><tr><th>Type</th><th>Evaluator</th><th>Overall Rating</th><th>Recommendation</th><th>Status</th><th>Submitted</th><th>CEO Decision</th></tr></thead><tbody></tbody></table></div>
+            </div>
+
+            <!-- Changes tab (read-only — pulled from the HR Transaction Log) -->
+            <div id="pf-tab-changes" class="pf-tab-content">
+                <p style="color: var(--secondary-color); margin-bottom: 12px; font-size: 0.85rem;">Promotions, leave-without-pay, terminations, and other logged changes for this employee. Add new ones from Payroll → New Transaction.</p>
+                <div class="table-responsive"><table class="data-table" id="pf-changes-table"><thead><tr><th>Date</th><th>Type</th><th>Details</th></tr></thead><tbody></tbody></table></div>
             </div>
         </div>
     </div>
@@ -1387,12 +1463,16 @@
         </div>
     </div>
 
-    <!-- Payroll Snapshot View Modal -->
+    <!-- Payroll Changes Modal (used both to preview before sending, and to view a past share) -->
     <div id="payroll-snapshot-modal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-content" style="max-width: 820px;">
             <span class="close-button" onclick="document.getElementById('payroll-snapshot-modal').style.display='none';">&times;</span>
-            <h3 id="payroll-snapshot-title" style="margin-bottom: 16px;"></h3>
-            <div class="table-responsive"><table class="data-table" id="payroll-snapshot-table"><thead><tr><th>Name</th><th>Department</th><th>Base Salary</th><th>Travel</th><th>Fuel/Grocery</th><th>Other</th><th>Provident Fund</th><th>EOBI</th><th>Total Cost</th></tr></thead><tbody></tbody></table></div>
+            <h3 id="payroll-snapshot-title" style="margin-bottom: 4px;"></h3>
+            <p style="color: var(--secondary-color); margin-bottom: 16px; font-size: 0.85rem;">Only new hires, leavers, salary changes, deductions, salary holds, and bank account changes are shared — not full payroll calculations.</p>
+            <div id="payroll-changes-body"></div>
+            <div id="payroll-changes-confirm-wrapper" style="display:none; margin-top: 16px;">
+                <button type="button" style="width:100%;" onclick="confirmSendPayrollToFinance()">Confirm &amp; Send to Finance</button>
+            </div>
         </div>
     </div>
 
@@ -2442,31 +2522,117 @@
             `;
         }
 
+        let pendingPayrollChanges = null;
+        let pendingPayrollMonthKey = null;
+
+        function monthInRange(dateStr, year, month) {
+            const d = parseDate(dateStr);
+            if (!d || isNaN(d.getTime())) return false;
+            return d.getFullYear() === year && (d.getMonth() + 1) === month;
+        }
+
+        async function compilePayrollChangesForMonth(monthKey) {
+            const parts = monthKey.split('-');
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10);
+
+            const newHires = employees.filter(e => monthInRange(e['Date of Joining'], year, month)).map(e => ({
+                name: e['Name'], department: e['Department'], position: e['Position'],
+                dateOfJoining: e['Date of Joining'],
+                salaryRate: parseFloat(e['Base Salary'] || 0) + parseFloat(e['Travel Allowance'] || 0) + parseFloat(e['Fuel/Grocery Allowance'] || 0) + parseFloat(e['Other Allowance'] || 0),
+                bankAccount: e['Bank Account Number'] || ''
+            }));
+
+            const leavers = employees.filter(e => (e['Status'] || '').toLowerCase() === 'inactive' && monthInRange(e['Date of Leaving'], year, month)).map(e => ({
+                name: e['Name'], department: e['Department'], position: e['Position'],
+                dateOfLeaving: e['Date of Leaving'], reason: e['Termination Reason'] || ''
+            }));
+
+            let allRecords = [];
+            const token = getSessionToken();
+            try {
+                const result = await callAppsScript('listAllPersonalFileRecords', { token });
+                allRecords = result.records || [];
+            } catch (err) {
+                console.error('Could not load personal file records for payroll changes:', err);
+            }
+            const empMap = {};
+            employees.forEach(e => { empMap[String(e['ID'])] = e; });
+            const deptOf = (r) => { const e = empMap[String(r.EmployeeID)]; return e ? e['Department'] : ''; };
+
+            const salaryChanges = allRecords.filter(r => r.RecordType === 'Increment' && monthInRange(r.StartDate, year, month)).map(r => {
+                let detail = {};
+                try { detail = JSON.parse(r.Notes || '{}'); } catch (e) {}
+                return { name: r.EmployeeName, department: deptOf(r), effectiveDate: r.StartDate, oldSalary: detail.oldSalary, newSalary: detail.newSalary, reason: detail.reason || '' };
+            });
+
+            const deductions = allRecords.filter(r => r.RecordType === 'Deduction' && monthInRange(r.StartDate, year, month)).map(r => ({
+                name: r.EmployeeName, department: deptOf(r), date: r.StartDate, amount: r.Amount, reason: r.Notes || ''
+            }));
+
+            const salaryHolds = allRecords.filter(r => r.RecordType === 'SalaryHold' && r.StartDate === monthKey).map(r => ({
+                name: r.EmployeeName, department: deptOf(r), month: r.StartDate, reason: r.Notes || ''
+            }));
+
+            const bankAccountChanges = allRecords.filter(r => r.RecordType === 'BankAccountChange' && monthInRange(r.StartDate, year, month)).map(r => {
+                let detail = {};
+                try { detail = JSON.parse(r.Notes || '{}'); } catch (e) {}
+                return { name: r.EmployeeName, department: deptOf(r), date: r.StartDate, oldAccount: detail.oldAccount || '', newAccount: detail.newAccount || '' };
+            });
+
+            return { newHires, leavers, salaryChanges, deductions, salaryHolds, bankAccountChanges };
+        }
+
+        function renderPayrollChangesBody(changes) {
+            const section = (title, headers, rows) => {
+                if (!rows || rows.length === 0) return '';
+                return `<h4 style="color: var(--primary-color); margin: 16px 0 8px;">${title}</h4>
+                <div class="table-responsive"><table class="data-table"><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>`;
+            };
+
+            const nh = changes.newHires || [], lv = changes.leavers || [], sc = changes.salaryChanges || [];
+            const dd = changes.deductions || [], sh = changes.salaryHolds || [], bc = changes.bankAccountChanges || [];
+
+            let html = '';
+            html += section('New Hires', ['Name', 'Department', 'Position', 'Date Joined', 'Salary Rate', 'Bank Account'],
+                nh.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.position || ''}</td><td>${r.dateOfJoining || ''}</td><td>PKR ${parseFloat(r.salaryRate || 0).toLocaleString()}</td><td>${r.bankAccount || '—'}</td></tr>`).join(''));
+            html += section('Leavers', ['Name', 'Department', 'Position', 'Date Left', 'Reason'],
+                lv.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.position || ''}</td><td>${r.dateOfLeaving || ''}</td><td>${r.reason || '—'}</td></tr>`).join(''));
+            html += section('Salary Changes', ['Name', 'Department', 'Effective Date', 'Old Salary', 'New Salary', 'Reason'],
+                sc.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.effectiveDate || ''}</td><td>PKR ${parseFloat(r.oldSalary || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.newSalary || 0).toLocaleString()}</td><td>${r.reason || '—'}</td></tr>`).join(''));
+            html += section('Deductions', ['Name', 'Department', 'Date', 'Amount', 'Reason'],
+                dd.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>PKR ${parseFloat(r.amount || 0).toLocaleString()}</td><td>${r.reason || '—'}</td></tr>`).join(''));
+            html += section('Salary Holds', ['Name', 'Department', 'Month', 'Reason'],
+                sh.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${monthLabelFromKey(r.month)}</td><td>${r.reason || '—'}</td></tr>`).join(''));
+            html += section('Bank Account Changes', ['Name', 'Department', 'Date', 'Old Account', 'New Account'],
+                bc.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>${r.oldAccount || '—'}</td><td>${r.newAccount || '—'}</td></tr>`).join(''));
+
+            document.getElementById('payroll-changes-body').innerHTML = html || `<p style="color: var(--secondary-color);">No changes found for this month.</p>`;
+        }
+
         async function sendPayrollToFinance() {
             const monthKey = currentMonthKey();
             const monthLabel = monthLabelFromKey(monthKey);
-            const activeEmps = employees.filter(e => (e['Status'] || '').toLowerCase() !== 'inactive');
-            const snapshot = activeEmps.map(e => ({
-                'Name': e['Name'] || '',
-                'Department': e['Department'] || '',
-                'Base Salary': parseFloat(e['Base Salary'] || 0),
-                'Travel Allowance': parseFloat(e['Travel Allowance'] || 0),
-                'Fuel/Grocery Allowance': parseFloat(e['Fuel/Grocery Allowance'] || 0),
-                'Other Allowance': parseFloat(e['Other Allowance'] || 0),
-                'Provident Fund': parseFloat(e['Provident Fund'] || 0),
-                'EOBI': parseFloat(e['EOBI'] || 0),
-                'Total Cost to Company': parseFloat(e['Total Cost to Company'] || 0)
-            }));
+            document.getElementById('payroll-snapshot-title').textContent = `Preview: Payroll Changes for ${monthLabel}`;
+            document.getElementById('payroll-changes-body').innerHTML = `<p style="color: var(--secondary-color);">Loading…</p>`;
+            document.getElementById('payroll-changes-confirm-wrapper').style.display = 'block';
+            document.getElementById('payroll-snapshot-modal').style.display = 'flex';
 
-            if (!confirm(`Share payroll for ${monthLabel} with Finance? This includes ${snapshot.length} active employee(s). Re-sending will overwrite this month's previous share.`)) return;
+            pendingPayrollMonthKey = monthKey;
+            pendingPayrollChanges = await compilePayrollChangesForMonth(monthKey);
+            renderPayrollChangesBody(pendingPayrollChanges);
+        }
 
+        async function confirmSendPayrollToFinance() {
+            if (!pendingPayrollChanges || !pendingPayrollMonthKey) return;
             const token = getSessionToken();
             try {
-                await callAppsScript('sharePayroll', { token, month: monthKey, snapshot, notes: '' });
-                alert(`Payroll for ${monthLabel} shared with Finance ✅`);
+                await callAppsScript('sharePayroll', { token, month: pendingPayrollMonthKey, changes: pendingPayrollChanges, notes: '' });
+                document.getElementById('payroll-snapshot-modal').style.display = 'none';
+                alert(`Payroll changes for ${monthLabelFromKey(pendingPayrollMonthKey)} shared with Finance ✅`);
                 checkFinanceDeadline();
             } catch (err) {
-                alert('Could not share payroll: ' + err.message);
+                alert('Could not share payroll changes: ' + err.message);
             }
         }
 
@@ -2478,42 +2644,33 @@
                 const result = await callAppsScript('listPayrollShares', { token });
                 cachedPayrollShares = result.shares || [];
             } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="7" style="color: var(--secondary-color);">Could not load payroll handoff: ${err.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" style="color: var(--secondary-color);">Could not load payroll handoff: ${err.message}</td></tr>`;
                 return;
             }
             const sorted = [...cachedPayrollShares].sort((a, b) => (b.month || '').localeCompare(a.month || ''));
             tbody.innerHTML = sorted.length === 0
-                ? `<tr><td colspan="7" style="color: var(--secondary-color);">Nothing shared yet.</td></tr>`
+                ? `<tr><td colspan="8" style="color: var(--secondary-color);">Nothing shared yet.</td></tr>`
                 : sorted.map(s => `<tr>
                     <td>${monthLabelFromKey(s.month)}</td>
                     <td>${s.sharedByName || s.sharedByUsername || ''}</td>
                     <td>${s.sharedAt ? new Date(s.sharedAt).toLocaleString() : ''}</td>
-                    <td>${s.employeeCount || 0}</td>
-                    <td>PKR ${parseFloat(s.totalCost || 0).toLocaleString()}</td>
+                    <td>${s.newHireCount || 0}</td>
+                    <td>${s.leaverCount || 0}</td>
+                    <td>${s.changeCount || 0}</td>
                     <td>${s.notes || '—'}</td>
-                    <td><button onclick="viewPayrollSnapshot('${String(s.month).replace(/'/g, "\\'")}')">View</button></td>
+                    <td><button onclick="viewPayrollChanges('${String(s.month).replace(/'/g, "\\'")}')">View</button></td>
                 </tr>`).join('');
         }
 
-        function viewPayrollSnapshot(monthKey) {
+        function viewPayrollChanges(monthKey) {
             const share = cachedPayrollShares.find(s => s.month === monthKey);
             if (!share) return;
-            let snapshot = [];
-            try { snapshot = JSON.parse(share.snapshot || '[]'); } catch (e) { snapshot = []; }
+            let changes = {};
+            try { changes = JSON.parse(share.changes || '{}'); } catch (e) { changes = {}; }
 
-            document.getElementById('payroll-snapshot-title').textContent = 'Payroll — ' + monthLabelFromKey(monthKey);
-            const tbody = document.querySelector('#payroll-snapshot-table tbody');
-            tbody.innerHTML = snapshot.map(r => `<tr>
-                <td>${r['Name'] || ''}</td>
-                <td>${r['Department'] || ''}</td>
-                <td>PKR ${parseFloat(r['Base Salary'] || 0).toLocaleString()}</td>
-                <td>PKR ${parseFloat(r['Travel Allowance'] || 0).toLocaleString()}</td>
-                <td>PKR ${parseFloat(r['Fuel/Grocery Allowance'] || 0).toLocaleString()}</td>
-                <td>PKR ${parseFloat(r['Other Allowance'] || 0).toLocaleString()}</td>
-                <td>PKR ${parseFloat(r['Provident Fund'] || 0).toLocaleString()}</td>
-                <td>PKR ${parseFloat(r['EOBI'] || 0).toLocaleString()}</td>
-                <td>PKR ${parseFloat(r['Total Cost to Company'] || 0).toLocaleString()}</td>
-            </tr>`).join('');
+            document.getElementById('payroll-snapshot-title').textContent = 'Payroll Changes — ' + monthLabelFromKey(monthKey);
+            document.getElementById('payroll-changes-confirm-wrapper').style.display = 'none';
+            renderPayrollChangesBody(changes);
             document.getElementById('payroll-snapshot-modal').style.display = 'flex';
         }
 
@@ -2521,6 +2678,8 @@
         // EMPLOYEE PERSONAL FILE (Leaves, WFH, Loans/Advances, Increments)
         // ---------------------------------------------------------------
         let cachedPersonalFileRecords = [];
+        let pfCachedEvaluations = [];
+        let pfCachedChanges = [];
 
         function openPersonalFileModal(employeeId) {
             const emp = employees.find(e => String(e['ID']) === String(employeeId));
@@ -2533,6 +2692,45 @@
             switchPersonalFileTab('leaves');
             document.getElementById('personal-file-modal').style.display = 'flex';
             loadPersonalFileRecords();
+            loadPersonalFileEvaluations(emp['ID']);
+            renderPersonalFileChangesTab(emp['ID']);
+        }
+
+        async function loadPersonalFileEvaluations(employeeId) {
+            const tbody = document.querySelector('#pf-evaluations-table tbody');
+            try {
+                const token = getSessionToken();
+                const result = await callAppsScript('listEvaluations', { token });
+                const evals = (result.evaluations || [])
+                    .filter(ev => String(ev.EmployeeID) === String(employeeId))
+                    .sort((a, b) => new Date(b.SubmittedAt) - new Date(a.SubmittedAt));
+                pfCachedEvaluations = evals;
+                tbody.innerHTML = evals.length === 0
+                    ? `<tr><td colspan="7" style="color: var(--secondary-color);">No evaluations recorded yet.</td></tr>`
+                    : evals.map(ev => `<tr>
+                        <td>${evaluationTypeLabel(ev.EvaluationType)}</td>
+                        <td>${ev.EvaluatorName}</td>
+                        <td>${ev.OverallRating || '—'}</td>
+                        <td>${ev.Recommendation}</td>
+                        <td><span class="${statusBadgeClass(ev.Status)}">${ev.Status}</span></td>
+                        <td>${ev.SubmittedAt ? new Date(ev.SubmittedAt).toLocaleDateString() : ''}</td>
+                        <td>${ev.CEODecision || '—'}</td>
+                    </tr>`).join('');
+            } catch (err) {
+                pfCachedEvaluations = [];
+                tbody.innerHTML = `<tr><td colspan="7" style="color: var(--secondary-color);">Could not load evaluations: ${err.message}</td></tr>`;
+            }
+        }
+
+        function renderPersonalFileChangesTab(employeeId) {
+            const tbody = document.querySelector('#pf-changes-table tbody');
+            const changes = (mockTransactionLog || [])
+                .filter(log => String(log.employeeID) === String(employeeId))
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+            pfCachedChanges = changes;
+            tbody.innerHTML = changes.length === 0
+                ? `<tr><td colspan="3" style="color: var(--secondary-color);">No logged changes for this employee in the current session.</td></tr>`
+                : changes.map(log => `<tr><td>${new Date(log.date).toLocaleDateString()}</td><td>${log.type}</td><td>${log.details}</td></tr>`).join('');
         }
 
         function closePersonalFileModal() {
@@ -2540,8 +2738,8 @@
         }
 
         function switchPersonalFileTab(tab) {
-            document.querySelectorAll('#personal-file-modal .tab-button').forEach(btn => btn.classList.toggle('active', btn.dataset.pftab === tab));
-            document.querySelectorAll('#personal-file-modal .tab-content').forEach(tc => tc.classList.remove('active'));
+            document.querySelectorAll('#personal-file-modal .pf-tab-button').forEach(btn => btn.classList.toggle('active', btn.dataset.pftab === tab));
+            document.querySelectorAll('#personal-file-modal .pf-tab-content').forEach(tc => tc.classList.remove('active'));
             document.getElementById('pf-tab-' + tab).classList.add('active');
         }
 
@@ -2582,16 +2780,10 @@
                 }).join('');
 
             renderLoansTab();
+            renderPayrollChangesSubTabs();
         }
 
-        function renderLoansTab() {
-            const ledgerEntries = cachedPersonalFileRecords.filter(r => r.RecordType === 'Loan' || r.RecordType === 'Advance' || r.RecordType === 'Repayment');
-            const sorted = [...ledgerEntries].sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
-            document.querySelector('#pf-loan-table tbody').innerHTML = sorted.length === 0
-                ? `<tr><td colspan="5" style="color: var(--secondary-color);">No loan/advance records yet.</td></tr>`
-                : sorted.map(r => `<tr><td>${r.StartDate}</td><td>${r.RecordType}</td><td>PKR ${parseFloat(r.Amount || 0).toLocaleString()}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
-
-            // Compute running balance per ledger
+        function computeLoanLedgers(ledgerEntries) {
             const ledgers = {};
             ledgerEntries.forEach(r => {
                 if (!r.LedgerID) return;
@@ -2604,6 +2796,18 @@
                     ledgers[r.LedgerID].repaid += parseFloat(r.Amount || 0);
                 }
             });
+            return ledgers;
+        }
+
+        function renderLoansTab() {
+            const ledgerEntries = cachedPersonalFileRecords.filter(r => r.RecordType === 'Loan' || r.RecordType === 'Advance' || r.RecordType === 'Repayment');
+            const sorted = [...ledgerEntries].sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
+            document.querySelector('#pf-loan-table tbody').innerHTML = sorted.length === 0
+                ? `<tr><td colspan="5" style="color: var(--secondary-color);">No loan/advance records yet.</td></tr>`
+                : sorted.map(r => `<tr><td>${r.StartDate}</td><td>${r.RecordType}</td><td>PKR ${parseFloat(r.Amount || 0).toLocaleString()}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
+
+            // Compute running balance per ledger
+            const ledgers = computeLoanLedgers(ledgerEntries);
 
             const balanceDiv = document.getElementById('pf-loan-balances');
             const ledgerIds = Object.keys(ledgers);
@@ -2623,6 +2827,190 @@
             ledgerSelect.innerHTML = openLedgers.length === 0
                 ? `<option value="">No open loans/advances</option>`
                 : openLedgers.map(id => `<option value="${id}">${ledgers[id].type} — PKR ${(ledgers[id].disbursed - ledgers[id].repaid).toLocaleString()} remaining (${ledgers[id].date})</option>`).join('');
+        }
+
+        function downloadPersonalFilePDF() {
+            const employeeId = document.getElementById('pf-employee-id').value;
+            const emp = employees.find(e => String(e['ID']) === String(employeeId));
+            if (!emp) { alert('Employee not found.'); return; }
+
+            const leaves = cachedPersonalFileRecords.filter(r => r.RecordType === 'Leave').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
+            const wfh = cachedPersonalFileRecords.filter(r => r.RecordType === 'WFH').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
+            const increments = cachedPersonalFileRecords.filter(r => r.RecordType === 'Increment').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
+            const ledgerEntries = cachedPersonalFileRecords.filter(r => r.RecordType === 'Loan' || r.RecordType === 'Advance' || r.RecordType === 'Repayment').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
+            const ledgers = computeLoanLedgers(ledgerEntries);
+
+            const pkr = (v) => 'PKR ' + parseFloat(v || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+
+            const evalRows = pfCachedEvaluations.length === 0 ? '' : pfCachedEvaluations.map(ev => `<tr>
+                <td>${evaluationTypeLabel(ev.EvaluationType)}</td><td>${ev.EvaluatorName}</td><td>${ev.OverallRating || '—'}</td>
+                <td>${ev.Recommendation}</td><td>${ev.Status}</td><td>${ev.SubmittedAt ? new Date(ev.SubmittedAt).toLocaleDateString() : ''}</td>
+                <td>${ev.CEODecision || '—'}</td></tr>`).join('');
+
+            const leaveRows = leaves.length === 0 ? '' : leaves.map(r => `<tr><td>${r.StartDate}</td><td>${r.EndDate}</td><td>${r.Amount}</td><td>${r.Category}</td><td>${r.Notes || '—'}</td></tr>`).join('');
+            const wfhRows = wfh.length === 0 ? '' : wfh.map(r => `<tr><td>${r.StartDate}</td><td>${r.EndDate}</td><td>${r.Notes || '—'}</td></tr>`).join('');
+            const loanRows = ledgerEntries.length === 0 ? '' : ledgerEntries.map(r => `<tr><td>${r.StartDate}</td><td>${r.RecordType}</td><td>${pkr(r.Amount)}</td><td>${r.Notes || '—'}</td></tr>`).join('');
+            const ledgerSummaryRows = Object.keys(ledgers).length === 0 ? '' : Object.keys(ledgers).map(id => {
+                const l = ledgers[id];
+                return `<tr><td>${l.type}</td><td>${l.date}</td><td>${pkr(l.disbursed)}</td><td>${pkr(l.repaid)}</td><td><strong>${pkr(l.disbursed - l.repaid)}</strong></td></tr>`;
+            }).join('');
+            const incrementRows = increments.length === 0 ? '' : increments.map(r => {
+                let detail = {};
+                try { detail = JSON.parse(r.Notes || '{}'); } catch (e) {}
+                const oldSalary = detail.oldSalary !== undefined ? detail.oldSalary : '';
+                const newSalary = detail.newSalary !== undefined ? detail.newSalary : r.Amount;
+                return `<tr><td>${r.StartDate}</td><td>${pkr(oldSalary)}</td><td>${pkr(newSalary)}</td><td>${detail.reason || '—'}</td></tr>`;
+            }).join('');
+            const changeRows = pfCachedChanges.length === 0 ? '' : pfCachedChanges.map(log => `<tr><td>${new Date(log.date).toLocaleDateString()}</td><td>${log.type}</td><td>${log.details}</td></tr>`).join('');
+
+            const section = (title, headers, rows, emptyText) => `
+                <h2>${title}</h2>
+                <table>
+                    <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+                    <tbody>${rows || `<tr><td colspan="${headers.length}" class="empty">${emptyText}</td></tr>`}</tbody>
+                </table>`;
+
+            const html = `<!DOCTYPE html><html><head><title>Personal File — ${emp['Name']}</title>
+            <style>
+                @page { margin: 24mm 16mm; }
+                body { font-family: 'Segoe UI', Arial, sans-serif; color: #333; margin: 0; padding: 0 8px; }
+                .letterhead { display:flex; justify-content:space-between; align-items:center; border-bottom: 3px solid #A05252; padding-bottom: 14px; margin-bottom: 20px; }
+                .letterhead h1 { color: #A05252; font-size: 1.4rem; margin: 0; }
+                .letterhead p { margin: 2px 0 0; color: #666; font-size: 0.85rem; }
+                .emp-header { background: #F9F9F9; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; }
+                .emp-header h2 { margin: 0 0 8px; color: #A05252; font-size: 1.15rem; }
+                .emp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 24px; font-size: 0.85rem; }
+                .emp-grid div span { color: #888; display:block; font-size: 0.75rem; text-transform: uppercase; }
+                h2.section-title, h2 { color: #A05252; font-size: 1rem; margin: 24px 0 8px; border-bottom: 1px solid #EAEAEA; padding-bottom: 6px; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 4px; font-size: 0.82rem; }
+                th { background: #A05252; color: #fff; text-align: left; padding: 6px 10px; }
+                td { padding: 6px 10px; border-bottom: 1px solid #EAEAEA; }
+                .empty { color: #999; text-align: center; padding: 10px; }
+                .footer { margin-top: 30px; font-size: 0.75rem; color: #999; text-align: center; }
+                @media print { body { padding: 0; } }
+            </style></head>
+            <body>
+                <div class="letterhead">
+                    <div><h1>Research &amp; Development Solutions</h1><p>Employee Personal File</p></div>
+                    <p>Generated: ${new Date().toLocaleString()}</p>
+                </div>
+
+                <div class="emp-header">
+                    <h2>${emp['Name']}</h2>
+                    <div class="emp-grid">
+                        <div><span>Employee ID</span>${emp['ID'] || '—'}</div>
+                        <div><span>Department</span>${emp['Department'] || '—'}</div>
+                        <div><span>Position</span>${emp['Position'] || '—'}</div>
+                        <div><span>Date of Joining</span>${emp['Date of Joining'] || '—'}</div>
+                        <div><span>Status</span>${emp['Status'] || '—'}</div>
+                        <div><span>Supervisor</span>${emp['Supervisor'] || '—'}</div>
+                    </div>
+                </div>
+
+                ${section('Performance Evaluations', ['Type', 'Evaluator', 'Overall Rating', 'Recommendation', 'Status', 'Submitted', 'CEO Decision'], evalRows, 'No evaluations recorded.')}
+                ${section('Leave History', ['Start', 'End', 'Days', 'Type', 'Notes'], leaveRows, 'No leave records.')}
+                ${section('Work From Home History', ['Start', 'End', 'Notes'], wfhRows, 'No WFH records.')}
+                ${section('Loans & Advances — Summary Balances', ['Type', 'Date', 'Disbursed', 'Repaid', 'Balance'], ledgerSummaryRows, 'No loans or advances.')}
+                ${section('Loans & Advances — Full Ledger', ['Date', 'Type', 'Amount', 'Notes'], loanRows, 'No loan/advance entries.')}
+                ${section('Increment History', ['Effective Date', 'Old Salary', 'New Salary', 'Reason'], incrementRows, 'No increment records.')}
+                ${section('Logged Changes (Transaction Log)', ['Date', 'Type', 'Details'], changeRows, 'No changes logged in the current session.')}
+
+                <div class="footer">RADS Digital Finance Hub — Confidential Personal File. Generated automatically.</div>
+            </body></html>`;
+
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) { alert('Please allow pop-ups to download the PDF.'); return; }
+            printWindow.document.open();
+            printWindow.document.write(html);
+            printWindow.document.close();
+            printWindow.onload = function() {
+                printWindow.focus();
+                printWindow.print();
+            };
+        }
+
+        function renderPayrollChangesSubTabs() {
+            const deductions = cachedPersonalFileRecords.filter(r => r.RecordType === 'Deduction').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
+            document.querySelector('#pf-deduction-table tbody').innerHTML = deductions.length === 0
+                ? `<tr><td colspan="4" style="color: var(--secondary-color);">No deductions recorded.</td></tr>`
+                : deductions.map(r => `<tr><td>${r.StartDate}</td><td>PKR ${parseFloat(r.Amount || 0).toLocaleString()}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
+
+            const holds = cachedPersonalFileRecords.filter(r => r.RecordType === 'SalaryHold').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
+            document.querySelector('#pf-salaryhold-table tbody').innerHTML = holds.length === 0
+                ? `<tr><td colspan="3" style="color: var(--secondary-color);">No salary holds recorded.</td></tr>`
+                : holds.map(r => `<tr><td>${monthLabelFromKey(r.StartDate)}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
+
+            const bankChanges = cachedPersonalFileRecords.filter(r => r.RecordType === 'BankAccountChange').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
+            document.querySelector('#pf-bankchange-table tbody').innerHTML = bankChanges.length === 0
+                ? `<tr><td colspan="4" style="color: var(--secondary-color);">No bank account changes recorded.</td></tr>`
+                : bankChanges.map(r => {
+                    let detail = {};
+                    try { detail = JSON.parse(r.Notes || '{}'); } catch (e) {}
+                    return `<tr><td>${r.StartDate}</td><td>${detail.oldAccount || '—'}</td><td>${detail.newAccount || r.Category || '—'}</td><td>${r.CreatedByName}</td></tr>`;
+                }).join('');
+        }
+
+        async function handlePfDeductionFormSubmit(e) {
+            e.preventDefault();
+            const employeeId = document.getElementById('pf-employee-id').value;
+            const record = {
+                employeeId,
+                employeeName: document.getElementById('pf-employee-name').value,
+                recordType: 'Deduction',
+                startDate: document.getElementById('pf-deduction-date').value,
+                amount: document.getElementById('pf-deduction-amount').value,
+                notes: document.getElementById('pf-deduction-reason').value
+            };
+            const token = getSessionToken();
+            try {
+                await callAppsScript('addPersonalFileRecord', { token, record });
+                document.getElementById('pf-deduction-form').reset();
+                loadPersonalFileRecords();
+            } catch (err) {
+                alert('Could not add deduction: ' + err.message);
+            }
+        }
+
+        async function handlePfSalaryHoldFormSubmit(e) {
+            e.preventDefault();
+            const employeeId = document.getElementById('pf-employee-id').value;
+            const record = {
+                employeeId,
+                employeeName: document.getElementById('pf-employee-name').value,
+                recordType: 'SalaryHold',
+                startDate: document.getElementById('pf-salaryhold-month').value, // yyyy-MM
+                notes: document.getElementById('pf-salaryhold-reason').value
+            };
+            const token = getSessionToken();
+            try {
+                await callAppsScript('addPersonalFileRecord', { token, record });
+                document.getElementById('pf-salaryhold-form').reset();
+                loadPersonalFileRecords();
+            } catch (err) {
+                alert('Could not add salary hold: ' + err.message);
+            }
+        }
+
+        async function handlePfBankChangeFormSubmit(e) {
+            e.preventDefault();
+            const employeeId = document.getElementById('pf-employee-id').value;
+            const oldAccount = document.getElementById('pf-bankchange-old').value;
+            const newAccount = document.getElementById('pf-bankchange-new').value;
+            const record = {
+                employeeId,
+                employeeName: document.getElementById('pf-employee-name').value,
+                recordType: 'BankAccountChange',
+                startDate: document.getElementById('pf-bankchange-date').value,
+                notes: JSON.stringify({ oldAccount, newAccount })
+            };
+            const token = getSessionToken();
+            try {
+                await callAppsScript('addPersonalFileRecord', { token, record });
+                document.getElementById('pf-bankchange-form').reset();
+                loadPersonalFileRecords();
+            } catch (err) {
+                alert('Could not add bank account change: ' + err.message);
+            }
         }
 
         function onPfLoanTypeChange() {
@@ -2743,6 +3131,12 @@
             if (pfLoanTypeSelect) pfLoanTypeSelect.addEventListener('change', onPfLoanTypeChange);
             const pfIncrementForm = document.getElementById('pf-increment-form');
             if (pfIncrementForm) pfIncrementForm.addEventListener('submit', handlePfIncrementFormSubmit);
+            const pfDeductionForm = document.getElementById('pf-deduction-form');
+            if (pfDeductionForm) pfDeductionForm.addEventListener('submit', handlePfDeductionFormSubmit);
+            const pfSalaryHoldForm = document.getElementById('pf-salaryhold-form');
+            if (pfSalaryHoldForm) pfSalaryHoldForm.addEventListener('submit', handlePfSalaryHoldFormSubmit);
+            const pfBankChangeForm = document.getElementById('pf-bankchange-form');
+            if (pfBankChangeForm) pfBankChangeForm.addEventListener('submit', handlePfBankChangeFormSubmit);
         });
 
 
@@ -2979,6 +3373,7 @@
             mapped['Stationed At'] = emp['Stationed At'] || emp['Location'] || '';
             mapped['Field Office City'] = emp['Field Office City'] || '';
             mapped['Cost Center'] = emp['Cost Center'] || emp['Project'] || '';
+            mapped['Bank Account Number'] = emp['Bank Account Number'] || emp['Bank Account'] || emp['Account Number'] || '';
             mapped['Skills'] = emp['Skills'] || '';
             mapped['Emergency Name'] = emp['Emergency Name'] || emp['Emergency Contact'] || '';
             mapped['Emergency Relationship'] = emp['Emergency Relationship'] || '';
