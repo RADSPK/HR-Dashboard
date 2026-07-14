@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -604,6 +605,80 @@
             width: 100%;
         }
 
+        /* Permission / User Management additions */
+        .login-input + .login-input { margin-top: 12px; }
+        .user-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-right: 8px;
+            line-height: 1.2;
+        }
+        .user-badge .u-name { font-weight: 600; font-size: 0.85rem; }
+        .user-badge .u-role {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--secondary-color);
+            letter-spacing: 0.5px;
+        }
+        .role-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .role-badge.admin { background-color: #A05252; color: #fff; }
+        .role-badge.user { background-color: var(--border-color); color: var(--text-color); }
+        .active-badge { color: #155724; background-color: #D4EDDA; }
+        .inactive-badge { color: #721C24; background-color: #F8D7DA; }
+        .active-badge, .inactive-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .permission-block {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+        }
+        .permission-block h4 {
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: var(--primary-color);
+        }
+        .permission-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        .permission-subgrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 8px 16px;
+            margin-top: 8px;
+            margin-left: 24px;
+        }
+        .permission-row input[type="checkbox"], .permission-subgrid input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary-color);
+        }
+        .config-warning {
+            background: #FFF3CD;
+            color: #856404;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -630,6 +705,14 @@
             <p>RESEARCH & DEVELOPMENT SOLUTIONS</p>
             <form class="login-form" id="loginForm">
                 <input 
+                    type="text" 
+                    class="login-input" 
+                    id="usernameInput" 
+                    placeholder="Username"
+                    required
+                    autocomplete="off"
+                />
+                <input 
                     type="password" 
                     class="login-input" 
                     id="passwordInput" 
@@ -637,7 +720,7 @@
                     required
                     autocomplete="off"
                 />
-                <div class="login-error" id="loginError">❌ Incorrect password. Please try again.</div>
+                <div class="login-error" id="loginError">❌ Incorrect username or password.</div>
                 <button type="submit" class="login-button">
                     <i class="fas fa-sign-in-alt"></i> Login
                 </button>
@@ -658,6 +741,7 @@
                 <a href="#payroll" class="nav-link" data-page="payroll"><i class="fas fa-money-check-alt"></i><span>Payroll & Log</span></a>
                 <a href="#departments" class="nav-link" data-page="departments"><i class="fas fa-sitemap"></i><span>Departments</span></a>
                 <a href="#reports" class="nav-link" data-page="reports"><i class="fas fa-chart-line"></i><span>Reports</span></a>
+                <a href="#users" class="nav-link" data-page="users" id="nav-users-link" style="display:none;"><i class="fas fa-user-shield"></i><span>Manage Users</span></a>
             </nav>
             
             <!-- Footer in Sidebar -->
@@ -671,6 +755,10 @@
             <header class="header">
                 <h1 id="page-title">Dashboard</h1>
                 <div class="controls">
+                    <div class="user-badge" id="user-badge" style="display:none;">
+                        <span class="u-name" id="user-badge-name"></span>
+                        <span class="u-role" id="user-badge-role"></span>
+                    </div>
                     <button id="refresh-data-btn" class="refresh-btn" onclick="loadDataFromGoogleSheets()">
                         <i class="fas fa-sync-alt"></i>
                         Refresh
@@ -784,6 +872,9 @@
                         <button onclick="clearAllFilters()" class="action-buttons secondary" style="padding: 8px 16px; white-space: nowrap;">
                             <i class="fas fa-times-circle"></i> Clear Filters
                         </button>
+                        <button onclick="openEmployeeModal()" id="add-employee-btn" class="action-buttons primary" style="padding: 8px 16px; white-space: nowrap; display: none;">
+                            <i class="fas fa-plus"></i> Add Employee
+                        </button>
                     </div>
                 </div>
                 <div class="filter-group" style="display: flex; gap: 10px; margin-bottom: 20px;"><select id="gender-filter" style="padding: 8px;"><option value="">All Genders</option><option value="Male">Male</option><option value="Female">Female</option></select><select id="department-filter" style="padding: 8px;"><option value="">All Departments</option></select><select id="status-filter" style="padding: 8px;"><option value="">All Statuses</option><option value="Active">Active</option><option value="WFH">Work From Home</option><option value="Annual Leave">Annual Leave</option><option value="Short Leave">Short Leave</option><option value="On Leave">On Leave (Other)</option><option value="Inactive">Inactive</option></select></div>
@@ -855,6 +946,19 @@
                 </div>
                 <div class="card" style="margin-top: 20px; flex-direction: column; align-items: flex-start;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px;"><h3>Report Output & Analytics</h3><button class="action-buttons primary" id="download-report-btn" style="display: none; padding: 6px 12px;" onclick="downloadReport()"><i class="fas fa-download"></i> Download CSV</button></div><div id="report-output-content" style="width: 100%; min-height: 100px;"><p style="color: var(--secondary-color);">Select a report type and click "Generate Report" to view detailed analytics.</p></div></div>
             </section>
+
+            <section id="users" class="page">
+                <div class="section-header">
+                    <h2>Manage Users</h2>
+                    <button onclick="openUserModal()" class="action-buttons primary" style="padding: 8px 16px; white-space: nowrap;">
+                        <i class="fas fa-user-plus"></i> Add User
+                    </button>
+                </div>
+                <div id="users-config-warning" class="config-warning" style="display:none;">
+                    <i class="fas fa-triangle-exclamation"></i> The Apps Script URL hasn't been configured yet. Set <code>APPS_SCRIPT_URL</code> near the top of the script section before user management will work.
+                </div>
+                <div class="table-responsive"><table class="data-table" id="users-table"><thead><tr><th>Username</th><th>Full Name</th><th>Role</th><th>Status</th><th>Last Login</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+            </section>
         </main>
     </div>
 
@@ -876,33 +980,111 @@
     <!-- HR Transaction Modal -->
     <div id="transaction-modal" class="modal"><div class="modal-content" style="max-width: 600px;"><span class="close-button" onclick="closeTransactionModal()">&times;</span><h3>Record HR Transaction</h3><form id="transaction-form"><div class="form-grid"><div class="form-group"><label for="transaction-type">Transaction Type</label><select id="transaction-type" name="type" required onchange="updateTransactionForm(this.value)"><option value="">Select Action...</option><option value="promotion">Salary/Position Change</option><option value="lwp">Leave Without Pay (LWP)</option><option value="termination">Termination / Leaver</option></select></div><div class="form-group"><label for="transaction-employee-id">Employee</label><select id="transaction-employee-id" name="employee_id" required><option value="">Select Employee...</option></select></div></div><div id="dynamic-transaction-fields" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;"></div><div class="form-grid"><div class="form-group"><label for="transaction-date">Effective Date</label><input type="date" id="transaction-date" name="effective_date" required></div></div><div class="form-group"><label for="transaction-notes">Detailed Notes</label><textarea id="transaction-notes" name="notes" rows="3" placeholder="Enter full details and rationale..."></textarea></div><button type="submit" id="transaction-submit-btn" style="width: 100%;">Log Transaction</button></form></div></div>
 
+    <!-- User Modal -->
+    <div id="user-modal" class="modal">
+        <div class="modal-content" style="max-width: 640px;">
+            <span class="close-button" onclick="closeUserModal()">&times;</span>
+            <h3 id="user-modal-title" style="margin-bottom: 20px;">Add New User</h3>
+            <form id="user-form">
+                <input type="hidden" id="user-original-username" name="originalUsername">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="user-username">Username</label>
+                        <input type="text" id="user-username" name="username" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="user-fullname">Full Name</label>
+                        <input type="text" id="user-fullname" name="fullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-password">Password <span id="user-password-hint" style="font-weight:400; color: var(--secondary-color);"></span></label>
+                        <input type="password" id="user-password" name="password" autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="user-role">Role</label>
+                        <select id="user-role" name="role" onchange="onUserRoleChange(this.value)">
+                            <option value="user">Standard User</option>
+                            <option value="admin">Admin (full access)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="user-active-group" style="display:none;">
+                        <label for="user-active">Status</label>
+                        <select id="user-active" name="active">
+                            <option value="TRUE">Active</option>
+                            <option value="FALSE">Disabled</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="user-permissions-wrapper">
+                    <h4 style="margin: 16px 0 10px; color: var(--secondary-color);">Access Permissions</h4>
+
+                    <div class="permission-block">
+                        <div class="permission-row">
+                            <input type="checkbox" id="perm-dashboard" checked>
+                            <label for="perm-dashboard" style="margin:0;">Dashboard (overview)</label>
+                        </div>
+                    </div>
+
+                    <div class="permission-block">
+                        <h4>Employees</h4>
+                        <div class="permission-row"><input type="checkbox" id="perm-employees-view"><label for="perm-employees-view" style="margin:0;">Can view Employees list</label></div>
+                        <div class="permission-row"><input type="checkbox" id="perm-employees-edit"><label for="perm-employees-edit" style="margin:0;">Can add / edit / delete employees</label></div>
+                    </div>
+
+                    <div class="permission-block">
+                        <h4>Payroll &amp; Transaction Log</h4>
+                        <div class="permission-row"><input type="checkbox" id="perm-payroll-view"><label for="perm-payroll-view" style="margin:0;">Can view Payroll &amp; Log</label></div>
+                        <div class="permission-row"><input type="checkbox" id="perm-payroll-edit"><label for="perm-payroll-edit" style="margin:0;">Can record transactions / edit payroll</label></div>
+                    </div>
+
+                    <div class="permission-block">
+                        <h4>Departments</h4>
+                        <div class="permission-row"><input type="checkbox" id="perm-departments-view"><label for="perm-departments-view" style="margin:0;">Can view Departments</label></div>
+                    </div>
+
+                    <div class="permission-block">
+                        <h4>Reports &amp; Analytics</h4>
+                        <div class="permission-row"><input type="checkbox" id="perm-reports-view" onchange="toggleReportCategoryRows(this.checked)"><label for="perm-reports-view" style="margin:0;">Can view Reports &amp; Analytics page</label></div>
+                        <div class="permission-subgrid" id="perm-report-categories">
+                            <div class="permission-row"><input type="checkbox" id="perm-report-employee"><label for="perm-report-employee" style="margin:0;">Employee Reports</label></div>
+                            <div class="permission-row"><input type="checkbox" id="perm-report-financial"><label for="perm-report-financial" style="margin:0;">Financial Reports</label></div>
+                            <div class="permission-row"><input type="checkbox" id="perm-report-analytical"><label for="perm-report-analytical" style="margin:0;">Analytical Reports</label></div>
+                            <div class="permission-row"><input type="checkbox" id="perm-report-compliance"><label for="perm-report-compliance" style="margin:0;">Compliance Reports</label></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" style="width: 100%; margin-top: 10px;">Save User</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // ===================================================
-        // PASSWORD PROTECTION
+        // AUTHENTICATION & USER MANAGEMENT
         // ===================================================
-        // CHANGE YOUR PASSWORD HERE:
         /* ========================================
-           PASSWORD SECURITY
+           SETUP REQUIRED
            ========================================
-           Current password: rads2025
-           
-           The password is stored as a SHA-256 hash for security.
-           Anyone viewing the source code cannot see the actual password.
-           
-           TO CHANGE THE PASSWORD:
-           1. Open your browser's console (F12)
-           2. Run this command with your new password:
-              
-              hashPassword('YourNewPassword').then(hash => console.log(hash))
-           
-           3. Copy the hash that appears in the console
-           4. Replace the PASSWORD_HASH value below with your new hash
-           5. Update the comment to note your new password for your records
+           This dashboard now supports multiple named users with per-user
+           permissions, backed by a Google Apps Script Web App + a "Users"
+           tab in Google Sheets (instead of one shared password).
+
+           1. Deploy the accompanying Code.gs as an Apps Script Web App
+              (Deploy > New deployment > Web app > Execute as: Me,
+              Who has access: Anyone with the link).
+           2. Paste the resulting Web App URL below as APPS_SCRIPT_URL.
+           3. Run setupFirstAdmin() once from the Apps Script editor to
+              create your own admin account, then log in here and use
+              "Manage Users" to add everyone else.
            ======================================== */
-        
-        const PASSWORD_HASH = '406a6f694d97da5dd6dff987168113510914dc80bcc6c3ae6b2eb29fdfddb496';
-        
-        // Function to hash password using SHA-256
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXj4zN4VyTqioRMron_8VgtBbmPF6HFcSiRQHmnE4CyiZkcSp0ldbQpo_dumQtt1mB/exec';
+
+        const SESSION_KEY = 'hrDashboardSession'; // { token, user }
+        let currentUser = null; // { username, fullName, role, permissions }
+
+        // Function to hash password using SHA-256 (hex) - matches Apps Script side
         async function hashPassword(password) {
             const encoder = new TextEncoder();
             const data = encoder.encode(password);
@@ -911,64 +1093,93 @@
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
             return hashHex;
         }
-        
+
+        async function callAppsScript(action, payload) {
+            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
+                throw new Error('Apps Script URL is not configured yet.');
+            }
+            const response = await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action, ...payload })
+            });
+            const data = await response.json();
+            if (!data.success) throw new Error(data.error || 'Request failed');
+            return data;
+        }
+
         // Authentication functions
         function checkAuthentication() {
-            const isAuthenticated = sessionStorage.getItem('hrDashboardAuth') === 'true';
             const loginOverlay = document.getElementById('loginOverlay');
-            
-            if (isAuthenticated) {
-                loginOverlay.classList.add('hidden');
-            } else {
-                loginOverlay.classList.remove('hidden');
+            const raw = sessionStorage.getItem(SESSION_KEY);
+            if (raw) {
+                try {
+                    const session = JSON.parse(raw);
+                    currentUser = session.user;
+                    loginOverlay.classList.add('hidden');
+                    applyPermissionsUI();
+                    return true;
+                } catch (e) {
+                    sessionStorage.removeItem(SESSION_KEY);
+                }
             }
-            
-            return isAuthenticated;
+            loginOverlay.classList.remove('hidden');
+            return false;
+        }
+
+        function getSessionToken() {
+            const raw = sessionStorage.getItem(SESSION_KEY);
+            if (!raw) return null;
+            try { return JSON.parse(raw).token; } catch (e) { return null; }
         }
 
         function logout() {
-            sessionStorage.removeItem('hrDashboardAuth');
+            sessionStorage.removeItem(SESSION_KEY);
             location.reload();
         }
 
         // Login form handler
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('usernameInput');
             const passwordInput = document.getElementById('passwordInput');
             const loginError = document.getElementById('loginError');
-            
+
             // Check authentication on page load
-            checkAuthentication();
-            
+            const alreadyIn = checkAuthentication();
+            if (alreadyIn) {
+                setTimeout(() => { loadDataFromGoogleSheets(); }, 100);
+            }
+
             loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
+                loginError.classList.remove('show');
+
+                const username = usernameInput.value.trim();
                 const enteredPassword = passwordInput.value;
-                const enteredHash = await hashPassword(enteredPassword);
-                
-                if (enteredHash === PASSWORD_HASH) {
-                    // Correct password
-                    sessionStorage.setItem('hrDashboardAuth', 'true');
+
+                try {
+                    const passwordHash = await hashPassword(enteredPassword);
+                    const result = await callAppsScript('login', { username, passwordHash });
+
+                    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ token: result.token, user: result.user }));
+                    currentUser = result.user;
+
                     document.getElementById('loginOverlay').classList.add('hidden');
-                    loginError.classList.remove('show');
                     passwordInput.value = '';
-                    
-                    // Load data after successful login
+                    applyPermissionsUI();
+
                     setTimeout(() => {
                         loadDataFromGoogleSheets();
                     }, 100);
-                } else {
-                    // Wrong password
+                } catch (err) {
+                    loginError.textContent = '❌ ' + (err.message || 'Incorrect username or password.');
                     loginError.classList.add('show');
                     passwordInput.value = '';
                     passwordInput.focus();
-                    
-                    // Shake animation
+
                     const loginBox = document.querySelector('.login-box');
                     loginBox.style.animation = 'shake 0.5s';
-                    setTimeout(() => {
-                        loginBox.style.animation = '';
-                    }, 500);
+                    setTimeout(() => { loginBox.style.animation = ''; }, 500);
                 }
             });
         });
@@ -984,9 +1195,283 @@
         `;
         document.head.appendChild(style);
 
+        // ---------------------------------------------------------------
+        // Permission helpers
+        // ---------------------------------------------------------------
+        function isAdmin() {
+            return !!currentUser && currentUser.role === 'admin';
+        }
+
+        function getPerms() {
+            if (!currentUser) return {};
+            return (currentUser.permissions && currentUser.permissions.sections) || {};
+        }
+
+        function canView(section) {
+            if (isAdmin()) return true;
+            const perms = getPerms();
+            const s = perms[section];
+            if (s === undefined) return false;
+            if (typeof s === 'boolean') return s;
+            return !!s.view;
+        }
+
+        function canEditSection(section) {
+            if (isAdmin()) return true;
+            const perms = getPerms();
+            const s = perms[section];
+            if (!s || typeof s === 'boolean') return false;
+            return !!s.edit;
+        }
+
+        function canViewReportCategory(category) {
+            if (isAdmin()) return true;
+            const perms = getPerms();
+            const reports = perms.reports;
+            if (!reports || !reports.view) return false;
+            return !!(reports.categories && reports.categories[category]);
+        }
+
+        function applyPermissionsUI() {
+            if (!currentUser) return;
+
+            // User badge in header
+            const badge = document.getElementById('user-badge');
+            const badgeName = document.getElementById('user-badge-name');
+            const badgeRole = document.getElementById('user-badge-role');
+            if (badge) {
+                badge.style.display = 'flex';
+                badgeName.textContent = currentUser.fullName || currentUser.username;
+                badgeRole.textContent = currentUser.role === 'admin' ? 'Admin' : 'User';
+            }
+
+            // Nav link visibility
+            const sectionMap = { dashboard: 'dashboard', employees: 'employees', payroll: 'payroll', departments: 'departments', reports: 'reports' };
+            Object.keys(sectionMap).forEach(page => {
+                const link = document.querySelector(`.nav-link[data-page="${page}"]`);
+                if (!link) return;
+                link.style.display = canView(page) ? '' : 'none';
+            });
+            const usersLink = document.getElementById('nav-users-link');
+            if (usersLink) usersLink.style.display = isAdmin() ? '' : 'none';
+
+            // Edit-gated buttons
+            const addEmployeeBtn = document.getElementById('add-employee-btn');
+            if (addEmployeeBtn) addEmployeeBtn.style.display = canEditSection('employees') ? '' : 'none';
+
+            const newTransactionBtn = document.querySelector('.transaction-log-header button[onclick="openTransactionModal()"]');
+            if (newTransactionBtn) newTransactionBtn.style.display = canEditSection('payroll') ? '' : 'none';
+
+            // Report category optgroups
+            filterReportCategories();
+
+            // If current page is no longer permitted, redirect to the first available page
+            const activePage = document.querySelector('.page.active');
+            if (activePage && activePage.id !== 'users' && !canView(activePage.id)) {
+                const firstAvailable = ['dashboard', 'employees', 'payroll', 'departments', 'reports'].find(p => canView(p));
+                if (firstAvailable) showPage(firstAvailable);
+            }
+
+            // Re-render tables so action buttons reflect edit rights
+            if (typeof updateUI === 'function' && employees && employees.length >= 0) {
+                try { updateUI(); } catch (e) { /* data may not be loaded yet */ }
+            }
+        }
+
+        function filterReportCategories() {
+            const reportTypeSelect = document.getElementById('report-type');
+            if (!reportTypeSelect) return;
+            const categoryByLabel = {
+                'Employee Reports': 'employee',
+                'Financial Reports': 'financial',
+                'Analytical Reports': 'analytical',
+                'Compliance Reports': 'compliance'
+            };
+            reportTypeSelect.querySelectorAll('optgroup').forEach(og => {
+                const cat = categoryByLabel[og.label];
+                if (!cat) return;
+                og.style.display = canViewReportCategory(cat) ? '' : 'none';
+            });
+        }
+
+        // ---------------------------------------------------------------
+        // Manage Users
+        // ---------------------------------------------------------------
+        let editingUsername = null;
+
+        function collectPermissionsFromForm() {
+            const roleVal = document.getElementById('user-role').value;
+            if (roleVal === 'admin') {
+                return { sections: { dashboard: true, employees: { view: true, edit: true }, payroll: { view: true, edit: true }, departments: { view: true }, reports: { view: true, categories: { employee: true, financial: true, analytical: true, compliance: true } } } };
+            }
+            return {
+                sections: {
+                    dashboard: document.getElementById('perm-dashboard').checked,
+                    employees: { view: document.getElementById('perm-employees-view').checked, edit: document.getElementById('perm-employees-edit').checked },
+                    payroll: { view: document.getElementById('perm-payroll-view').checked, edit: document.getElementById('perm-payroll-edit').checked },
+                    departments: { view: document.getElementById('perm-departments-view').checked },
+                    reports: {
+                        view: document.getElementById('perm-reports-view').checked,
+                        categories: {
+                            employee: document.getElementById('perm-report-employee').checked,
+                            financial: document.getElementById('perm-report-financial').checked,
+                            analytical: document.getElementById('perm-report-analytical').checked,
+                            compliance: document.getElementById('perm-report-compliance').checked
+                        }
+                    }
+                }
+            };
+        }
+
+        function fillPermissionsIntoForm(permissions) {
+            const s = (permissions && permissions.sections) || {};
+            document.getElementById('perm-dashboard').checked = s.dashboard === true;
+            document.getElementById('perm-employees-view').checked = !!(s.employees && s.employees.view);
+            document.getElementById('perm-employees-edit').checked = !!(s.employees && s.employees.edit);
+            document.getElementById('perm-payroll-view').checked = !!(s.payroll && s.payroll.view);
+            document.getElementById('perm-payroll-edit').checked = !!(s.payroll && s.payroll.edit);
+            document.getElementById('perm-departments-view').checked = !!(s.departments && s.departments.view);
+            document.getElementById('perm-reports-view').checked = !!(s.reports && s.reports.view);
+            const cats = (s.reports && s.reports.categories) || {};
+            document.getElementById('perm-report-employee').checked = !!cats.employee;
+            document.getElementById('perm-report-financial').checked = !!cats.financial;
+            document.getElementById('perm-report-analytical').checked = !!cats.analytical;
+            document.getElementById('perm-report-compliance').checked = !!cats.compliance;
+            toggleReportCategoryRows(document.getElementById('perm-reports-view').checked);
+        }
+
+        function toggleReportCategoryRows(show) {
+            const el = document.getElementById('perm-report-categories');
+            if (el) el.style.opacity = show ? '1' : '0.4';
+        }
+
+        function onUserRoleChange(role) {
+            const wrapper = document.getElementById('user-permissions-wrapper');
+            wrapper.style.display = role === 'admin' ? 'none' : 'block';
+        }
+
+        function openUserModal(user) {
+            const form = document.getElementById('user-form');
+            form.reset();
+            document.getElementById('user-active-group').style.display = user ? '' : 'none';
+            document.getElementById('perm-report-categories').style.opacity = '1';
+
+            if (user) {
+                editingUsername = user.username;
+                document.getElementById('user-modal-title').textContent = 'Edit User: ' + user.username;
+                document.getElementById('user-original-username').value = user.username;
+                document.getElementById('user-username').value = user.username;
+                document.getElementById('user-username').disabled = true;
+                document.getElementById('user-fullname').value = user.fullName || '';
+                document.getElementById('user-password').value = '';
+                document.getElementById('user-password-hint').textContent = '(leave blank to keep current password)';
+                document.getElementById('user-role').value = user.role || 'user';
+                document.getElementById('user-active').value = (user.active === false || user.active === 'FALSE') ? 'FALSE' : 'TRUE';
+                let perms = user.permissions;
+                if (typeof perms === 'string') { try { perms = JSON.parse(perms); } catch (e) { perms = {}; } }
+                fillPermissionsIntoForm(perms || {});
+                onUserRoleChange(user.role || 'user');
+            } else {
+                editingUsername = null;
+                document.getElementById('user-modal-title').textContent = 'Add New User';
+                document.getElementById('user-username').disabled = false;
+                document.getElementById('user-password-hint').textContent = '(required for new users)';
+                document.getElementById('user-role').value = 'user';
+                onUserRoleChange('user');
+            }
+            document.getElementById('user-modal').style.display = 'flex';
+        }
+
+        function closeUserModal() {
+            document.getElementById('user-modal').style.display = 'none';
+            document.getElementById('user-username').disabled = false;
+        }
+
+        async function handleUserFormSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('user-username').value.trim();
+            const fullName = document.getElementById('user-fullname').value.trim();
+            const password = document.getElementById('user-password').value;
+            const role = document.getElementById('user-role').value;
+            const permissions = collectPermissionsFromForm();
+            const token = getSessionToken();
+
+            try {
+                if (editingUsername) {
+                    const payload = { token, user: { username: editingUsername, fullName, role, permissions, active: document.getElementById('user-active').value === 'TRUE' } };
+                    if (password) payload.user.passwordHash = await hashPassword(password);
+                    await callAppsScript('updateUser', payload);
+                } else {
+                    if (!password) { alert('Password is required for new users.'); return; }
+                    const passwordHash = await hashPassword(password);
+                    await callAppsScript('createUser', { token, user: { username, fullName, role, permissions, passwordHash } });
+                }
+                closeUserModal();
+                loadUsers();
+            } catch (err) {
+                alert('Could not save user: ' + err.message);
+            }
+        }
+
+        async function loadUsers() {
+            const tbody = document.querySelector('#users-table tbody');
+            const warning = document.getElementById('users-config-warning');
+            if (!tbody) return;
+            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
+                if (warning) warning.style.display = 'block';
+                return;
+            }
+            if (warning) warning.style.display = 'none';
+            try {
+                const token = getSessionToken();
+                const result = await callAppsScript('listUsers', { token });
+                tbody.innerHTML = '';
+                result.users.forEach(u => {
+                    const isActive = !(u.active === false || u.active === 'FALSE');
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${u.username}</td><td>${u.fullName || ''}</td>` +
+                        `<td><span class="role-badge ${u.role === 'admin' ? 'admin' : 'user'}">${u.role === 'admin' ? 'Admin' : 'User'}</span></td>` +
+                        `<td><span class="${isActive ? 'active-badge' : 'inactive-badge'}">${isActive ? 'Active' : 'Disabled'}</span></td>` +
+                        `<td>${u.lastLogin ? new Date(u.lastLogin).toLocaleString() : '—'}</td>` +
+                        `<td><div class="table-actions">` +
+                        `<button title="Edit" onclick='openUserModal(${JSON.stringify(u).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>` +
+                        `<button title="${isActive ? 'Disable' : 'Enable'}" onclick="toggleUserActive('${u.username}', ${!isActive})"><i class="fas fa-power-off"></i></button>` +
+                        `<button title="Delete" onclick="deleteUserAccount('${u.username}')"><i class="fas fa-trash"></i></button>` +
+                        `</div></td>`;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error('Failed to load users:', err);
+                tbody.innerHTML = `<tr><td colspan="6" style="color: var(--secondary-color);">Could not load users: ${err.message}</td></tr>`;
+            }
+        }
+
+        async function toggleUserActive(username, makeActive) {
+            const token = getSessionToken();
+            try {
+                await callAppsScript('updateUser', { token, user: { username, active: makeActive } });
+                loadUsers();
+            } catch (err) {
+                alert('Could not update user: ' + err.message);
+            }
+        }
+
+        async function deleteUserAccount(username) {
+            if (username === currentUser.username) { alert("You can't delete the account you're logged in with."); return; }
+            if (!confirm(`Delete user "${username}"? This cannot be undone.`)) return;
+            const token = getSessionToken();
+            try {
+                await callAppsScript('deleteUser', { token, username });
+                loadUsers();
+            } catch (err) {
+                alert('Could not delete user: ' + err.message);
+            }
+        }
+
         // ===================================================
         // DASHBOARD CODE
         // ===================================================
+
 
         // Google Sheets CSV Configuration
         const GOOGLE_SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRTf2qj4n3jmOGT1vkd1QUChdZbazTynus5-AgNUTrGPfGjbmLoWWKk_YneSHnNWjMphgDmcmt_m5Ac/pub?output=csv';
@@ -1227,12 +1712,22 @@
 
         // --- Page Navigation ---
         function showPage(pageId) {
+            // Permission guard: block navigation to sections the current user isn't allowed to see
+            if (pageId === 'users') {
+                if (!isAdmin()) return;
+            } else if (!canView(pageId)) {
+                return;
+            }
             pages.forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            pageTitle.textContent = pageId.charAt(0).toUpperCase() + pageId.slice(1);
+            pageTitle.textContent = pageId === 'users' ? 'Manage Users' : pageId.charAt(0).toUpperCase() + pageId.slice(1);
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             document.querySelector(`.nav-link[data-page="${pageId}"]`).classList.add('active');
-            updateUI();
+            if (pageId === 'users') {
+                loadUsers();
+            } else {
+                updateUI();
+            }
         }
 
         // --- Modal Control ---
@@ -2035,8 +2530,8 @@
                     const cell = document.createElement('td');
                     if (col === 'Name') cell.innerHTML = `<a href="#" onclick="openDetailsModal(employees[${originalIndex}])">${employee[col]}</a>`;
                     else if (col === 'Status') cell.innerHTML = `<span class="status-badge status-${(employee[col] || '').toLowerCase().replace('-', '')}">${employee[col] || 'N/A'}</span>`;
-                    else if (col === 'Actions') cell.innerHTML = `<div class="table-actions"><button onclick="openEmployeeModal(employees[${originalIndex}])" title="Edit"><i class="fas fa-edit"></i></button><button onclick="deleteEmployee(${originalIndex})" title="Delete"><i class="fas fa-trash"></i></button></div>`;
-                    else if (col === 'PayrollActions') cell.innerHTML = `<div class="table-actions"><button onclick="openPayrollModal(employees[${originalIndex}], ${originalIndex})" title="Edit Payroll"><i class="fas fa-pencil-alt"></i></button></div>`;
+                    else if (col === 'Actions') cell.innerHTML = canEditSection('employees') ? `<div class="table-actions"><button onclick="openEmployeeModal(employees[${originalIndex}])" title="Edit"><i class="fas fa-edit"></i></button><button onclick="deleteEmployee(${originalIndex})" title="Delete"><i class="fas fa-trash"></i></button></div>` : '';
+                    else if (col === 'PayrollActions') cell.innerHTML = canEditSection('payroll') ? `<div class="table-actions"><button onclick="openPayrollModal(employees[${originalIndex}], ${originalIndex})" title="Edit Payroll"><i class="fas fa-pencil-alt"></i></button></div>` : '';
                     else if (['Base Salary', 'Total Cost to Company'].includes(col)) cell.textContent = `PKR ${parseFloat(employee[col] || 0).toLocaleString()}`;
                     else cell.textContent = employee[col] || 'N/A';
                     row.appendChild(cell);
@@ -2097,6 +2592,7 @@
             payrollForm.addEventListener('submit', handlePayrollFormSubmit);
             transactionForm.addEventListener('submit', handleTransactionFormSubmit);
             reportForm.addEventListener('submit', handleReportFormSubmit);
+            document.getElementById('user-form').addEventListener('submit', handleUserFormSubmit);
             
             document.querySelectorAll('.tab-button').forEach(button => {
                 button.addEventListener('click', e => {
