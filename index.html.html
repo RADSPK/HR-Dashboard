@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -633,6 +631,35 @@
         .role-badge.user { background-color: var(--border-color); color: var(--text-color); }
         .active-badge { color: #155724; background-color: #D4EDDA; }
         .inactive-badge { color: #721C24; background-color: #F8D7DA; }
+        .status-submitted { color: #856404; background-color: #FFF3CD; }
+        .status-approved { color: #155724; background-color: #D4EDDA; }
+        .status-rejected { color: #721C24; background-color: #F8D7DA; }
+        .status-changes-requested { color: #0C5460; background-color: #D1ECF1; }
+        .status-submitted, .status-approved, .status-rejected, .status-changes-requested {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .info-banner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        .info-banner.probation { background: #FFF3CD; color: #856404; border: 1px solid #FFE69C; }
+        .info-banner.finance-warning { background: #F8D7DA; color: #721C24; border: 1px solid #F1AEB5; }
+        .info-banner .banner-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+        .info-banner button {
+            padding: 6px 14px;
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
         .active-badge, .inactive-badge {
             display: inline-block;
             padding: 3px 10px;
@@ -741,6 +768,8 @@
                 <a href="#payroll" class="nav-link" data-page="payroll"><i class="fas fa-money-check-alt"></i><span>Payroll & Log</span></a>
                 <a href="#departments" class="nav-link" data-page="departments"><i class="fas fa-sitemap"></i><span>Departments</span></a>
                 <a href="#reports" class="nav-link" data-page="reports"><i class="fas fa-chart-line"></i><span>Reports</span></a>
+                <a href="#approvals" class="nav-link" data-page="approvals" style="display:none;"><i class="fas fa-clipboard-check"></i><span>Approvals</span></a>
+                <a href="#payrollHandoff" class="nav-link" data-page="payrollHandoff" style="display:none;"><i class="fas fa-hand-holding-dollar"></i><span>Payroll Handoff</span></a>
                 <a href="#users" class="nav-link" data-page="users" id="nav-users-link" style="display:none;"><i class="fas fa-user-shield"></i><span>Manage Users</span></a>
             </nav>
             
@@ -772,6 +801,7 @@
 
             <!-- Page Sections -->
             <section id="dashboard" class="page active">
+                <div id="probation-due-banner" style="display:none;"></div>
                 <h2 style="margin-bottom: 16px; font-size: 1.3rem; color: var(--secondary-color);">Overview Metrics</h2>
                 <div class="card-grid">
                     <div class="card clickable-card" onclick="showMetricDetails('total-employees')"><div class="metric-content"><div class="value" id="total-employees">0</div><p>Total Employees</p></div><div class="metric-icon-container"><i class="fas fa-users"></i></div></div>
@@ -906,9 +936,10 @@
             </section>
 
             <section id="payroll" class="page">
+                <div id="finance-deadline-banner" style="display:none;"></div>
                 <div class="section-header"><h2>HR Transaction Log</h2><div class="transaction-log-header"><button onclick="openTransactionModal()" class="action-buttons primary" style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-plus"></i> New Transaction</button><button class="action-buttons secondary" id="download-transaction-log-btn" style="display: flex; align-items: center; gap: 8px;" onclick="downloadTransactionLog()"><i class="fas fa-download"></i> Download Log</button></div></div>
                 <div class="table-responsive"><table class="data-table" id="transaction-table"><thead><tr><th>Date</th><th>Type</th><th>Employee ID</th><th>Details</th></tr></thead><tbody></tbody></table></div>
-                <div class="section-header"><h2>Monthly Payroll Summary</h2></div>
+                <div class="section-header"><h2>Monthly Payroll Summary</h2><button id="send-to-finance-btn" class="action-buttons primary" style="display:none; padding: 8px 16px; white-space: nowrap;" onclick="sendPayrollToFinance()"><i class="fas fa-paper-plane"></i> Send to Finance</button></div>
                 
                 <!-- Payroll Summary Card -->
                 <div class="card" style="margin-bottom: 24px; flex-direction: column; align-items: flex-start;">
@@ -945,6 +976,26 @@
                     <form id="report-form" style="width: 100%;"><div class="form-grid"><div class="form-group"><label for="report-type">Report Type</label><select id="report-type" name="reportType" required><option value="">Select Report Type...</option><optgroup label="Employee Reports"><option value="joining">New Joinings Report</option><option value="leaving">Leaving/Termination Report</option><option value="contact">Complete Employee Directory</option><option value="employee-status">Employee Status Analysis</option><option value="tenure-analysis">Employee Tenure Analysis</option></optgroup><optgroup label="Financial Reports"><option value="payroll">Detailed Payroll Report</option><option value="department-salary">Department-wise Salary Breakdown</option><option value="salary-distribution">Salary Range Distribution</option><option value="allowances-breakdown">Allowances & Benefits Breakdown</option><option value="cost-center-analysis">Cost Center Analysis</option></optgroup><optgroup label="Analytical Reports"><option value="gender-analytics">Gender Distribution Analytics</option><option value="turnover-analysis">Turnover & Retention Analysis</option><option value="headcount-trends">Headcount Trends Report</option><option value="department-comparison">Department Performance Comparison</option><option value="work-mode-analysis">Work Mode & Leave Analysis</option><option value="recruitment-efficiency">Recruitment Efficiency Report</option></optgroup><optgroup label="Compliance Reports"><option value="provident-fund">Provident Fund Report</option><option value="eobi-report">EOBI Contribution Report</option><option value="tax-summary">Tax Deduction Summary</option></optgroup></select></div><div class="form-group"><label for="report-start-date">Start Date (Optional)</label><input type="date" id="report-start-date" name="startDate"></div><div class="form-group"><label for="report-end-date">End Date (Optional)</label><input type="date" id="report-end-date" name="endDate"></div><div class="form-group"><label for="report-department">Department Filter</label><select id="report-department" name="department"><option value="">All Departments</option></select></div><div class="form-group"><label for="report-status">Status Filter</label><select id="report-status" name="status"><option value="">All Statuses</option><option value="Active">Active Only</option><option value="Inactive">Inactive Only</option><option value="WFH">WFH Only</option><option value="On Leave">On Leave</option></select></div><div class="form-group"><label for="report-gender">Gender Filter</label><select id="report-gender" name="gender"><option value="">All</option><option value="Male">Male</option><option value="Female">Female</option></select></div></div><button type="submit" style="margin-top: 10px;">Generate Report</button></form>
                 </div>
                 <div class="card" style="margin-top: 20px; flex-direction: column; align-items: flex-start;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px;"><h3>Report Output & Analytics</h3><button class="action-buttons primary" id="download-report-btn" style="display: none; padding: 6px 12px;" onclick="downloadReport()"><i class="fas fa-download"></i> Download CSV</button></div><div id="report-output-content" style="width: 100%; min-height: 100px;"><p style="color: var(--secondary-color);">Select a report type and click "Generate Report" to view detailed analytics.</p></div></div>
+            </section>
+
+            <section id="approvals" class="page">
+                <div class="section-header">
+                    <h2>Probation Evaluations &amp; Approvals</h2>
+                </div>
+                <div id="approvals-pending-wrapper" style="display:none;">
+                    <h3 style="margin: 10px 0; color: var(--secondary-color);">Pending My Review</h3>
+                    <div class="table-responsive"><table class="data-table" id="approvals-pending-table"><thead><tr><th>Employee</th><th>Department</th><th>Position</th><th>Evaluator</th><th>Overall Rating</th><th>Recommendation</th><th>Submitted</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+                </div>
+                <h3 style="margin: 20px 0 10px; color: var(--secondary-color);">All Evaluations</h3>
+                <div class="table-responsive"><table class="data-table" id="approvals-history-table"><thead><tr><th>Employee</th><th>Department</th><th>Evaluator</th><th>Overall Rating</th><th>Recommendation</th><th>Status</th><th>Submitted</th><th>Decision</th></tr></thead><tbody></tbody></table></div>
+            </section>
+
+            <section id="payrollHandoff" class="page">
+                <div class="section-header">
+                    <h2>Payroll Handoff</h2>
+                </div>
+                <p style="color: var(--secondary-color); margin-bottom: 16px;">Monthly payroll figures shared by HR for Finance's records.</p>
+                <div class="table-responsive"><table class="data-table" id="payroll-handoff-table"><thead><tr><th>Month</th><th>Shared By</th><th>Shared At</th><th>Employees</th><th>Total Cost</th><th>Notes</th><th>Action</th></tr></thead><tbody></tbody></table></div>
             </section>
 
             <section id="users" class="page">
@@ -1053,10 +1104,112 @@
                             <div class="permission-row"><input type="checkbox" id="perm-report-compliance"><label for="perm-report-compliance" style="margin:0;">Compliance Reports</label></div>
                         </div>
                     </div>
+
+                    <div class="permission-block">
+                        <h4>Probation Evaluations &amp; Approvals</h4>
+                        <div class="permission-row"><input type="checkbox" id="perm-approvals-view"><label for="perm-approvals-view" style="margin:0;">Can view probation evaluations</label></div>
+                        <div class="permission-row"><input type="checkbox" id="perm-approvals-review"><label for="perm-approvals-review" style="margin:0;">Can review &amp; approve/reject evaluations (CEO)</label></div>
+                    </div>
+
+                    <div class="permission-block">
+                        <h4>Payroll Handoff (Finance)</h4>
+                        <div class="permission-row"><input type="checkbox" id="perm-payrollhandoff-view"><label for="perm-payrollhandoff-view" style="margin:0;">Can view monthly payroll shared with Finance</label></div>
+                    </div>
                 </div>
 
                 <button type="submit" style="width: 100%; margin-top: 10px;">Save User</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Probation Evaluation Modal -->
+    <div id="evaluation-modal" class="modal">
+        <div class="modal-content" style="max-width: 680px;">
+            <span class="close-button" onclick="closeEvaluationModal()">&times;</span>
+            <h3 style="margin-bottom: 6px;">3-Month Probation Assessment</h3>
+            <p style="color: var(--secondary-color); margin-bottom: 16px;" id="eval-employee-subtitle"></p>
+            <form id="evaluation-form">
+                <input type="hidden" id="eval-employee-id">
+                <input type="hidden" id="eval-employee-name">
+                <input type="hidden" id="eval-department">
+                <input type="hidden" id="eval-position">
+                <input type="hidden" id="eval-doj">
+                <input type="hidden" id="eval-probation-end">
+
+                <div class="permission-block">
+                    <h4>Performance Ratings <span style="font-weight:400; color: var(--secondary-color);">(1 = Needs Improvement, 5 = Outstanding)</span></h4>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Job Knowledge &amp; Skills</label><select class="eval-rating" data-key="jobKnowledge" required><option value="">Select...</option><option value="1">1 - Needs Improvement</option><option value="2">2 - Below Expectations</option><option value="3">3 - Meets Expectations</option><option value="4">4 - Exceeds Expectations</option><option value="5">5 - Outstanding</option></select></div>
+                        <div class="form-group"><label>Quality of Work</label><select class="eval-rating" data-key="qualityOfWork" required><option value="">Select...</option><option value="1">1 - Needs Improvement</option><option value="2">2 - Below Expectations</option><option value="3">3 - Meets Expectations</option><option value="4">4 - Exceeds Expectations</option><option value="5">5 - Outstanding</option></select></div>
+                        <div class="form-group"><label>Productivity &amp; Efficiency</label><select class="eval-rating" data-key="productivity" required><option value="">Select...</option><option value="1">1 - Needs Improvement</option><option value="2">2 - Below Expectations</option><option value="3">3 - Meets Expectations</option><option value="4">4 - Exceeds Expectations</option><option value="5">5 - Outstanding</option></select></div>
+                        <div class="form-group"><label>Attendance &amp; Punctuality</label><select class="eval-rating" data-key="attendance" required><option value="">Select...</option><option value="1">1 - Needs Improvement</option><option value="2">2 - Below Expectations</option><option value="3">3 - Meets Expectations</option><option value="4">4 - Exceeds Expectations</option><option value="5">5 - Outstanding</option></select></div>
+                        <div class="form-group"><label>Teamwork &amp; Collaboration</label><select class="eval-rating" data-key="teamwork" required><option value="">Select...</option><option value="1">1 - Needs Improvement</option><option value="2">2 - Below Expectations</option><option value="3">3 - Meets Expectations</option><option value="4">4 - Exceeds Expectations</option><option value="5">5 - Outstanding</option></select></div>
+                        <div class="form-group"><label>Communication Skills</label><select class="eval-rating" data-key="communication" required><option value="">Select...</option><option value="1">1 - Needs Improvement</option><option value="2">2 - Below Expectations</option><option value="3">3 - Meets Expectations</option><option value="4">4 - Exceeds Expectations</option><option value="5">5 - Outstanding</option></select></div>
+                        <div class="form-group"><label>Initiative &amp; Problem-Solving</label><select class="eval-rating" data-key="initiative" required><option value="">Select...</option><option value="1">1 - Needs Improvement</option><option value="2">2 - Below Expectations</option><option value="3">3 - Meets Expectations</option><option value="4">4 - Exceeds Expectations</option><option value="5">5 - Outstanding</option></select></div>
+                        <div class="form-group"><label>Discipline &amp; Policy Adherence</label><select class="eval-rating" data-key="discipline" required><option value="">Select...</option><option value="1">1 - Needs Improvement</option><option value="2">2 - Below Expectations</option><option value="3">3 - Meets Expectations</option><option value="4">4 - Exceeds Expectations</option><option value="5">5 - Outstanding</option></select></div>
+                    </div>
+                    <div style="margin-top: 12px; padding: 10px 14px; background: var(--background-color); border-radius: 8px;">
+                        <strong>Overall Rating:</strong> <span id="eval-overall-rating">—</span> / 5
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="eval-strengths">Key Strengths</label>
+                    <textarea id="eval-strengths" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="eval-improvement">Areas for Improvement</label>
+                    <textarea id="eval-improvement" rows="2"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="eval-recommendation">Recommendation</label>
+                    <select id="eval-recommendation" required onchange="onEvalRecommendationChange(this.value)">
+                        <option value="">Select...</option>
+                        <option value="Confirm">Confirm Employment</option>
+                        <option value="Extend">Extend Probation</option>
+                        <option value="Terminate">Terminate</option>
+                    </select>
+                </div>
+                <div class="form-group" id="eval-extension-months-group" style="display:none;">
+                    <label for="eval-extension-months">Extension Period (months)</label>
+                    <input type="number" id="eval-extension-months" min="1" max="12">
+                </div>
+
+                <div class="form-group">
+                    <label for="eval-comments">Evaluator's Additional Comments</label>
+                    <textarea id="eval-comments" rows="2"></textarea>
+                </div>
+
+                <button type="submit" style="width: 100%; margin-top: 10px;">Submit for CEO Review</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CEO Review Modal -->
+    <div id="review-modal" class="modal">
+        <div class="modal-content" style="max-width: 640px;">
+            <span class="close-button" onclick="closeReviewModal()">&times;</span>
+            <h3 style="margin-bottom: 16px;">Review Probation Evaluation</h3>
+            <div id="review-details" style="margin-bottom: 20px;"></div>
+            <div class="form-group">
+                <label for="review-comments">Your Comments</label>
+                <textarea id="review-comments" rows="3"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button type="button" style="flex:1; background-color: #2e7d32;" onclick="submitReviewDecision('Approved')">Approve</button>
+                <button type="button" style="flex:1; background-color: #b7791f;" onclick="submitReviewDecision('Changes Requested')">Request Changes</button>
+                <button type="button" style="flex:1; background-color: #c0392b;" onclick="submitReviewDecision('Rejected')">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payroll Snapshot View Modal -->
+    <div id="payroll-snapshot-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close-button" onclick="document.getElementById('payroll-snapshot-modal').style.display='none';">&times;</span>
+            <h3 id="payroll-snapshot-title" style="margin-bottom: 16px;"></h3>
+            <div class="table-responsive"><table class="data-table" id="payroll-snapshot-table"><thead><tr><th>Name</th><th>Department</th><th>Base Salary</th><th>Travel</th><th>Fuel/Grocery</th><th>Other</th><th>Provident Fund</th><th>EOBI</th><th>Total Cost</th></tr></thead><tbody></tbody></table></div>
         </div>
     </div>
 
@@ -1079,7 +1232,7 @@
               create your own admin account, then log in here and use
               "Manage Users" to add everyone else.
            ======================================== */
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXj4zN4VyTqioRMron_8VgtBbmPF6HFcSiRQHmnE4CyiZkcSp0ldbQpo_dumQtt1mB/exec';
+        const APPS_SCRIPT_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
 
         const SESSION_KEY = 'hrDashboardSession'; // { token, user }
         let currentUser = null; // { username, fullName, role, permissions }
@@ -1246,7 +1399,7 @@
             }
 
             // Nav link visibility
-            const sectionMap = { dashboard: 'dashboard', employees: 'employees', payroll: 'payroll', departments: 'departments', reports: 'reports' };
+            const sectionMap = { dashboard: 'dashboard', employees: 'employees', payroll: 'payroll', departments: 'departments', reports: 'reports', approvals: 'approvals', payrollHandoff: 'payrollHandoff' };
             Object.keys(sectionMap).forEach(page => {
                 const link = document.querySelector(`.nav-link[data-page="${page}"]`);
                 if (!link) return;
@@ -1262,13 +1415,16 @@
             const newTransactionBtn = document.querySelector('.transaction-log-header button[onclick="openTransactionModal()"]');
             if (newTransactionBtn) newTransactionBtn.style.display = canEditSection('payroll') ? '' : 'none';
 
+            const sendToFinanceBtn = document.getElementById('send-to-finance-btn');
+            if (sendToFinanceBtn) sendToFinanceBtn.style.display = canEditSection('payroll') ? '' : 'none';
+
             // Report category optgroups
             filterReportCategories();
 
             // If current page is no longer permitted, redirect to the first available page
             const activePage = document.querySelector('.page.active');
             if (activePage && activePage.id !== 'users' && !canView(activePage.id)) {
-                const firstAvailable = ['dashboard', 'employees', 'payroll', 'departments', 'reports'].find(p => canView(p));
+                const firstAvailable = ['dashboard', 'employees', 'payroll', 'departments', 'reports', 'approvals', 'payrollHandoff'].find(p => canView(p));
                 if (firstAvailable) showPage(firstAvailable);
             }
 
@@ -1276,6 +1432,16 @@
             if (typeof updateUI === 'function' && employees && employees.length >= 0) {
                 try { updateUI(); } catch (e) { /* data may not be loaded yet */ }
             }
+
+            // Probation-due check and Finance deadline banner (only for people who can act on them)
+            if (canEditSection('employees')) checkProbationDue();
+            if (canEditSection('payroll')) checkFinanceDeadline();
+        }
+
+        function canReviewApprovals() {
+            if (isAdmin()) return true;
+            const perms = getPerms();
+            return !!(perms.approvals && perms.approvals.canReview);
         }
 
         function filterReportCategories() {
@@ -1302,7 +1468,7 @@
         function collectPermissionsFromForm() {
             const roleVal = document.getElementById('user-role').value;
             if (roleVal === 'admin') {
-                return { sections: { dashboard: true, employees: { view: true, edit: true }, payroll: { view: true, edit: true }, departments: { view: true }, reports: { view: true, categories: { employee: true, financial: true, analytical: true, compliance: true } } } };
+                return { sections: { dashboard: true, employees: { view: true, edit: true }, payroll: { view: true, edit: true }, departments: { view: true }, reports: { view: true, categories: { employee: true, financial: true, analytical: true, compliance: true } }, approvals: { view: true, canReview: true }, payrollHandoff: { view: true } } };
             }
             return {
                 sections: {
@@ -1318,6 +1484,13 @@
                             analytical: document.getElementById('perm-report-analytical').checked,
                             compliance: document.getElementById('perm-report-compliance').checked
                         }
+                    },
+                    approvals: {
+                        view: document.getElementById('perm-approvals-view').checked,
+                        canReview: document.getElementById('perm-approvals-review').checked
+                    },
+                    payrollHandoff: {
+                        view: document.getElementById('perm-payrollhandoff-view').checked
                     }
                 }
             };
@@ -1337,6 +1510,9 @@
             document.getElementById('perm-report-financial').checked = !!cats.financial;
             document.getElementById('perm-report-analytical').checked = !!cats.analytical;
             document.getElementById('perm-report-compliance').checked = !!cats.compliance;
+            document.getElementById('perm-approvals-view').checked = !!(s.approvals && s.approvals.view);
+            document.getElementById('perm-approvals-review').checked = !!(s.approvals && s.approvals.canReview);
+            document.getElementById('perm-payrollhandoff-view').checked = !!(s.payrollHandoff && s.payrollHandoff.view);
             toggleReportCategoryRows(document.getElementById('perm-reports-view').checked);
         }
 
@@ -1467,6 +1643,373 @@
                 alert('Could not delete user: ' + err.message);
             }
         }
+
+        // ===================================================
+        // PROBATION EVALUATIONS & CEO APPROVALS
+        // ===================================================
+        let cachedEvaluations = [];
+
+        async function checkProbationDue() {
+            const banner = document.getElementById('probation-due-banner');
+            if (!banner) return;
+            if (!employees || employees.length === 0) { banner.style.display = 'none'; return; }
+            try {
+                const token = getSessionToken();
+                const result = await callAppsScript('listEvaluations', { token });
+                cachedEvaluations = result.evaluations || [];
+            } catch (err) {
+                banner.style.display = 'none';
+                return; // Apps Script may not be configured yet — fail quietly here
+            }
+
+            const evaluatedIds = new Set(cachedEvaluations.map(ev => String(ev.EmployeeID)));
+            const today = new Date();
+            const due = employees.filter(emp => {
+                if (!emp['ID'] || evaluatedIds.has(String(emp['ID']))) return false;
+                if ((emp['Status'] || '').toLowerCase() === 'inactive') return false;
+                if (emp['Date of Leaving']) return false;
+                const doj = parseDate(emp['Date of Joining']);
+                if (!doj || isNaN(doj.getTime())) return false;
+                const probationEnd = new Date(doj);
+                probationEnd.setMonth(probationEnd.getMonth() + 3);
+                return probationEnd <= today;
+            });
+
+            if (due.length === 0) {
+                banner.style.display = 'none';
+                banner.innerHTML = '';
+                return;
+            }
+
+            banner.style.display = 'flex';
+            banner.className = 'info-banner probation';
+            banner.innerHTML = `
+                <i class="fas fa-graduation-cap" style="font-size:1.4rem;"></i>
+                <div>
+                    <strong>${due.length} employee${due.length > 1 ? 's have' : ' has'} completed the 3-month probation period</strong>
+                    <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:8px;">
+                        ${due.map(e => `<button type="button" onclick="openEvaluationModalForEmployee('${String(e['ID']).replace(/'/g, "\\'")}')"><i class="fas fa-clipboard-list"></i> Evaluate ${e['Name']}</button>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function openEvaluationModalForEmployee(employeeId) {
+            const emp = employees.find(e => String(e['ID']) === String(employeeId));
+            if (!emp) { alert('Employee not found.'); return; }
+
+            document.getElementById('eval-employee-id').value = emp['ID'];
+            document.getElementById('eval-employee-name').value = emp['Name'];
+            document.getElementById('eval-department').value = emp['Department'];
+            document.getElementById('eval-position').value = emp['Position'];
+            document.getElementById('eval-doj').value = emp['Date of Joining'];
+
+            const doj = parseDate(emp['Date of Joining']);
+            let probationEndStr = '';
+            if (doj && !isNaN(doj.getTime())) {
+                const probationEnd = new Date(doj);
+                probationEnd.setMonth(probationEnd.getMonth() + 3);
+                probationEndStr = probationEnd.toISOString().split('T')[0];
+            }
+            document.getElementById('eval-probation-end').value = probationEndStr;
+            document.getElementById('eval-employee-subtitle').textContent =
+                `${emp['Name']} — ${emp['Position'] || ''}, ${emp['Department'] || ''} | Joined: ${emp['Date of Joining'] || '—'} | Probation End: ${probationEndStr || '—'}`;
+
+            document.getElementById('evaluation-form').reset();
+            document.querySelectorAll('.eval-rating').forEach(sel => { sel.value = ''; });
+            document.getElementById('eval-overall-rating').textContent = '—';
+            document.getElementById('eval-extension-months-group').style.display = 'none';
+
+            document.getElementById('evaluation-modal').style.display = 'flex';
+        }
+
+        function closeEvaluationModal() {
+            document.getElementById('evaluation-modal').style.display = 'none';
+        }
+
+        function onEvalRecommendationChange(val) {
+            document.getElementById('eval-extension-months-group').style.display = val === 'Extend' ? '' : 'none';
+        }
+
+        function updateEvalOverallRating() {
+            const selects = document.querySelectorAll('.eval-rating');
+            let total = 0, count = 0;
+            selects.forEach(sel => { if (sel.value) { total += parseInt(sel.value, 10); count++; } });
+            document.getElementById('eval-overall-rating').textContent = count > 0 ? (total / count).toFixed(1) : '—';
+        }
+
+        async function handleEvaluationFormSubmit(e) {
+            e.preventDefault();
+            const scores = {};
+            let total = 0, count = 0;
+            document.querySelectorAll('.eval-rating').forEach(sel => {
+                const v = parseInt(sel.value, 10);
+                scores[sel.dataset.key] = v;
+                total += v;
+                count++;
+            });
+            const overallRating = count > 0 ? (total / count).toFixed(1) : '';
+            const recommendation = document.getElementById('eval-recommendation').value;
+
+            const evaluation = {
+                employeeId: document.getElementById('eval-employee-id').value,
+                employeeName: document.getElementById('eval-employee-name').value,
+                department: document.getElementById('eval-department').value,
+                position: document.getElementById('eval-position').value,
+                dateOfJoining: document.getElementById('eval-doj').value,
+                probationEndDate: document.getElementById('eval-probation-end').value,
+                scores: scores,
+                overallRating: overallRating,
+                strengths: document.getElementById('eval-strengths').value,
+                areasForImprovement: document.getElementById('eval-improvement').value,
+                recommendation: recommendation,
+                extensionMonths: recommendation === 'Extend' ? document.getElementById('eval-extension-months').value : '',
+                evaluatorComments: document.getElementById('eval-comments').value
+            };
+
+            const token = getSessionToken();
+            try {
+                await callAppsScript('submitEvaluation', { token, evaluation });
+                closeEvaluationModal();
+                alert('Evaluation submitted for CEO review ✅');
+                checkProbationDue();
+                const approvalsPage = document.getElementById('approvals');
+                if (approvalsPage && approvalsPage.classList.contains('active')) loadEvaluations();
+            } catch (err) {
+                alert('Could not submit evaluation: ' + err.message);
+            }
+        }
+
+        function statusBadgeClass(status) {
+            if (status === 'Approved') return 'status-approved';
+            if (status === 'Rejected') return 'status-rejected';
+            if (status === 'Changes Requested') return 'status-changes-requested';
+            return 'status-submitted';
+        }
+
+        async function loadEvaluations() {
+            const pendingWrapper = document.getElementById('approvals-pending-wrapper');
+            const pendingBody = document.querySelector('#approvals-pending-table tbody');
+            const historyBody = document.querySelector('#approvals-history-table tbody');
+            if (!pendingBody || !historyBody) return;
+
+            try {
+                const token = getSessionToken();
+                const result = await callAppsScript('listEvaluations', { token });
+                cachedEvaluations = result.evaluations || [];
+            } catch (err) {
+                historyBody.innerHTML = `<tr><td colspan="8" style="color: var(--secondary-color);">Could not load evaluations: ${err.message}</td></tr>`;
+                return;
+            }
+
+            const canReview = canReviewApprovals();
+            pendingWrapper.style.display = canReview ? 'block' : 'none';
+
+            if (canReview) {
+                const pending = cachedEvaluations.filter(ev => ev.Status === 'Submitted');
+                pendingBody.innerHTML = pending.length === 0
+                    ? `<tr><td colspan="8" style="color: var(--secondary-color);">Nothing pending your review right now.</td></tr>`
+                    : pending.map(ev => `<tr>
+                        <td>${ev.EmployeeName}</td>
+                        <td>${ev.Department}</td>
+                        <td>${ev.Position}</td>
+                        <td>${ev.EvaluatorName}</td>
+                        <td>${ev.OverallRating}</td>
+                        <td>${ev.Recommendation}</td>
+                        <td>${ev.SubmittedAt ? new Date(ev.SubmittedAt).toLocaleDateString() : ''}</td>
+                        <td><button onclick="openReviewModal('${String(ev.EvalID).replace(/'/g, "\\'")}')">Review</button></td>
+                    </tr>`).join('');
+            }
+
+            const sorted = [...cachedEvaluations].sort((a, b) => new Date(b.SubmittedAt) - new Date(a.SubmittedAt));
+            historyBody.innerHTML = sorted.length === 0
+                ? `<tr><td colspan="8" style="color: var(--secondary-color);">No evaluations yet.</td></tr>`
+                : sorted.map(ev => `<tr>
+                    <td>${ev.EmployeeName}</td>
+                    <td>${ev.Department}</td>
+                    <td>${ev.EvaluatorName}</td>
+                    <td>${ev.OverallRating}</td>
+                    <td>${ev.Recommendation}</td>
+                    <td><span class="${statusBadgeClass(ev.Status)}">${ev.Status}</span></td>
+                    <td>${ev.SubmittedAt ? new Date(ev.SubmittedAt).toLocaleDateString() : ''}</td>
+                    <td>${ev.CEODecision ? (ev.CEODecision + (ev.DecisionAt ? ' on ' + new Date(ev.DecisionAt).toLocaleDateString() : '')) : '—'}</td>
+                </tr>`).join('');
+        }
+
+        let currentReviewEvalId = null;
+
+        function openReviewModal(evalId) {
+            const ev = cachedEvaluations.find(e => String(e.EvalID) === String(evalId));
+            if (!ev) return;
+            currentReviewEvalId = evalId;
+
+            let scores = {};
+            try { scores = JSON.parse(ev.Scores || '{}'); } catch (e) { scores = {}; }
+            const scoreLabels = {
+                jobKnowledge: 'Job Knowledge & Skills', qualityOfWork: 'Quality of Work', productivity: 'Productivity & Efficiency',
+                attendance: 'Attendance & Punctuality', teamwork: 'Teamwork & Collaboration', communication: 'Communication Skills',
+                initiative: 'Initiative & Problem-Solving', discipline: 'Discipline & Policy Adherence'
+            };
+            const scoreRows = Object.keys(scoreLabels).map(k =>
+                `<div class="permission-row"><span style="flex:1;">${scoreLabels[k]}</span><strong>${scores[k] || '—'}</strong></div>`
+            ).join('');
+
+            document.getElementById('review-details').innerHTML = `
+                <p><strong>${ev.EmployeeName}</strong> — ${ev.Position}, ${ev.Department}</p>
+                <p style="color: var(--secondary-color); font-size: 0.85rem; margin-bottom: 10px;">Joined: ${ev.DateOfJoining} | Probation End: ${ev.ProbationEndDate} | Evaluator: ${ev.EvaluatorName}</p>
+                <div class="permission-block">${scoreRows}<div style="margin-top:8px;"><strong>Overall Rating: ${ev.OverallRating} / 5</strong></div></div>
+                <p style="margin-top:10px;"><strong>Strengths:</strong> ${ev.Strengths || '—'}</p>
+                <p><strong>Areas for Improvement:</strong> ${ev.AreasForImprovement || '—'}</p>
+                <p><strong>Recommendation:</strong> ${ev.Recommendation}${ev.Recommendation === 'Extend' && ev.ExtensionMonths ? ' (' + ev.ExtensionMonths + ' months)' : ''}</p>
+                <p><strong>Evaluator Comments:</strong> ${ev.EvaluatorComments || '—'}</p>
+            `;
+            document.getElementById('review-comments').value = '';
+            document.getElementById('review-modal').style.display = 'flex';
+        }
+
+        function closeReviewModal() {
+            document.getElementById('review-modal').style.display = 'none';
+            currentReviewEvalId = null;
+        }
+
+        async function submitReviewDecision(decision) {
+            if (!currentReviewEvalId) return;
+            const ceoComments = document.getElementById('review-comments').value;
+            const token = getSessionToken();
+            try {
+                await callAppsScript('reviewEvaluation', { token, evalId: currentReviewEvalId, decision, ceoComments });
+                closeReviewModal();
+                loadEvaluations();
+            } catch (err) {
+                alert('Could not submit decision: ' + err.message);
+            }
+        }
+
+        // ===================================================
+        // PAYROLL HANDOFF (FINANCE)
+        // ===================================================
+        let cachedPayrollShares = [];
+
+        function currentMonthKey() {
+            const today = new Date();
+            return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+        }
+
+        function monthLabelFromKey(monthKey) {
+            if (!monthKey) return '';
+            const parts = monthKey.split('-');
+            const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, 1);
+            return d.toLocaleString('default', { month: 'long', year: 'numeric' });
+        }
+
+        async function checkFinanceDeadline() {
+            const banner = document.getElementById('finance-deadline-banner');
+            if (!banner) return;
+            const today = new Date();
+            if (today.getDate() < 27) { banner.style.display = 'none'; banner.innerHTML = ''; return; }
+
+            try {
+                const token = getSessionToken();
+                const result = await callAppsScript('listPayrollShares', { token });
+                const shares = result.shares || [];
+                const alreadyShared = shares.some(s => s.month === currentMonthKey());
+                if (alreadyShared) { banner.style.display = 'none'; banner.innerHTML = ''; return; }
+            } catch (err) {
+                banner.style.display = 'none';
+                return;
+            }
+
+            banner.style.display = 'flex';
+            banner.className = 'info-banner finance-warning';
+            banner.innerHTML = `
+                <i class="fas fa-triangle-exclamation" style="font-size:1.3rem;"></i>
+                <div><strong>This month's payroll hasn't been shared with Finance yet.</strong> Deadline: 27th.</div>
+                <div class="banner-actions"><button type="button" onclick="showPage('payroll')">Go to Payroll</button></div>
+            `;
+        }
+
+        async function sendPayrollToFinance() {
+            const monthKey = currentMonthKey();
+            const monthLabel = monthLabelFromKey(monthKey);
+            const activeEmps = employees.filter(e => (e['Status'] || '').toLowerCase() !== 'inactive');
+            const snapshot = activeEmps.map(e => ({
+                'Name': e['Name'] || '',
+                'Department': e['Department'] || '',
+                'Base Salary': parseFloat(e['Base Salary'] || 0),
+                'Travel Allowance': parseFloat(e['Travel Allowance'] || 0),
+                'Fuel/Grocery Allowance': parseFloat(e['Fuel/Grocery Allowance'] || 0),
+                'Other Allowance': parseFloat(e['Other Allowance'] || 0),
+                'Provident Fund': parseFloat(e['Provident Fund'] || 0),
+                'EOBI': parseFloat(e['EOBI'] || 0),
+                'Total Cost to Company': parseFloat(e['Total Cost to Company'] || 0)
+            }));
+
+            if (!confirm(`Share payroll for ${monthLabel} with Finance? This includes ${snapshot.length} active employee(s). Re-sending will overwrite this month's previous share.`)) return;
+
+            const token = getSessionToken();
+            try {
+                await callAppsScript('sharePayroll', { token, month: monthKey, snapshot, notes: '' });
+                alert(`Payroll for ${monthLabel} shared with Finance ✅`);
+                checkFinanceDeadline();
+            } catch (err) {
+                alert('Could not share payroll: ' + err.message);
+            }
+        }
+
+        async function loadPayrollShares() {
+            const tbody = document.querySelector('#payroll-handoff-table tbody');
+            if (!tbody) return;
+            try {
+                const token = getSessionToken();
+                const result = await callAppsScript('listPayrollShares', { token });
+                cachedPayrollShares = result.shares || [];
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="7" style="color: var(--secondary-color);">Could not load payroll handoff: ${err.message}</td></tr>`;
+                return;
+            }
+            const sorted = [...cachedPayrollShares].sort((a, b) => (b.month || '').localeCompare(a.month || ''));
+            tbody.innerHTML = sorted.length === 0
+                ? `<tr><td colspan="7" style="color: var(--secondary-color);">Nothing shared yet.</td></tr>`
+                : sorted.map(s => `<tr>
+                    <td>${monthLabelFromKey(s.month)}</td>
+                    <td>${s.sharedByName || s.sharedByUsername || ''}</td>
+                    <td>${s.sharedAt ? new Date(s.sharedAt).toLocaleString() : ''}</td>
+                    <td>${s.employeeCount || 0}</td>
+                    <td>PKR ${parseFloat(s.totalCost || 0).toLocaleString()}</td>
+                    <td>${s.notes || '—'}</td>
+                    <td><button onclick="viewPayrollSnapshot('${String(s.month).replace(/'/g, "\\'")}')">View</button></td>
+                </tr>`).join('');
+        }
+
+        function viewPayrollSnapshot(monthKey) {
+            const share = cachedPayrollShares.find(s => s.month === monthKey);
+            if (!share) return;
+            let snapshot = [];
+            try { snapshot = JSON.parse(share.snapshot || '[]'); } catch (e) { snapshot = []; }
+
+            document.getElementById('payroll-snapshot-title').textContent = 'Payroll — ' + monthLabelFromKey(monthKey);
+            const tbody = document.querySelector('#payroll-snapshot-table tbody');
+            tbody.innerHTML = snapshot.map(r => `<tr>
+                <td>${r['Name'] || ''}</td>
+                <td>${r['Department'] || ''}</td>
+                <td>PKR ${parseFloat(r['Base Salary'] || 0).toLocaleString()}</td>
+                <td>PKR ${parseFloat(r['Travel Allowance'] || 0).toLocaleString()}</td>
+                <td>PKR ${parseFloat(r['Fuel/Grocery Allowance'] || 0).toLocaleString()}</td>
+                <td>PKR ${parseFloat(r['Other Allowance'] || 0).toLocaleString()}</td>
+                <td>PKR ${parseFloat(r['Provident Fund'] || 0).toLocaleString()}</td>
+                <td>PKR ${parseFloat(r['EOBI'] || 0).toLocaleString()}</td>
+                <td>PKR ${parseFloat(r['Total Cost to Company'] || 0).toLocaleString()}</td>
+            </tr>`).join('');
+            document.getElementById('payroll-snapshot-modal').style.display = 'flex';
+        }
+
+        // Wire up rating-change listeners and the evaluation form once the DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.eval-rating').forEach(sel => sel.addEventListener('change', updateEvalOverallRating));
+            const evalForm = document.getElementById('evaluation-form');
+            if (evalForm) evalForm.addEventListener('submit', handleEvaluationFormSubmit);
+        });
+
 
         // ===================================================
         // DASHBOARD CODE
@@ -1720,11 +2263,15 @@
             }
             pages.forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            pageTitle.textContent = pageId === 'users' ? 'Manage Users' : pageId.charAt(0).toUpperCase() + pageId.slice(1);
+            pageTitle.textContent = pageId === 'users' ? 'Manage Users' : (pageId === 'payrollHandoff' ? 'Payroll Handoff' : pageId.charAt(0).toUpperCase() + pageId.slice(1));
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             document.querySelector(`.nav-link[data-page="${pageId}"]`).classList.add('active');
             if (pageId === 'users') {
                 loadUsers();
+            } else if (pageId === 'approvals') {
+                loadEvaluations();
+            } else if (pageId === 'payrollHandoff') {
+                loadPayrollShares();
             } else {
                 updateUI();
             }
