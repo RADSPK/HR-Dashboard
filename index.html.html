@@ -635,7 +635,8 @@
         .status-approved { color: #155724; background-color: #D4EDDA; }
         .status-rejected { color: #721C24; background-color: #F8D7DA; }
         .status-changes-requested { color: #0C5460; background-color: #D1ECF1; }
-        .status-submitted, .status-approved, .status-rejected, .status-changes-requested {
+        .status-exempted { color: #495057; background-color: #E2E3E5; }
+        .status-submitted, .status-approved, .status-rejected, .status-changes-requested, .status-exempted {
             display: inline-block;
             padding: 3px 10px;
             border-radius: 9999px;
@@ -645,20 +646,72 @@
         }
         .info-banner {
             display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 18px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 18px 22px;
+            border-radius: var(--border-radius);
+            margin-bottom: 22px;
             font-size: 0.9rem;
+            background-color: var(--card-bg);
+            box-shadow: var(--box-shadow);
+            border-left: 4px solid var(--primary-color);
+            color: var(--text-color);
         }
-        .info-banner.probation { background: #FFF3CD; color: #856404; border: 1px solid #FFE69C; }
-        .info-banner.finance-warning { background: #F8D7DA; color: #721C24; border: 1px solid #F1AEB5; }
-        .info-banner .banner-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+        .info-banner > i {
+            color: var(--primary-color);
+            margin-top: 2px;
+        }
+        .info-banner.finance-warning {
+            border-left-color: #B23A3A;
+        }
+        .info-banner.finance-warning > i {
+            color: #B23A3A;
+        }
+        .info-banner .banner-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
         .info-banner button {
-            padding: 6px 14px;
+            padding: 7px 16px;
             font-size: 0.82rem;
             white-space: nowrap;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: #fff;
+            transition: opacity var(--transition-speed);
+        }
+        .info-banner button:hover {
+            opacity: 0.85;
+        }
+        .info-banner button.secondary-btn {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        .probation-employee-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--background-color);
+        }
+        .probation-employee-row label {
+            margin: 0;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .probation-employee-row input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            accent-color: var(--primary-color);
+            cursor: pointer;
         }
         .active-badge, .inactive-badge {
             display: inline-block;
@@ -973,21 +1026,35 @@
                 <div class="section-header"><h2>Reports & Analytics</h2></div>
                 <div class="card" style="flex-direction: column; align-items: flex-start;">
                     <h3>Generate Custom Report</h3>
-                    <form id="report-form" style="width: 100%;"><div class="form-grid"><div class="form-group"><label for="report-type">Report Type</label><select id="report-type" name="reportType" required><option value="">Select Report Type...</option><optgroup label="Employee Reports"><option value="joining">New Joinings Report</option><option value="leaving">Leaving/Termination Report</option><option value="contact">Complete Employee Directory</option><option value="employee-status">Employee Status Analysis</option><option value="tenure-analysis">Employee Tenure Analysis</option></optgroup><optgroup label="Financial Reports"><option value="payroll">Detailed Payroll Report</option><option value="department-salary">Department-wise Salary Breakdown</option><option value="salary-distribution">Salary Range Distribution</option><option value="allowances-breakdown">Allowances & Benefits Breakdown</option><option value="cost-center-analysis">Cost Center Analysis</option></optgroup><optgroup label="Analytical Reports"><option value="gender-analytics">Gender Distribution Analytics</option><option value="turnover-analysis">Turnover & Retention Analysis</option><option value="headcount-trends">Headcount Trends Report</option><option value="department-comparison">Department Performance Comparison</option><option value="work-mode-analysis">Work Mode & Leave Analysis</option><option value="recruitment-efficiency">Recruitment Efficiency Report</option></optgroup><optgroup label="Compliance Reports"><option value="provident-fund">Provident Fund Report</option><option value="eobi-report">EOBI Contribution Report</option><option value="tax-summary">Tax Deduction Summary</option></optgroup></select></div><div class="form-group"><label for="report-start-date">Start Date (Optional)</label><input type="date" id="report-start-date" name="startDate"></div><div class="form-group"><label for="report-end-date">End Date (Optional)</label><input type="date" id="report-end-date" name="endDate"></div><div class="form-group"><label for="report-department">Department Filter</label><select id="report-department" name="department"><option value="">All Departments</option></select></div><div class="form-group"><label for="report-status">Status Filter</label><select id="report-status" name="status"><option value="">All Statuses</option><option value="Active">Active Only</option><option value="Inactive">Inactive Only</option><option value="WFH">WFH Only</option><option value="On Leave">On Leave</option></select></div><div class="form-group"><label for="report-gender">Gender Filter</label><select id="report-gender" name="gender"><option value="">All</option><option value="Male">Male</option><option value="Female">Female</option></select></div></div><button type="submit" style="margin-top: 10px;">Generate Report</button></form>
+                    <form id="report-form" style="width: 100%;"><div class="form-grid"><div class="form-group"><label for="report-type">Report Type</label><select id="report-type" name="reportType" required><option value="">Select Report Type...</option><optgroup label="Employee Reports"><option value="joining">New Joinings Report</option><option value="leaving">Leaving/Termination Report</option><option value="contact">Complete Employee Directory</option><option value="employee-status">Employee Status Analysis</option><option value="tenure-analysis">Employee Tenure Analysis</option></optgroup><optgroup label="Financial Reports"><option value="payroll">Detailed Payroll Report</option><option value="department-salary">Department-wise Salary Breakdown</option><option value="salary-distribution">Salary Range Distribution</option><option value="allowances-breakdown">Allowances & Benefits Breakdown</option><option value="cost-center-analysis">Cost Center Analysis</option></optgroup><optgroup label="Analytical Reports"><option value="gender-analytics">Gender Distribution Analytics</option><option value="turnover-analysis">Turnover & Retention Analysis</option><option value="headcount-trends">Headcount Trends Report</option><option value="department-comparison">Department Performance Comparison</option><option value="work-mode-analysis">Work Mode & Leave Analysis</option><option value="recruitment-efficiency">Recruitment Efficiency Report</option></optgroup><optgroup label="Compliance Reports"><option value="provident-fund">Provident Fund Report</option><option value="eobi-report">EOBI Contribution Report</option><option value="tax-summary">Tax Deduction Summary</option></optgroup><optgroup label="Personal File Reports"><option value="leave-history">Leave History Report</option><option value="wfh-history">WFH History Report</option><option value="loans-advances">Loans &amp; Advances Report</option><option value="increment-history">Increment History Report</option></optgroup></select></div><div class="form-group"><label for="report-start-date">Start Date (Optional)</label><input type="date" id="report-start-date" name="startDate"></div><div class="form-group"><label for="report-end-date">End Date (Optional)</label><input type="date" id="report-end-date" name="endDate"></div><div class="form-group"><label for="report-department">Department Filter</label><select id="report-department" name="department"><option value="">All Departments</option></select></div><div class="form-group"><label for="report-status">Status Filter</label><select id="report-status" name="status"><option value="">All Statuses</option><option value="Active">Active Only</option><option value="Inactive">Inactive Only</option><option value="WFH">WFH Only</option><option value="On Leave">On Leave</option></select></div><div class="form-group"><label for="report-gender">Gender Filter</label><select id="report-gender" name="gender"><option value="">All</option><option value="Male">Male</option><option value="Female">Female</option></select></div></div><button type="submit" style="margin-top: 10px;">Generate Report</button></form>
                 </div>
                 <div class="card" style="margin-top: 20px; flex-direction: column; align-items: flex-start;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px;"><h3>Report Output & Analytics</h3><button class="action-buttons primary" id="download-report-btn" style="display: none; padding: 6px 12px;" onclick="downloadReport()"><i class="fas fa-download"></i> Download CSV</button></div><div id="report-output-content" style="width: 100%; min-height: 100px;"><p style="color: var(--secondary-color);">Select a report type and click "Generate Report" to view detailed analytics.</p></div></div>
             </section>
 
             <section id="approvals" class="page">
                 <div class="section-header">
-                    <h2>Probation Evaluations &amp; Approvals</h2>
+                    <h2>Performance Evaluations &amp; Approvals</h2>
+                    <button id="open-review-window-btn" onclick="openReviewWindowModal()" class="action-buttons primary" style="display:none; padding: 8px 16px; white-space: nowrap;">
+                        <i class="fas fa-calendar-plus"></i> Open Review Window
+                    </button>
                 </div>
+
+                <div id="review-windows-wrapper" style="display:none;">
+                    <h3 style="margin: 10px 0; color: var(--secondary-color);">Review Windows</h3>
+                    <div class="table-responsive"><table class="data-table" id="review-windows-table"><thead><tr><th>Title</th><th>Type</th><th>Due Date</th><th>Employees</th><th>Opened By</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+                </div>
+
+                <div id="evaluations-due-wrapper" style="display:none;">
+                    <h3 style="margin: 20px 0 10px; color: var(--secondary-color);">Evaluations Due</h3>
+                    <div class="table-responsive"><table class="data-table" id="evaluations-due-table"><thead><tr><th>Employee</th><th>Type</th><th>Review Window</th><th>Due Date</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+                </div>
+
                 <div id="approvals-pending-wrapper" style="display:none;">
-                    <h3 style="margin: 10px 0; color: var(--secondary-color);">Pending My Review</h3>
-                    <div class="table-responsive"><table class="data-table" id="approvals-pending-table"><thead><tr><th>Employee</th><th>Department</th><th>Position</th><th>Evaluator</th><th>Overall Rating</th><th>Recommendation</th><th>Submitted</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+                    <h3 style="margin: 20px 0 10px; color: var(--secondary-color);">Pending My Review</h3>
+                    <div class="table-responsive"><table class="data-table" id="approvals-pending-table"><thead><tr><th>Employee</th><th>Department</th><th>Position</th><th>Type</th><th>Evaluator</th><th>Overall Rating</th><th>Recommendation</th><th>Submitted</th><th>Action</th></tr></thead><tbody></tbody></table></div>
                 </div>
                 <h3 style="margin: 20px 0 10px; color: var(--secondary-color);">All Evaluations</h3>
-                <div class="table-responsive"><table class="data-table" id="approvals-history-table"><thead><tr><th>Employee</th><th>Department</th><th>Evaluator</th><th>Overall Rating</th><th>Recommendation</th><th>Status</th><th>Submitted</th><th>Decision</th></tr></thead><tbody></tbody></table></div>
+                <div class="table-responsive"><table class="data-table" id="approvals-history-table"><thead><tr><th>Employee</th><th>Department</th><th>Type</th><th>Evaluator</th><th>Overall Rating</th><th>Recommendation</th><th>Status</th><th>Submitted</th><th>Decision</th></tr></thead><tbody></tbody></table></div>
             </section>
 
             <section id="payrollHandoff" class="page">
@@ -1108,7 +1175,13 @@
                     <div class="permission-block">
                         <h4>Probation Evaluations &amp; Approvals</h4>
                         <div class="permission-row"><input type="checkbox" id="perm-approvals-view"><label for="perm-approvals-view" style="margin:0;">Can view probation evaluations</label></div>
-                        <div class="permission-row"><input type="checkbox" id="perm-approvals-review"><label for="perm-approvals-review" style="margin:0;">Can review &amp; approve/reject evaluations (CEO)</label></div>
+                        <div class="permission-row"><input type="checkbox" id="perm-approvals-review" onchange="onApprovalsReviewChange(this.checked)"><label for="perm-approvals-review" style="margin:0;">Can review &amp; approve/reject evaluations (CEO)</label></div>
+                        <div class="permission-row"><input type="checkbox" id="perm-approvals-teamlead" onchange="onTeamLeadChange(this.checked)"><label for="perm-approvals-teamlead" style="margin:0;">Is a Department Head — evaluates an assigned team</label></div>
+                        <div id="team-assignment-wrapper" style="display:none; margin-top: 12px;">
+                            <label style="display:block; margin-bottom: 6px; font-size: 0.85rem; color: var(--secondary-color);">Assigned Team Members</label>
+                            <input type="text" id="team-assignment-search" placeholder="Search employees..." style="width:100%; padding:8px 12px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:8px;" oninput="renderTeamAssignmentChecklist(this.value)">
+                            <div id="team-assignment-checklist" style="max-height:180px; overflow-y:auto; border:1px solid var(--border-color); border-radius:8px; padding:8px;"></div>
+                        </div>
                     </div>
 
                     <div class="permission-block">
@@ -1126,7 +1199,7 @@
     <div id="evaluation-modal" class="modal">
         <div class="modal-content" style="max-width: 680px;">
             <span class="close-button" onclick="closeEvaluationModal()">&times;</span>
-            <h3 style="margin-bottom: 6px;">3-Month Probation Assessment</h3>
+            <h3 style="margin-bottom: 6px;" id="evaluation-modal-heading">3-Month Probation Assessment</h3>
             <p style="color: var(--secondary-color); margin-bottom: 16px;" id="eval-employee-subtitle"></p>
             <form id="evaluation-form">
                 <input type="hidden" id="eval-employee-id">
@@ -1201,6 +1274,116 @@
                 <button type="button" style="flex:1; background-color: #b7791f;" onclick="submitReviewDecision('Changes Requested')">Request Changes</button>
                 <button type="button" style="flex:1; background-color: #c0392b;" onclick="submitReviewDecision('Rejected')">Reject</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Employee Personal File Modal -->
+    <div id="personal-file-modal" class="modal">
+        <div class="modal-content" style="max-width: 780px;">
+            <span class="close-button" onclick="closePersonalFileModal()">&times;</span>
+            <h3 style="margin-bottom: 4px;">Employee Personal File</h3>
+            <p style="color: var(--secondary-color); margin-bottom: 16px;" id="pf-employee-subtitle"></p>
+            <input type="hidden" id="pf-employee-id">
+            <input type="hidden" id="pf-employee-name">
+
+            <div class="tab-controls">
+                <button type="button" class="tab-button active" data-pftab="leaves" onclick="switchPersonalFileTab('leaves')">Leaves</button>
+                <button type="button" class="tab-button" data-pftab="wfh" onclick="switchPersonalFileTab('wfh')">WFH</button>
+                <button type="button" class="tab-button" data-pftab="loans" onclick="switchPersonalFileTab('loans')">Loans &amp; Advances</button>
+                <button type="button" class="tab-button" data-pftab="increments" onclick="switchPersonalFileTab('increments')">Increments</button>
+            </div>
+
+            <!-- Leaves tab -->
+            <div id="pf-tab-leaves" class="tab-content active">
+                <form id="pf-leave-form" style="margin-bottom: 16px;">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Start Date</label><input type="date" id="pf-leave-start" required></div>
+                        <div class="form-group"><label>End Date</label><input type="date" id="pf-leave-end" required></div>
+                        <div class="form-group"><label>Days</label><input type="number" id="pf-leave-days" min="0.5" step="0.5" required></div>
+                        <div class="form-group"><label>Leave Type</label><select id="pf-leave-type"><option>Annual</option><option>Sick</option><option>Casual</option><option>Unpaid</option><option>Other</option></select></div>
+                    </div>
+                    <div class="form-group"><label>Notes</label><input type="text" id="pf-leave-notes"></div>
+                    <button type="submit" style="padding: 8px 16px;">Add Leave Record</button>
+                </form>
+                <div class="table-responsive"><table class="data-table" id="pf-leave-table"><thead><tr><th>Start</th><th>End</th><th>Days</th><th>Type</th><th>Notes</th><th>Recorded By</th></tr></thead><tbody></tbody></table></div>
+            </div>
+
+            <!-- WFH tab -->
+            <div id="pf-tab-wfh" class="tab-content">
+                <form id="pf-wfh-form" style="margin-bottom: 16px;">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Start Date</label><input type="date" id="pf-wfh-start" required></div>
+                        <div class="form-group"><label>End Date</label><input type="date" id="pf-wfh-end" required></div>
+                    </div>
+                    <div class="form-group"><label>Notes</label><input type="text" id="pf-wfh-notes"></div>
+                    <button type="submit" style="padding: 8px 16px;">Add WFH Record</button>
+                </form>
+                <div class="table-responsive"><table class="data-table" id="pf-wfh-table"><thead><tr><th>Start</th><th>End</th><th>Notes</th><th>Recorded By</th></tr></thead><tbody></tbody></table></div>
+            </div>
+
+            <!-- Loans & Advances tab -->
+            <div id="pf-tab-loans" class="tab-content">
+                <form id="pf-loan-form" style="margin-bottom: 16px;">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Entry Type</label><select id="pf-loan-type"><option value="Loan">New Loan</option><option value="Advance">New Advance</option><option value="Repayment">Repayment</option></select></div>
+                        <div class="form-group" id="pf-loan-ledger-group" style="display:none;"><label>Against Which Loan/Advance</label><select id="pf-loan-ledger"></select></div>
+                        <div class="form-group"><label>Date</label><input type="date" id="pf-loan-date" required></div>
+                        <div class="form-group"><label>Amount (PKR)</label><input type="number" id="pf-loan-amount" min="0" required></div>
+                    </div>
+                    <div class="form-group"><label>Notes</label><input type="text" id="pf-loan-notes" placeholder="Reason / repayment method"></div>
+                    <button type="submit" style="padding: 8px 16px;">Add Entry</button>
+                </form>
+                <div id="pf-loan-balances" style="margin-bottom: 12px;"></div>
+                <div class="table-responsive"><table class="data-table" id="pf-loan-table"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Notes</th><th>Recorded By</th></tr></thead><tbody></tbody></table></div>
+            </div>
+
+            <!-- Increments tab -->
+            <div id="pf-tab-increments" class="tab-content">
+                <form id="pf-increment-form" style="margin-bottom: 16px;">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Effective Date</label><input type="date" id="pf-increment-date" required></div>
+                        <div class="form-group"><label>Old Base Salary (PKR)</label><input type="number" id="pf-increment-old" min="0" required></div>
+                        <div class="form-group"><label>New Base Salary (PKR)</label><input type="number" id="pf-increment-new" min="0" required></div>
+                    </div>
+                    <div class="form-group"><label>Reason / Notes</label><input type="text" id="pf-increment-notes"></div>
+                    <button type="submit" style="padding: 8px 16px;">Add Increment Record</button>
+                </form>
+                <div class="table-responsive"><table class="data-table" id="pf-increment-table"><thead><tr><th>Effective Date</th><th>Old Salary</th><th>New Salary</th><th>Change</th><th>Notes</th><th>Recorded By</th></tr></thead><tbody></tbody></table></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Open Review Window Modal -->
+    <div id="review-window-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-button" onclick="closeReviewWindowModal()">&times;</span>
+            <h3 style="margin-bottom: 16px;">Open Review Window</h3>
+            <form id="review-window-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="window-title">Title</label>
+                        <input type="text" id="window-title" placeholder="e.g. Q3 2026 Reviews" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="window-type">Type</label>
+                        <select id="window-type" required>
+                            <option value="Quarterly">Quarterly</option>
+                            <option value="SemiAnnual">6-Monthly</option>
+                            <option value="Annual">Annual</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="window-due-date">Due Date (optional)</label>
+                        <input type="date" id="window-due-date">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Employees to Include</label>
+                    <input type="text" id="window-employee-search" placeholder="Search employees..." style="width:100%; padding:8px 12px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:8px;" oninput="renderWindowEmployeeChecklist(this.value)">
+                    <div id="window-employee-checklist" style="max-height:220px; overflow-y:auto; border:1px solid var(--border-color); border-radius:8px; padding:8px;"></div>
+                </div>
+                <button type="submit" style="width: 100%; margin-top: 10px;">Open Review Window</button>
+            </form>
         </div>
     </div>
 
@@ -1434,7 +1617,7 @@
             }
 
             // Probation-due check and Finance deadline banner (only for people who can act on them)
-            if (canEditSection('employees')) checkProbationDue();
+            if (canEditSection('employees') || isTeamLead()) checkProbationDue();
             if (canEditSection('payroll')) checkFinanceDeadline();
         }
 
@@ -1444,6 +1627,12 @@
             return !!(perms.approvals && perms.approvals.canReview);
         }
 
+        function isTeamLead() {
+            if (isAdmin()) return true; // admin can act as a stand-in team lead for anyone
+            const perms = getPerms();
+            return !!(perms.approvals && perms.approvals.teamLead);
+        }
+
         function filterReportCategories() {
             const reportTypeSelect = document.getElementById('report-type');
             if (!reportTypeSelect) return;
@@ -1451,7 +1640,8 @@
                 'Employee Reports': 'employee',
                 'Financial Reports': 'financial',
                 'Analytical Reports': 'analytical',
-                'Compliance Reports': 'compliance'
+                'Compliance Reports': 'compliance',
+                'Personal File Reports': 'employee'
             };
             reportTypeSelect.querySelectorAll('optgroup').forEach(og => {
                 const cat = categoryByLabel[og.label];
@@ -1465,11 +1655,54 @@
         // ---------------------------------------------------------------
         let editingUsername = null;
 
+        // ---------------------------------------------------------------
+        // Department Head team assignment (used inside the User modal)
+        // ---------------------------------------------------------------
+        let selectedTeamEmployeeIds = new Set();
+
+        function onTeamLeadChange(checked) {
+            const wrapper = document.getElementById('team-assignment-wrapper');
+            wrapper.style.display = checked ? 'block' : 'none';
+            if (checked) renderTeamAssignmentChecklist('');
+        }
+
+        function renderTeamAssignmentChecklist(filterText) {
+            const container = document.getElementById('team-assignment-checklist');
+            if (!container) return;
+            const filter = (filterText || '').toLowerCase();
+            const list = (employees || []).filter(e =>
+                !filter || (e['Name'] || '').toLowerCase().includes(filter) || (e['Department'] || '').toLowerCase().includes(filter)
+            );
+            if (list.length === 0) {
+                container.innerHTML = `<p style="color: var(--secondary-color); font-size: 0.85rem; margin:0;">No employees found.</p>`;
+                return;
+            }
+            container.innerHTML = list.map(e => {
+                const id = String(e['ID']);
+                const checked = selectedTeamEmployeeIds.has(id) ? 'checked' : '';
+                const safeId = id.replace(/[^a-zA-Z0-9]/g, '');
+                return `<div class="permission-row">
+                    <input type="checkbox" id="team-emp-${safeId}" ${checked} onchange="toggleTeamEmployee('${id.replace(/'/g, "\\'")}', this.checked)">
+                    <label for="team-emp-${safeId}" style="margin:0;">${e['Name']} <span style="color: var(--secondary-color); font-size:0.8rem;">(${e['Department'] || '—'})</span></label>
+                </div>`;
+            }).join('');
+        }
+
+        function toggleTeamEmployee(employeeId, checked) {
+            if (checked) selectedTeamEmployeeIds.add(employeeId);
+            else selectedTeamEmployeeIds.delete(employeeId);
+        }
+
+        function onApprovalsReviewChange(checked) {
+            if (checked) document.getElementById('perm-approvals-view').checked = true;
+        }
+
         function collectPermissionsFromForm() {
             const roleVal = document.getElementById('user-role').value;
             if (roleVal === 'admin') {
                 return { sections: { dashboard: true, employees: { view: true, edit: true }, payroll: { view: true, edit: true }, departments: { view: true }, reports: { view: true, categories: { employee: true, financial: true, analytical: true, compliance: true } }, approvals: { view: true, canReview: true }, payrollHandoff: { view: true } } };
             }
+            const canReview = document.getElementById('perm-approvals-review').checked;
             return {
                 sections: {
                     dashboard: document.getElementById('perm-dashboard').checked,
@@ -1486,8 +1719,10 @@
                         }
                     },
                     approvals: {
-                        view: document.getElementById('perm-approvals-view').checked,
-                        canReview: document.getElementById('perm-approvals-review').checked
+                        // Reviewing without being able to view the page makes no sense — canReview always implies view
+                        view: document.getElementById('perm-approvals-view').checked || canReview,
+                        canReview: canReview,
+                        teamLead: document.getElementById('perm-approvals-teamlead').checked
                     },
                     payrollHandoff: {
                         view: document.getElementById('perm-payrollhandoff-view').checked
@@ -1512,6 +1747,7 @@
             document.getElementById('perm-report-compliance').checked = !!cats.compliance;
             document.getElementById('perm-approvals-view').checked = !!(s.approvals && s.approvals.view);
             document.getElementById('perm-approvals-review').checked = !!(s.approvals && s.approvals.canReview);
+            document.getElementById('perm-approvals-teamlead').checked = !!(s.approvals && s.approvals.teamLead);
             document.getElementById('perm-payrollhandoff-view').checked = !!(s.payrollHandoff && s.payrollHandoff.view);
             toggleReportCategoryRows(document.getElementById('perm-reports-view').checked);
         }
@@ -1531,6 +1767,9 @@
             form.reset();
             document.getElementById('user-active-group').style.display = user ? '' : 'none';
             document.getElementById('perm-report-categories').style.opacity = '1';
+            selectedTeamEmployeeIds = new Set();
+            document.getElementById('team-assignment-wrapper').style.display = 'none';
+            document.getElementById('team-assignment-search').value = '';
 
             if (user) {
                 editingUsername = user.username;
@@ -1547,6 +1786,12 @@
                 if (typeof perms === 'string') { try { perms = JSON.parse(perms); } catch (e) { perms = {}; } }
                 fillPermissionsIntoForm(perms || {});
                 onUserRoleChange(user.role || 'user');
+
+                const isTeamLead = !!(perms && perms.sections && perms.sections.approvals && perms.sections.approvals.teamLead);
+                if (isTeamLead) {
+                    onTeamLeadChange(true);
+                    loadExistingTeamAssignment(user.username);
+                }
             } else {
                 editingUsername = null;
                 document.getElementById('user-modal-title').textContent = 'Add New User';
@@ -1556,6 +1801,17 @@
                 onUserRoleChange('user');
             }
             document.getElementById('user-modal').style.display = 'flex';
+        }
+
+        async function loadExistingTeamAssignment(username) {
+            try {
+                const token = getSessionToken();
+                const result = await callAppsScript('getTeamAssignments', { token, username });
+                selectedTeamEmployeeIds = new Set((result.employeeIds || []).map(String));
+                renderTeamAssignmentChecklist(document.getElementById('team-assignment-search').value);
+            } catch (err) {
+                console.error('Could not load team assignment:', err);
+            }
         }
 
         function closeUserModal() {
@@ -1582,6 +1838,13 @@
                     const passwordHash = await hashPassword(password);
                     await callAppsScript('createUser', { token, user: { username, fullName, role, permissions, passwordHash } });
                 }
+
+                // Save the department head's team assignment, if applicable
+                if (permissions.sections && permissions.sections.approvals && permissions.sections.approvals.teamLead) {
+                    const targetUsername = editingUsername || username;
+                    await callAppsScript('setTeamAssignments', { token, username: targetUsername, employeeIds: Array.from(selectedTeamEmployeeIds) });
+                }
+
                 closeUserModal();
                 loadUsers();
             } catch (err) {
@@ -1662,10 +1925,23 @@
                 return; // Apps Script may not be configured yet — fail quietly here
             }
 
+            // Department heads without org-wide Employees access only see their own assigned team
+            let teamFilterIds = null;
+            if (!isAdmin() && !canEditSection('employees') && isTeamLead()) {
+                try {
+                    const token = getSessionToken();
+                    const teamResult = await callAppsScript('getTeamAssignments', { token, username: currentUser.username });
+                    teamFilterIds = new Set((teamResult.employeeIds || []).map(String));
+                } catch (err) {
+                    teamFilterIds = new Set(); // fail closed — show nothing rather than everyone
+                }
+            }
+
             const evaluatedIds = new Set(cachedEvaluations.map(ev => String(ev.EmployeeID)));
             const today = new Date();
             const due = employees.filter(emp => {
                 if (!emp['ID'] || evaluatedIds.has(String(emp['ID']))) return false;
+                if (teamFilterIds && !teamFilterIds.has(String(emp['ID']))) return false;
                 if ((emp['Status'] || '').toLowerCase() === 'inactive') return false;
                 if (emp['Date of Leaving']) return false;
                 const doj = parseDate(emp['Date of Joining']);
@@ -1681,22 +1957,70 @@
                 return;
             }
 
+            probationDueEmployees = due;
+            const showBypass = isAdmin();
+
             banner.style.display = 'flex';
             banner.className = 'info-banner probation';
             banner.innerHTML = `
                 <i class="fas fa-graduation-cap" style="font-size:1.4rem;"></i>
-                <div>
+                <div style="flex:1;">
                     <strong>${due.length} employee${due.length > 1 ? 's have' : ' has'} completed the 3-month probation period</strong>
-                    <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:8px;">
-                        ${due.map(e => `<button type="button" onclick="openEvaluationModalForEmployee('${String(e['ID']).replace(/'/g, "\\'")}')"><i class="fas fa-clipboard-list"></i> Evaluate ${e['Name']}</button>`).join('')}
+                    <div style="margin-top:10px; display:flex; flex-wrap:wrap; gap:8px;">
+                        ${due.map(e => `
+                            <div class="probation-employee-row">
+                                ${showBypass ? `<input type="checkbox" class="probation-bypass-check" value="${String(e['ID']).replace(/"/g, '&quot;')}" id="probation-check-${String(e['ID']).replace(/[^a-zA-Z0-9]/g, '')}">` : ''}
+                                ${showBypass ? `<label for="probation-check-${String(e['ID']).replace(/[^a-zA-Z0-9]/g, '')}">${e['Name']}</label>` : `<span>${e['Name']}</span>`}
+                                <button type="button" onclick="openEvaluationModalForEmployee('${String(e['ID']).replace(/'/g, "\\'")}')">Evaluate</button>
+                            </div>`).join('')}
                     </div>
+                    ${showBypass ? `<div style="margin-top:12px;"><button type="button" class="secondary-btn" onclick="bypassSelectedProbations()"><i class="fas fa-forward"></i> Bypass Selected (Admin)</button></div>` : ''}
                 </div>
             `;
         }
 
-        function openEvaluationModalForEmployee(employeeId) {
+        let probationDueEmployees = [];
+
+        async function bypassSelectedProbations() {
+            const checked = Array.from(document.querySelectorAll('.probation-bypass-check:checked')).map(c => c.value);
+            if (checked.length === 0) { alert('Select at least one employee to bypass.'); return; }
+            const names = probationDueEmployees.filter(e => checked.includes(String(e['ID']))).map(e => e['Name']).join(', ');
+            if (!confirm(`Bypass the probation evaluation requirement for: ${names}?\n\nThey won't be flagged again.`)) return;
+
+            const reason = prompt('Optional: add a note for why this is being bypassed (visible in the Approvals history). Leave blank to skip.') || '';
+
+            const toExempt = probationDueEmployees.filter(e => checked.includes(String(e['ID']))).map(e => {
+                const doj = parseDate(e['Date of Joining']);
+                let probationEndStr = '';
+                if (doj && !isNaN(doj.getTime())) {
+                    const probationEnd = new Date(doj);
+                    probationEnd.setMonth(probationEnd.getMonth() + 3);
+                    probationEndStr = probationEnd.toISOString().split('T')[0];
+                }
+                return {
+                    employeeId: e['ID'], employeeName: e['Name'], department: e['Department'],
+                    position: e['Position'], dateOfJoining: e['Date of Joining'], probationEndDate: probationEndStr
+                };
+            });
+
+            const token = getSessionToken();
+            try {
+                await callAppsScript('exemptEmployees', { token, employees: toExempt, reason });
+                checkProbationDue();
+                const approvalsPage = document.getElementById('approvals');
+                if (approvalsPage && approvalsPage.classList.contains('active')) loadEvaluations();
+            } catch (err) {
+                alert('Could not bypass evaluations: ' + err.message);
+            }
+        }
+
+        let currentEvalContext = { type: 'Probation', windowId: '', windowTitle: '' };
+
+        function openEvaluationModalForEmployee(employeeId, evaluationType, windowId, windowTitle) {
             const emp = employees.find(e => String(e['ID']) === String(employeeId));
             if (!emp) { alert('Employee not found.'); return; }
+
+            currentEvalContext = { type: evaluationType || 'Probation', windowId: windowId || '', windowTitle: windowTitle || '' };
 
             document.getElementById('eval-employee-id').value = emp['ID'];
             document.getElementById('eval-employee-name').value = emp['Name'];
@@ -1712,8 +2036,16 @@
                 probationEndStr = probationEnd.toISOString().split('T')[0];
             }
             document.getElementById('eval-probation-end').value = probationEndStr;
-            document.getElementById('eval-employee-subtitle').textContent =
-                `${emp['Name']} — ${emp['Position'] || ''}, ${emp['Department'] || ''} | Joined: ${emp['Date of Joining'] || '—'} | Probation End: ${probationEndStr || '—'}`;
+
+            const typeLabel = evaluationTypeLabel(currentEvalContext.type);
+            const subtitleParts = [`${emp['Name']} — ${emp['Position'] || ''}, ${emp['Department'] || ''}`, `Joined: ${emp['Date of Joining'] || '—'}`];
+            if (currentEvalContext.type === 'Probation') {
+                subtitleParts.push(`Probation End: ${probationEndStr || '—'}`);
+            } else {
+                subtitleParts.push(`Review Type: ${typeLabel}${currentEvalContext.windowTitle ? ' (' + currentEvalContext.windowTitle + ')' : ''}`);
+            }
+            document.getElementById('eval-employee-subtitle').textContent = subtitleParts.join(' | ');
+            document.getElementById('evaluation-modal-heading').textContent = currentEvalContext.type === 'Probation' ? '3-Month Probation Assessment' : `${typeLabel} Performance Assessment`;
 
             document.getElementById('evaluation-form').reset();
             document.querySelectorAll('.eval-rating').forEach(sel => { sel.value = ''; });
@@ -1721,6 +2053,13 @@
             document.getElementById('eval-extension-months-group').style.display = 'none';
 
             document.getElementById('evaluation-modal').style.display = 'flex';
+        }
+
+        function evaluationTypeLabel(type) {
+            if (type === 'Quarterly') return 'Quarterly';
+            if (type === 'SemiAnnual') return '6-Monthly';
+            if (type === 'Annual') return 'Annual';
+            return 'Probation';
         }
 
         function closeEvaluationModal() {
@@ -1764,7 +2103,9 @@
                 areasForImprovement: document.getElementById('eval-improvement').value,
                 recommendation: recommendation,
                 extensionMonths: recommendation === 'Extend' ? document.getElementById('eval-extension-months').value : '',
-                evaluatorComments: document.getElementById('eval-comments').value
+                evaluatorComments: document.getElementById('eval-comments').value,
+                evaluationType: currentEvalContext.type,
+                windowId: currentEvalContext.windowId
             };
 
             const token = getSessionToken();
@@ -1784,6 +2125,7 @@
             if (status === 'Approved') return 'status-approved';
             if (status === 'Rejected') return 'status-rejected';
             if (status === 'Changes Requested') return 'status-changes-requested';
+            if (status === 'Exempted') return 'status-exempted';
             return 'status-submitted';
         }
 
@@ -1798,7 +2140,7 @@
                 const result = await callAppsScript('listEvaluations', { token });
                 cachedEvaluations = result.evaluations || [];
             } catch (err) {
-                historyBody.innerHTML = `<tr><td colspan="8" style="color: var(--secondary-color);">Could not load evaluations: ${err.message}</td></tr>`;
+                historyBody.innerHTML = `<tr><td colspan="9" style="color: var(--secondary-color);">Could not load evaluations: ${err.message}</td></tr>`;
                 return;
             }
 
@@ -1808,11 +2150,12 @@
             if (canReview) {
                 const pending = cachedEvaluations.filter(ev => ev.Status === 'Submitted');
                 pendingBody.innerHTML = pending.length === 0
-                    ? `<tr><td colspan="8" style="color: var(--secondary-color);">Nothing pending your review right now.</td></tr>`
+                    ? `<tr><td colspan="9" style="color: var(--secondary-color);">Nothing pending your review right now.</td></tr>`
                     : pending.map(ev => `<tr>
                         <td>${ev.EmployeeName}</td>
                         <td>${ev.Department}</td>
                         <td>${ev.Position}</td>
+                        <td>${evaluationTypeLabel(ev.EvaluationType)}</td>
                         <td>${ev.EvaluatorName}</td>
                         <td>${ev.OverallRating}</td>
                         <td>${ev.Recommendation}</td>
@@ -1823,16 +2166,187 @@
 
             const sorted = [...cachedEvaluations].sort((a, b) => new Date(b.SubmittedAt) - new Date(a.SubmittedAt));
             historyBody.innerHTML = sorted.length === 0
-                ? `<tr><td colspan="8" style="color: var(--secondary-color);">No evaluations yet.</td></tr>`
+                ? `<tr><td colspan="9" style="color: var(--secondary-color);">No evaluations yet.</td></tr>`
                 : sorted.map(ev => `<tr>
                     <td>${ev.EmployeeName}</td>
                     <td>${ev.Department}</td>
+                    <td>${evaluationTypeLabel(ev.EvaluationType)}</td>
                     <td>${ev.EvaluatorName}</td>
                     <td>${ev.OverallRating}</td>
                     <td>${ev.Recommendation}</td>
                     <td><span class="${statusBadgeClass(ev.Status)}">${ev.Status}</span></td>
                     <td>${ev.SubmittedAt ? new Date(ev.SubmittedAt).toLocaleDateString() : ''}</td>
                     <td>${ev.CEODecision ? (ev.CEODecision + (ev.DecisionAt ? ' on ' + new Date(ev.DecisionAt).toLocaleDateString() : '')) : '—'}</td>
+                </tr>`).join('');
+
+            // Admin-only: review window management
+            const openBtn = document.getElementById('open-review-window-btn');
+            const windowsWrapper = document.getElementById('review-windows-wrapper');
+            if (openBtn) openBtn.style.display = isAdmin() ? '' : 'none';
+            if (windowsWrapper) windowsWrapper.style.display = isAdmin() ? 'block' : 'none';
+            if (isAdmin()) loadReviewWindows();
+
+            // Evaluations due from open review windows (HR/admin/team leads)
+            const dueWrapper = document.getElementById('evaluations-due-wrapper');
+            if (canEditSection('employees') || isTeamLead()) {
+                dueWrapper.style.display = 'block';
+                loadEvaluationsDue();
+            } else {
+                dueWrapper.style.display = 'none';
+            }
+        }
+
+        // ---------------------------------------------------------------
+        // Review Windows (Quarterly / Semi-Annual / Annual)
+        // ---------------------------------------------------------------
+        let cachedReviewWindows = [];
+        let selectedWindowEmployeeIds = new Set();
+
+        function openReviewWindowModal() {
+            document.getElementById('review-window-form').reset();
+            selectedWindowEmployeeIds = new Set();
+            document.getElementById('window-employee-search').value = '';
+            renderWindowEmployeeChecklist('');
+            document.getElementById('review-window-modal').style.display = 'flex';
+        }
+
+        function closeReviewWindowModal() {
+            document.getElementById('review-window-modal').style.display = 'none';
+        }
+
+        function renderWindowEmployeeChecklist(filterText) {
+            const container = document.getElementById('window-employee-checklist');
+            if (!container) return;
+            const filter = (filterText || '').toLowerCase();
+            const list = (employees || []).filter(e =>
+                (e['Status'] || '').toLowerCase() !== 'inactive' &&
+                (!filter || (e['Name'] || '').toLowerCase().includes(filter) || (e['Department'] || '').toLowerCase().includes(filter))
+            );
+            if (list.length === 0) {
+                container.innerHTML = `<p style="color: var(--secondary-color); font-size: 0.85rem; margin:0;">No employees found.</p>`;
+                return;
+            }
+            container.innerHTML = list.map(e => {
+                const id = String(e['ID']);
+                const checked = selectedWindowEmployeeIds.has(id) ? 'checked' : '';
+                const safeId = id.replace(/[^a-zA-Z0-9]/g, '');
+                return `<div class="permission-row">
+                    <input type="checkbox" id="win-emp-${safeId}" ${checked} onchange="toggleWindowEmployee('${id.replace(/'/g, "\\'")}', this.checked)">
+                    <label for="win-emp-${safeId}" style="margin:0;">${e['Name']} <span style="color: var(--secondary-color); font-size:0.8rem;">(${e['Department'] || '—'})</span></label>
+                </div>`;
+            }).join('');
+        }
+
+        function toggleWindowEmployee(employeeId, checked) {
+            if (checked) selectedWindowEmployeeIds.add(employeeId);
+            else selectedWindowEmployeeIds.delete(employeeId);
+        }
+
+        async function handleReviewWindowFormSubmit(e) {
+            e.preventDefault();
+            const title = document.getElementById('window-title').value.trim();
+            const type = document.getElementById('window-type').value;
+            const dueDate = document.getElementById('window-due-date').value;
+            const employeeIds = Array.from(selectedWindowEmployeeIds);
+            if (employeeIds.length === 0) { alert('Select at least one employee to include.'); return; }
+
+            const token = getSessionToken();
+            try {
+                await callAppsScript('openReviewWindow', { token, window: { title, type, dueDate, employeeIds } });
+                closeReviewWindowModal();
+                loadReviewWindows();
+                loadEvaluationsDue();
+            } catch (err) {
+                alert('Could not open review window: ' + err.message);
+            }
+        }
+
+        async function loadReviewWindows() {
+            const tbody = document.querySelector('#review-windows-table tbody');
+            if (!tbody) return;
+            try {
+                const token = getSessionToken();
+                const result = await callAppsScript('listReviewWindows', { token });
+                cachedReviewWindows = result.windows || [];
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="7" style="color: var(--secondary-color);">Could not load review windows: ${err.message}</td></tr>`;
+                return;
+            }
+            const sorted = [...cachedReviewWindows].sort((a, b) => new Date(b.openedAt) - new Date(a.openedAt));
+            tbody.innerHTML = sorted.length === 0
+                ? `<tr><td colspan="7" style="color: var(--secondary-color);">No review windows opened yet.</td></tr>`
+                : sorted.map(w => `<tr>
+                    <td>${w.title}</td>
+                    <td>${evaluationTypeLabel(w.type)}</td>
+                    <td>${w.dueDate || '—'}</td>
+                    <td>${(w.employeeIds || []).length}</td>
+                    <td>${w.openedByName || w.openedByUsername}</td>
+                    <td><span class="${w.status === 'Open' ? 'status-submitted' : 'status-exempted'}">${w.status}</span></td>
+                    <td>${w.status === 'Open' ? `<button onclick="closeReviewWindowAction('${String(w.windowId).replace(/'/g, "\\'")}')">Close</button>` : '—'}</td>
+                </tr>`).join('');
+        }
+
+        async function closeReviewWindowAction(windowId) {
+            if (!confirm('Close this review window? Employees not yet evaluated will no longer show as due.')) return;
+            const token = getSessionToken();
+            try {
+                await callAppsScript('closeReviewWindow', { token, windowId });
+                loadReviewWindows();
+                loadEvaluationsDue();
+            } catch (err) {
+                alert('Could not close review window: ' + err.message);
+            }
+        }
+
+        async function loadEvaluationsDue() {
+            const tbody = document.querySelector('#evaluations-due-table tbody');
+            if (!tbody) return;
+
+            try {
+                const token = getSessionToken();
+                const [windowsResult, evalsResult] = await Promise.all([
+                    callAppsScript('listReviewWindows', { token }),
+                    callAppsScript('listEvaluations', { token })
+                ]);
+                cachedReviewWindows = windowsResult.windows || [];
+                cachedEvaluations = evalsResult.evaluations || [];
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color: var(--secondary-color);">Could not load: ${err.message}</td></tr>`;
+                return;
+            }
+
+            // Department heads without org-wide access only see their assigned team
+            let teamFilterIds = null;
+            if (!isAdmin() && !canEditSection('employees') && isTeamLead()) {
+                try {
+                    const token = getSessionToken();
+                    const teamResult = await callAppsScript('getTeamAssignments', { token, username: currentUser.username });
+                    teamFilterIds = new Set((teamResult.employeeIds || []).map(String));
+                } catch (err) {
+                    teamFilterIds = new Set();
+                }
+            }
+
+            const evaluatedPairs = new Set(cachedEvaluations.filter(ev => ev.WindowID).map(ev => ev.WindowID + '::' + String(ev.EmployeeID)));
+            const rows = [];
+            cachedReviewWindows.filter(w => w.status === 'Open').forEach(w => {
+                w.employeeIds.forEach(empId => {
+                    if (teamFilterIds && !teamFilterIds.has(String(empId))) return;
+                    if (evaluatedPairs.has(w.windowId + '::' + String(empId))) return;
+                    const emp = employees.find(e => String(e['ID']) === String(empId));
+                    if (!emp) return;
+                    rows.push({ emp, window: w });
+                });
+            });
+
+            tbody.innerHTML = rows.length === 0
+                ? `<tr><td colspan="5" style="color: var(--secondary-color);">Nothing due right now.</td></tr>`
+                : rows.map(r => `<tr>
+                    <td>${r.emp['Name']}</td>
+                    <td>${evaluationTypeLabel(r.window.type)}</td>
+                    <td>${r.window.title}</td>
+                    <td>${r.window.dueDate || '—'}</td>
+                    <td><button onclick="openEvaluationModalForEmployee('${String(r.emp['ID']).replace(/'/g, "\\'")}', '${r.window.type}', '${String(r.window.windowId).replace(/'/g, "\\'")}', '${String(r.window.title).replace(/'/g, "\\'")}')">Evaluate</button></td>
                 </tr>`).join('');
         }
 
@@ -1856,7 +2370,7 @@
 
             document.getElementById('review-details').innerHTML = `
                 <p><strong>${ev.EmployeeName}</strong> — ${ev.Position}, ${ev.Department}</p>
-                <p style="color: var(--secondary-color); font-size: 0.85rem; margin-bottom: 10px;">Joined: ${ev.DateOfJoining} | Probation End: ${ev.ProbationEndDate} | Evaluator: ${ev.EvaluatorName}</p>
+                <p style="color: var(--secondary-color); font-size: 0.85rem; margin-bottom: 10px;">Type: ${evaluationTypeLabel(ev.EvaluationType)} | Joined: ${ev.DateOfJoining} | Evaluator: ${ev.EvaluatorName}</p>
                 <div class="permission-block">${scoreRows}<div style="margin-top:8px;"><strong>Overall Rating: ${ev.OverallRating} / 5</strong></div></div>
                 <p style="margin-top:10px;"><strong>Strengths:</strong> ${ev.Strengths || '—'}</p>
                 <p><strong>Areas for Improvement:</strong> ${ev.AreasForImprovement || '—'}</p>
@@ -2003,11 +2517,232 @@
             document.getElementById('payroll-snapshot-modal').style.display = 'flex';
         }
 
+        // ---------------------------------------------------------------
+        // EMPLOYEE PERSONAL FILE (Leaves, WFH, Loans/Advances, Increments)
+        // ---------------------------------------------------------------
+        let cachedPersonalFileRecords = [];
+
+        function openPersonalFileModal(employeeId) {
+            const emp = employees.find(e => String(e['ID']) === String(employeeId));
+            if (!emp) { alert('Employee not found.'); return; }
+            document.getElementById('pf-employee-id').value = emp['ID'];
+            document.getElementById('pf-employee-name').value = emp['Name'];
+            document.getElementById('pf-employee-subtitle').textContent = `${emp['Name']} — ${emp['Position'] || ''}, ${emp['Department'] || ''}`;
+            document.getElementById('pf-increment-old').value = emp['Base Salary'] || '';
+
+            switchPersonalFileTab('leaves');
+            document.getElementById('personal-file-modal').style.display = 'flex';
+            loadPersonalFileRecords();
+        }
+
+        function closePersonalFileModal() {
+            document.getElementById('personal-file-modal').style.display = 'none';
+        }
+
+        function switchPersonalFileTab(tab) {
+            document.querySelectorAll('#personal-file-modal .tab-button').forEach(btn => btn.classList.toggle('active', btn.dataset.pftab === tab));
+            document.querySelectorAll('#personal-file-modal .tab-content').forEach(tc => tc.classList.remove('active'));
+            document.getElementById('pf-tab-' + tab).classList.add('active');
+        }
+
+        async function loadPersonalFileRecords() {
+            const employeeId = document.getElementById('pf-employee-id').value;
+            const token = getSessionToken();
+            try {
+                const result = await callAppsScript('listPersonalFileRecords', { token, employeeId });
+                cachedPersonalFileRecords = result.records || [];
+            } catch (err) {
+                cachedPersonalFileRecords = [];
+                console.error('Could not load personal file:', err);
+            }
+            renderPersonalFileTabs();
+        }
+
+        function renderPersonalFileTabs() {
+            const leaves = cachedPersonalFileRecords.filter(r => r.RecordType === 'Leave').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
+            document.querySelector('#pf-leave-table tbody').innerHTML = leaves.length === 0
+                ? `<tr><td colspan="6" style="color: var(--secondary-color);">No leave records yet.</td></tr>`
+                : leaves.map(r => `<tr><td>${r.StartDate}</td><td>${r.EndDate}</td><td>${r.Amount}</td><td>${r.Category}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
+
+            const wfh = cachedPersonalFileRecords.filter(r => r.RecordType === 'WFH').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
+            document.querySelector('#pf-wfh-table tbody').innerHTML = wfh.length === 0
+                ? `<tr><td colspan="4" style="color: var(--secondary-color);">No WFH records yet.</td></tr>`
+                : wfh.map(r => `<tr><td>${r.StartDate}</td><td>${r.EndDate}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
+
+            const increments = cachedPersonalFileRecords.filter(r => r.RecordType === 'Increment').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
+            document.querySelector('#pf-increment-table tbody').innerHTML = increments.length === 0
+                ? `<tr><td colspan="6" style="color: var(--secondary-color);">No increment records yet.</td></tr>`
+                : increments.map(r => {
+                    let detail = {};
+                    try { detail = JSON.parse(r.Notes || '{}'); } catch (e) {}
+                    const oldSalary = detail.oldSalary !== undefined ? detail.oldSalary : '';
+                    const newSalary = detail.newSalary !== undefined ? detail.newSalary : r.Amount;
+                    const change = (parseFloat(newSalary || 0) - parseFloat(oldSalary || 0));
+                    return `<tr><td>${r.StartDate}</td><td>PKR ${parseFloat(oldSalary || 0).toLocaleString()}</td><td>PKR ${parseFloat(newSalary || 0).toLocaleString()}</td><td>+PKR ${change.toLocaleString()}</td><td>${detail.reason || '—'}</td><td>${r.CreatedByName}</td></tr>`;
+                }).join('');
+
+            renderLoansTab();
+        }
+
+        function renderLoansTab() {
+            const ledgerEntries = cachedPersonalFileRecords.filter(r => r.RecordType === 'Loan' || r.RecordType === 'Advance' || r.RecordType === 'Repayment');
+            const sorted = [...ledgerEntries].sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
+            document.querySelector('#pf-loan-table tbody').innerHTML = sorted.length === 0
+                ? `<tr><td colspan="5" style="color: var(--secondary-color);">No loan/advance records yet.</td></tr>`
+                : sorted.map(r => `<tr><td>${r.StartDate}</td><td>${r.RecordType}</td><td>PKR ${parseFloat(r.Amount || 0).toLocaleString()}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
+
+            // Compute running balance per ledger
+            const ledgers = {};
+            ledgerEntries.forEach(r => {
+                if (!r.LedgerID) return;
+                if (!ledgers[r.LedgerID]) ledgers[r.LedgerID] = { type: '', disbursed: 0, repaid: 0, date: r.StartDate };
+                if (r.RecordType === 'Loan' || r.RecordType === 'Advance') {
+                    ledgers[r.LedgerID].type = r.RecordType;
+                    ledgers[r.LedgerID].disbursed += parseFloat(r.Amount || 0);
+                    ledgers[r.LedgerID].date = r.StartDate;
+                } else if (r.RecordType === 'Repayment') {
+                    ledgers[r.LedgerID].repaid += parseFloat(r.Amount || 0);
+                }
+            });
+
+            const balanceDiv = document.getElementById('pf-loan-balances');
+            const ledgerIds = Object.keys(ledgers);
+            if (ledgerIds.length === 0) {
+                balanceDiv.innerHTML = '';
+            } else {
+                balanceDiv.innerHTML = ledgerIds.map(id => {
+                    const l = ledgers[id];
+                    const balance = l.disbursed - l.repaid;
+                    return `<div class="permission-row"><span style="flex:1;">${l.type} of PKR ${l.disbursed.toLocaleString()} (${l.date}) — Repaid PKR ${l.repaid.toLocaleString()}</span><strong>Balance: PKR ${balance.toLocaleString()}</strong></div>`;
+                }).join('');
+            }
+
+            // Populate the "repay against" dropdown with ledgers that still have a balance
+            const ledgerSelect = document.getElementById('pf-loan-ledger');
+            const openLedgers = ledgerIds.filter(id => (ledgers[id].disbursed - ledgers[id].repaid) > 0);
+            ledgerSelect.innerHTML = openLedgers.length === 0
+                ? `<option value="">No open loans/advances</option>`
+                : openLedgers.map(id => `<option value="${id}">${ledgers[id].type} — PKR ${(ledgers[id].disbursed - ledgers[id].repaid).toLocaleString()} remaining (${ledgers[id].date})</option>`).join('');
+        }
+
+        function onPfLoanTypeChange() {
+            const type = document.getElementById('pf-loan-type').value;
+            document.getElementById('pf-loan-ledger-group').style.display = type === 'Repayment' ? '' : 'none';
+        }
+
+        async function handlePfLeaveFormSubmit(e) {
+            e.preventDefault();
+            const employeeId = document.getElementById('pf-employee-id').value;
+            const record = {
+                employeeId,
+                employeeName: document.getElementById('pf-employee-name').value,
+                recordType: 'Leave',
+                startDate: document.getElementById('pf-leave-start').value,
+                endDate: document.getElementById('pf-leave-end').value,
+                amount: document.getElementById('pf-leave-days').value,
+                category: document.getElementById('pf-leave-type').value,
+                notes: document.getElementById('pf-leave-notes').value
+            };
+            const token = getSessionToken();
+            try {
+                await callAppsScript('addPersonalFileRecord', { token, record });
+                document.getElementById('pf-leave-form').reset();
+                loadPersonalFileRecords();
+            } catch (err) {
+                alert('Could not add leave record: ' + err.message);
+            }
+        }
+
+        async function handlePfWfhFormSubmit(e) {
+            e.preventDefault();
+            const employeeId = document.getElementById('pf-employee-id').value;
+            const record = {
+                employeeId,
+                employeeName: document.getElementById('pf-employee-name').value,
+                recordType: 'WFH',
+                startDate: document.getElementById('pf-wfh-start').value,
+                endDate: document.getElementById('pf-wfh-end').value,
+                notes: document.getElementById('pf-wfh-notes').value
+            };
+            const token = getSessionToken();
+            try {
+                await callAppsScript('addPersonalFileRecord', { token, record });
+                document.getElementById('pf-wfh-form').reset();
+                loadPersonalFileRecords();
+            } catch (err) {
+                alert('Could not add WFH record: ' + err.message);
+            }
+        }
+
+        async function handlePfLoanFormSubmit(e) {
+            e.preventDefault();
+            const employeeId = document.getElementById('pf-employee-id').value;
+            const type = document.getElementById('pf-loan-type').value;
+            const record = {
+                employeeId,
+                employeeName: document.getElementById('pf-employee-name').value,
+                recordType: type,
+                startDate: document.getElementById('pf-loan-date').value,
+                amount: document.getElementById('pf-loan-amount').value,
+                notes: document.getElementById('pf-loan-notes').value
+            };
+            if (type === 'Repayment') {
+                const ledgerId = document.getElementById('pf-loan-ledger').value;
+                if (!ledgerId) { alert('Select which loan/advance this repayment is against.'); return; }
+                record.ledgerId = ledgerId;
+            }
+            const token = getSessionToken();
+            try {
+                await callAppsScript('addPersonalFileRecord', { token, record });
+                document.getElementById('pf-loan-form').reset();
+                onPfLoanTypeChange();
+                loadPersonalFileRecords();
+            } catch (err) {
+                alert('Could not add entry: ' + err.message);
+            }
+        }
+
+        async function handlePfIncrementFormSubmit(e) {
+            e.preventDefault();
+            const employeeId = document.getElementById('pf-employee-id').value;
+            const oldSalary = parseFloat(document.getElementById('pf-increment-old').value || 0);
+            const newSalary = parseFloat(document.getElementById('pf-increment-new').value || 0);
+            const record = {
+                employeeId,
+                employeeName: document.getElementById('pf-employee-name').value,
+                recordType: 'Increment',
+                startDate: document.getElementById('pf-increment-date').value,
+                amount: newSalary - oldSalary,
+                notes: JSON.stringify({ oldSalary, newSalary, reason: document.getElementById('pf-increment-notes').value })
+            };
+            const token = getSessionToken();
+            try {
+                await callAppsScript('addPersonalFileRecord', { token, record });
+                document.getElementById('pf-increment-form').reset();
+                loadPersonalFileRecords();
+            } catch (err) {
+                alert('Could not add increment record: ' + err.message);
+            }
+        }
+
         // Wire up rating-change listeners and the evaluation form once the DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.eval-rating').forEach(sel => sel.addEventListener('change', updateEvalOverallRating));
             const evalForm = document.getElementById('evaluation-form');
             if (evalForm) evalForm.addEventListener('submit', handleEvaluationFormSubmit);
+            const windowForm = document.getElementById('review-window-form');
+            if (windowForm) windowForm.addEventListener('submit', handleReviewWindowFormSubmit);
+
+            const pfLeaveForm = document.getElementById('pf-leave-form');
+            if (pfLeaveForm) pfLeaveForm.addEventListener('submit', handlePfLeaveFormSubmit);
+            const pfWfhForm = document.getElementById('pf-wfh-form');
+            if (pfWfhForm) pfWfhForm.addEventListener('submit', handlePfWfhFormSubmit);
+            const pfLoanForm = document.getElementById('pf-loan-form');
+            if (pfLoanForm) pfLoanForm.addEventListener('submit', handlePfLoanFormSubmit);
+            const pfLoanTypeSelect = document.getElementById('pf-loan-type');
+            if (pfLoanTypeSelect) pfLoanTypeSelect.addEventListener('change', onPfLoanTypeChange);
+            const pfIncrementForm = document.getElementById('pf-increment-form');
+            if (pfIncrementForm) pfIncrementForm.addEventListener('submit', handlePfIncrementFormSubmit);
         });
 
 
@@ -3077,7 +3812,11 @@
                     const cell = document.createElement('td');
                     if (col === 'Name') cell.innerHTML = `<a href="#" onclick="openDetailsModal(employees[${originalIndex}])">${employee[col]}</a>`;
                     else if (col === 'Status') cell.innerHTML = `<span class="status-badge status-${(employee[col] || '').toLowerCase().replace('-', '')}">${employee[col] || 'N/A'}</span>`;
-                    else if (col === 'Actions') cell.innerHTML = canEditSection('employees') ? `<div class="table-actions"><button onclick="openEmployeeModal(employees[${originalIndex}])" title="Edit"><i class="fas fa-edit"></i></button><button onclick="deleteEmployee(${originalIndex})" title="Delete"><i class="fas fa-trash"></i></button></div>` : '';
+                    else if (col === 'Actions') {
+                        const editButtons = canEditSection('employees') ? `<button onclick="openEmployeeModal(employees[${originalIndex}])" title="Edit"><i class="fas fa-edit"></i></button><button onclick="deleteEmployee(${originalIndex})" title="Delete"><i class="fas fa-trash"></i></button>` : '';
+                        const fileButton = (canEditSection('employees') || isTeamLead()) ? `<button onclick="openPersonalFileModal(employees[${originalIndex}]['ID'])" title="Personal File"><i class="fas fa-folder-open"></i></button>` : '';
+                        cell.innerHTML = (editButtons || fileButton) ? `<div class="table-actions">${editButtons}${fileButton}</div>` : '';
+                    }
                     else if (col === 'PayrollActions') cell.innerHTML = canEditSection('payroll') ? `<div class="table-actions"><button onclick="openPayrollModal(employees[${originalIndex}], ${originalIndex})" title="Edit Payroll"><i class="fas fa-pencil-alt"></i></button></div>` : '';
                     else if (['Base Salary', 'Total Cost to Company'].includes(col)) cell.textContent = `PKR ${parseFloat(employee[col] || 0).toLocaleString()}`;
                     else cell.textContent = employee[col] || 'N/A';
@@ -3236,7 +3975,7 @@
             updateUI();
         }
         
-        function handleReportFormSubmit(e) {
+        async function handleReportFormSubmit(e) {
             e.preventDefault();
             const formData = new FormData(reportForm);
             const reportType = formData.get('reportType');
@@ -3245,6 +3984,12 @@
             const gender = formData.get('gender');
             const startDate = parseDate(formData.get('startDate'));
             const endDate = parseDate(formData.get('endDate'));
+
+            const personalFileReportTypes = ['leave-history', 'wfh-history', 'loans-advances', 'increment-history'];
+            if (personalFileReportTypes.includes(reportType)) {
+                await generatePersonalFileReport(reportType, department, startDate, endDate);
+                return;
+            }
             
             let filteredData = employees.filter(emp => {
                 let match = true;
@@ -3598,6 +4343,62 @@
             mockReportData = filteredData;
             reportOutputContent.innerHTML = analyticsHtml + generateReportTableHTML(filteredData, columns);
             downloadReportBtn.style.display = filteredData.length > 0 ? 'flex' : 'none';
+        }
+
+        async function generatePersonalFileReport(reportType, department, startDate, endDate) {
+            const token = getSessionToken();
+            let records = [];
+            try {
+                const result = await callAppsScript('listAllPersonalFileRecords', { token });
+                records = result.records || [];
+            } catch (err) {
+                reportOutputContent.innerHTML = `<p style="color: var(--secondary-color);">Could not load records: ${err.message}</p>`;
+                downloadReportBtn.style.display = 'none';
+                return;
+            }
+
+            const employeeDeptMap = {};
+            employees.forEach(e => { employeeDeptMap[String(e['ID'])] = e['Department']; });
+
+            let recordTypeFilter = null, columns = [], title = '';
+            if (reportType === 'leave-history') {
+                recordTypeFilter = 'Leave';
+                columns = ['EmployeeName', 'Department', 'StartDate', 'EndDate', 'Amount', 'Category', 'Notes'];
+                title = 'Leave History Report';
+            } else if (reportType === 'wfh-history') {
+                recordTypeFilter = 'WFH';
+                columns = ['EmployeeName', 'Department', 'StartDate', 'EndDate', 'Notes'];
+                title = 'WFH History Report';
+            } else if (reportType === 'loans-advances') {
+                columns = ['EmployeeName', 'Department', 'RecordType', 'StartDate', 'Amount', 'Notes'];
+                title = 'Loans & Advances Report';
+            } else if (reportType === 'increment-history') {
+                recordTypeFilter = 'Increment';
+                columns = ['EmployeeName', 'Department', 'StartDate', 'Amount', 'Notes'];
+                title = 'Increment History Report';
+            }
+
+            const filtered = records.filter(r => {
+                if (reportType === 'loans-advances') {
+                    if (['Loan', 'Advance', 'Repayment'].indexOf(r.RecordType) === -1) return false;
+                } else if (recordTypeFilter && r.RecordType !== recordTypeFilter) {
+                    return false;
+                }
+                const dept = employeeDeptMap[String(r.EmployeeID)] || '';
+                if (department && dept !== department) return false;
+                const d = parseDate(r.StartDate);
+                if (startDate && (!d || d < startDate)) return false;
+                if (endDate && (!d || d > endDate)) return false;
+                return true;
+            }).map(r => Object.assign({}, r, { Department: employeeDeptMap[String(r.EmployeeID)] || '—' }));
+
+            mockReportData = filtered;
+            const summaryHtml = `<div style="background: var(--background-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                <h4 style="margin-bottom: 12px; color: var(--primary-color);">${title}</h4>
+                <div><strong>Total Records:</strong> ${filtered.length}</div>
+            </div>`;
+            reportOutputContent.innerHTML = summaryHtml + generateReportTableHTML(filtered, columns);
+            downloadReportBtn.style.display = filtered.length > 0 ? 'flex' : 'none';
         }
 
         function deleteEmployee(index) {
