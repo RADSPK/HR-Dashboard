@@ -1187,7 +1187,7 @@
                     <h2>Payroll Handoff</h2>
                 </div>
                 <p style="color: var(--secondary-color); margin-bottom: 16px;">Monthly payroll figures shared by HR for Finance's records.</p>
-                <div class="table-responsive"><table class="data-table" id="payroll-handoff-table"><thead><tr><th>Month</th><th>Shared By</th><th>Shared At</th><th>New Hires</th><th>Leavers</th><th>Salary Changes</th><th>Notes</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+                <div class="table-responsive"><table class="data-table" id="payroll-handoff-table"><thead><tr><th>Month</th><th>Shared By</th><th>Shared At</th><th>New Joiners</th><th>Leavers</th><th>Other Changes</th><th>Notes</th><th>Action</th></tr></thead><tbody></tbody></table></div>
             </section>
 
             <section id="users" class="page">
@@ -1543,7 +1543,19 @@
                     </div>
                     <button type="submit" style="padding: 8px 16px;">Add Bank Account Change</button>
                 </form>
-                <div class="table-responsive"><table class="data-table" id="pf-bankchange-table"><thead><tr><th>Date</th><th>Old Account</th><th>New Account</th><th>Recorded By</th></tr></thead><tbody></tbody></table></div>
+                <div class="table-responsive" style="margin-bottom: 20px;"><table class="data-table" id="pf-bankchange-table"><thead><tr><th>Date</th><th>Old Account</th><th>New Account</th><th>Recorded By</th></tr></thead><tbody></tbody></table></div>
+
+                <h4 style="color: var(--primary-color); margin-bottom: 8px;">Designation Change</h4>
+                <form id="pf-designation-form" style="margin-bottom: 12px;">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Effective Date</label><input type="date" id="pf-designation-date" required></div>
+                        <div class="form-group"><label>Old Designation</label><input type="text" id="pf-designation-old"></div>
+                        <div class="form-group"><label>New Designation</label><input type="text" id="pf-designation-new" required></div>
+                    </div>
+                    <div class="form-group"><label>Reason</label><input type="text" id="pf-designation-reason"></div>
+                    <button type="submit" style="padding: 8px 16px;">Add Designation Change</button>
+                </form>
+                <div class="table-responsive"><table class="data-table" id="pf-designation-table"><thead><tr><th>Effective Date</th><th>Old Designation</th><th>New Designation</th><th>Reason</th><th>Recorded By</th></tr></thead><tbody></tbody></table></div>
             </div>
 
             <!-- Evaluations tab (read-only — evaluations are submitted from the Approvals workflow) -->
@@ -1708,10 +1720,10 @@
 
     <!-- Payroll Changes Modal (used both to preview before sending, and to view a past share) -->
     <div id="payroll-snapshot-modal" class="modal">
-        <div class="modal-content" style="max-width: 820px;">
+        <div class="modal-content" style="max-width: 960px; max-height: 88vh; overflow-y: auto;">
             <span class="close-button" onclick="document.getElementById('payroll-snapshot-modal').style.display='none';">&times;</span>
             <h3 id="payroll-snapshot-title" style="margin-bottom: 4px;"></h3>
-            <p style="color: var(--secondary-color); margin-bottom: 16px; font-size: 0.85rem;">Only new hires, leavers, salary changes, deductions, salary holds, and bank account changes are shared — not full payroll calculations.</p>
+            <p style="color: var(--secondary-color); margin-bottom: 16px; font-size: 0.85rem;">New joiners, leavers, leave details, designation/salary changes, loan/advance activity, and other deductions — not full monthly payroll calculations for the whole workforce.</p>
             <div id="payroll-changes-body"></div>
             <div id="payroll-changes-confirm-wrapper" style="display:none; margin-top: 16px;">
                 <button type="button" style="width:100%;" onclick="confirmSendPayrollToFinance()">Confirm &amp; Send to Finance</button>
@@ -2979,16 +2991,22 @@
             const year = parseInt(parts[0], 10);
             const month = parseInt(parts[1], 10);
 
-            const newHires = employees.filter(e => monthInRange(e['Date of Joining'], year, month)).map(e => ({
-                name: e['Name'], department: e['Department'], position: e['Position'],
+            const newJoiners = employees.filter(e => monthInRange(e['Date of Joining'], year, month)).map(e => ({
+                employeeId: e['ID'], name: e['Name'], designation: e['Position'], department: e['Department'],
                 dateOfJoining: e['Date of Joining'],
-                salaryRate: parseFloat(e['Base Salary'] || 0) + parseFloat(e['Travel Allowance'] || 0) + parseFloat(e['Fuel/Grocery Allowance'] || 0) + parseFloat(e['Other Allowance'] || 0),
-                bankAccount: e['Bank Account Number'] || ''
+                basicPay: parseFloat(e['Base Salary'] || 0),
+                travelAllowance: parseFloat(e['Travel Allowance'] || 0),
+                groceryFuelAllowance: parseFloat(e['Fuel/Grocery Allowance'] || 0),
+                projectAllowance: parseFloat(e['Other Allowance'] || 0)
             }));
 
+            // Deductions/Salary-Hold/Other-Info for leavers are entered by HR at
+            // compile time (editable in the preview) rather than pulled from a
+            // separate record, since they're one-off details tied to the departure.
             const leavers = employees.filter(e => (e['Status'] || '').toLowerCase() === 'inactive' && monthInRange(e['Date of Leaving'], year, month)).map(e => ({
-                name: e['Name'], department: e['Department'], position: e['Position'],
-                dateOfLeaving: e['Date of Leaving'], reason: e['Termination Reason'] || ''
+                employeeId: e['ID'], name: e['Name'], designation: e['Position'], department: e['Department'],
+                lastWorkingDay: e['Date of Leaving'],
+                deductions: 0, salaryHeld: false, salaryHoldReason: '', otherInfo: ''
             }));
 
             let allRecords = [];
@@ -3003,54 +3021,104 @@
             employees.forEach(e => { empMap[String(e['ID'])] = e; });
             const deptOf = (r) => { const e = empMap[String(r.EmployeeID)]; return e ? e['Department'] : ''; };
 
+            const leaves = allRecords.filter(r => r.RecordType === 'Leave' && monthInRange(r.StartDate, year, month)).map(r => ({
+                name: r.EmployeeName, department: deptOf(r), startDate: r.StartDate, endDate: r.EndDate, days: r.Amount, leaveType: r.Category, notes: r.Notes || ''
+            }));
+
             const salaryChanges = allRecords.filter(r => r.RecordType === 'Increment' && monthInRange(r.StartDate, year, month)).map(r => {
                 let detail = {};
                 try { detail = JSON.parse(r.Notes || '{}'); } catch (e) {}
-                return { name: r.EmployeeName, department: deptOf(r), effectiveDate: r.StartDate, oldSalary: detail.oldSalary, newSalary: detail.newSalary, reason: detail.reason || '' };
+                return { name: r.EmployeeName, department: deptOf(r), type: 'Salary', effectiveDate: r.StartDate, oldValue: 'PKR ' + parseFloat(detail.oldSalary || 0).toLocaleString(), newValue: 'PKR ' + parseFloat(detail.newSalary || 0).toLocaleString(), reason: detail.reason || '' };
             });
+            const designationChanges = allRecords.filter(r => r.RecordType === 'DesignationChange' && monthInRange(r.StartDate, year, month)).map(r => {
+                let detail = {};
+                try { detail = JSON.parse(r.Notes || '{}'); } catch (e) {}
+                return { name: r.EmployeeName, department: deptOf(r), type: 'Designation', effectiveDate: r.StartDate, oldValue: detail.oldDesignation || '', newValue: detail.newDesignation || '', reason: detail.reason || '' };
+            });
+            const designationSalaryChanges = [...salaryChanges, ...designationChanges];
 
-            const deductions = allRecords.filter(r => r.RecordType === 'Deduction' && monthInRange(r.StartDate, year, month)).map(r => ({
+            const loanAdvanceEntries = allRecords.filter(r => (r.RecordType === 'Loan' || r.RecordType === 'Advance' || r.RecordType === 'Repayment') && monthInRange(r.StartDate, year, month)).map(r => ({
+                name: r.EmployeeName, department: deptOf(r), date: r.StartDate, type: r.RecordType, amount: r.Amount, notes: r.Notes || ''
+            }));
+
+            const otherDeductions = allRecords.filter(r => r.RecordType === 'Deduction' && monthInRange(r.StartDate, year, month)).map(r => ({
                 name: r.EmployeeName, department: deptOf(r), date: r.StartDate, amount: r.Amount, reason: r.Notes || ''
             }));
 
-            const salaryHolds = allRecords.filter(r => r.RecordType === 'SalaryHold' && r.StartDate === monthKey).map(r => ({
-                name: r.EmployeeName, department: deptOf(r), month: r.StartDate, reason: r.Notes || ''
-            }));
-
-            const bankAccountChanges = allRecords.filter(r => r.RecordType === 'BankAccountChange' && monthInRange(r.StartDate, year, month)).map(r => {
-                let detail = {};
-                try { detail = JSON.parse(r.Notes || '{}'); } catch (e) {}
-                return { name: r.EmployeeName, department: deptOf(r), date: r.StartDate, oldAccount: detail.oldAccount || '', newAccount: detail.newAccount || '' };
-            });
-
-            return { newHires, leavers, salaryChanges, deductions, salaryHolds, bankAccountChanges };
+            return { newJoiners, leavers, leaves, designationSalaryChanges, loanAdvanceEntries, otherDeductions };
         }
 
-        function renderPayrollChangesBody(changes) {
-            const section = (title, headers, rows) => {
-                if (!rows || rows.length === 0) return '';
+        function renderPayrollChangesBody(changes, editable) {
+            const section = (title, headers, rowsHtml) => {
+                if (!rowsHtml) return '';
                 return `<h4 style="color: var(--primary-color); margin: 16px 0 8px;">${title}</h4>
-                <div class="table-responsive"><table class="data-table"><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>`;
+                <div class="table-responsive"><table class="data-table"><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
             };
 
-            const nh = changes.newHires || [], lv = changes.leavers || [], sc = changes.salaryChanges || [];
-            const dd = changes.deductions || [], sh = changes.salaryHolds || [], bc = changes.bankAccountChanges || [];
+            const nj = changes.newJoiners || [];
+            const lv = changes.leavers || [];
+            const lvs = changes.leaves || [];
+            const dsc = changes.designationSalaryChanges || [];
+            const la = changes.loanAdvanceEntries || [];
+            const od = changes.otherDeductions || [];
 
             let html = '';
-            html += section('New Hires', ['Name', 'Department', 'Position', 'Date Joined', 'Salary Rate', 'Bank Account'],
-                nh.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.position || ''}</td><td>${r.dateOfJoining || ''}</td><td>PKR ${parseFloat(r.salaryRate || 0).toLocaleString()}</td><td>${r.bankAccount || '—'}</td></tr>`).join(''));
-            html += section('Leavers', ['Name', 'Department', 'Position', 'Date Left', 'Reason'],
-                lv.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.position || ''}</td><td>${r.dateOfLeaving || ''}</td><td>${r.reason || '—'}</td></tr>`).join(''));
-            html += section('Salary Changes', ['Name', 'Department', 'Effective Date', 'Old Salary', 'New Salary', 'Reason'],
-                sc.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.effectiveDate || ''}</td><td>PKR ${parseFloat(r.oldSalary || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.newSalary || 0).toLocaleString()}</td><td>${r.reason || '—'}</td></tr>`).join(''));
-            html += section('Deductions', ['Name', 'Department', 'Date', 'Amount', 'Reason'],
-                dd.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>PKR ${parseFloat(r.amount || 0).toLocaleString()}</td><td>${r.reason || '—'}</td></tr>`).join(''));
-            html += section('Salary Holds', ['Name', 'Department', 'Month', 'Reason'],
-                sh.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${monthLabelFromKey(r.month)}</td><td>${r.reason || '—'}</td></tr>`).join(''));
-            html += section('Bank Account Changes', ['Name', 'Department', 'Date', 'Old Account', 'New Account'],
-                bc.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>${r.oldAccount || '—'}</td><td>${r.newAccount || '—'}</td></tr>`).join(''));
+
+            html += section('New Joiners', ['Name', 'Designation', 'Department', 'Date of Joining', 'Basic Pay', 'Travel Allowance', 'Grocery/Fuel Allowance', 'Project Allowance'],
+                nj.map(r => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.dateOfJoining || ''}</td><td>PKR ${parseFloat(r.basicPay || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.travelAllowance || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.groceryFuelAllowance || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.projectAllowance || 0).toLocaleString()}</td></tr>`).join(''));
+
+            const leaverRows = lv.map((r, idx) => {
+                if (editable) {
+                    return `<tr>
+                        <td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.lastWorkingDay || ''}</td>
+                        <td><input type="number" class="leaver-deduction-input" data-idx="${idx}" value="${r.deductions || 0}" min="0" style="width:90px; padding:4px; border:1px solid var(--border-color); border-radius:4px;"></td>
+                        <td>
+                            <label style="display:flex; align-items:center; gap:4px; font-size:0.8rem; white-space:nowrap;">
+                                <input type="checkbox" class="leaver-hold-check" data-idx="${idx}" ${r.salaryHeld ? 'checked' : ''} onchange="this.parentElement.nextElementSibling.style.display = this.checked ? '' : 'none';">
+                                Hold
+                            </label>
+                            <input type="text" class="leaver-hold-reason-input" data-idx="${idx}" value="${r.salaryHoldReason || ''}" placeholder="Reason" style="width:100px; padding:4px; margin-top:4px; border:1px solid var(--border-color); border-radius:4px; display:${r.salaryHeld ? '' : 'none'};">
+                        </td>
+                        <td><input type="text" class="leaver-other-input" data-idx="${idx}" value="${r.otherInfo || ''}" placeholder="Notes" style="width:130px; padding:4px; border:1px solid var(--border-color); border-radius:4px;"></td>
+                    </tr>`;
+                }
+                return `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.lastWorkingDay || ''}</td><td>${r.deductions ? 'PKR ' + parseFloat(r.deductions).toLocaleString() : '—'}</td><td>${r.salaryHeld ? 'Yes' + (r.salaryHoldReason ? ' — ' + r.salaryHoldReason : '') : 'No'}</td><td>${r.otherInfo || '—'}</td></tr>`;
+            }).join('');
+            html += section('Leavers', ['Name', 'Designation', 'Department', 'Last Working Day', 'Deductions', 'Salary to be Held', 'Other Information'], leaverRows);
+
+            html += section('Leave Details', ['Name', 'Department', 'Start', 'End', 'Days', 'Type', 'Notes'],
+                lvs.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.startDate || ''}</td><td>${r.endDate || ''}</td><td>${r.days || ''}</td><td>${r.leaveType || ''}</td><td>${r.notes || '—'}</td></tr>`).join(''));
+
+            html += section('Designation / Salary Changes', ['Name', 'Department', 'Type', 'Effective Date', 'Old', 'New', 'Reason'],
+                dsc.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.type}</td><td>${r.effectiveDate || ''}</td><td>${r.oldValue || ''}</td><td>${r.newValue || ''}</td><td>${r.reason || '—'}</td></tr>`).join(''));
+
+            html += section('Loan / Advance Activity', ['Name', 'Department', 'Date', 'Type', 'Amount', 'Notes'],
+                la.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>${r.type}</td><td>PKR ${parseFloat(r.amount || 0).toLocaleString()}</td><td>${r.notes || '—'}</td></tr>`).join(''));
+
+            html += section('Other Deductions', ['Name', 'Department', 'Date', 'Amount', 'Reason'],
+                od.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>PKR ${parseFloat(r.amount || 0).toLocaleString()}</td><td>${r.reason || '—'}</td></tr>`).join(''));
 
             document.getElementById('payroll-changes-body').innerHTML = html || `<p style="color: var(--secondary-color);">No changes found for this month.</p>`;
+        }
+
+        function harvestLeaverEdits() {
+            if (!pendingPayrollChanges || !pendingPayrollChanges.leavers) return;
+            document.querySelectorAll('.leaver-deduction-input').forEach(input => {
+                const idx = parseInt(input.dataset.idx, 10);
+                if (pendingPayrollChanges.leavers[idx]) pendingPayrollChanges.leavers[idx].deductions = parseFloat(input.value || 0);
+            });
+            document.querySelectorAll('.leaver-hold-check').forEach(input => {
+                const idx = parseInt(input.dataset.idx, 10);
+                if (pendingPayrollChanges.leavers[idx]) pendingPayrollChanges.leavers[idx].salaryHeld = input.checked;
+            });
+            document.querySelectorAll('.leaver-hold-reason-input').forEach(input => {
+                const idx = parseInt(input.dataset.idx, 10);
+                if (pendingPayrollChanges.leavers[idx]) pendingPayrollChanges.leavers[idx].salaryHoldReason = input.value;
+            });
+            document.querySelectorAll('.leaver-other-input').forEach(input => {
+                const idx = parseInt(input.dataset.idx, 10);
+                if (pendingPayrollChanges.leavers[idx]) pendingPayrollChanges.leavers[idx].otherInfo = input.value;
+            });
         }
 
         async function sendPayrollToFinance() {
@@ -3063,16 +3131,17 @@
 
             pendingPayrollMonthKey = monthKey;
             pendingPayrollChanges = await compilePayrollChangesForMonth(monthKey);
-            renderPayrollChangesBody(pendingPayrollChanges);
+            renderPayrollChangesBody(pendingPayrollChanges, true);
         }
 
         async function confirmSendPayrollToFinance() {
             if (!pendingPayrollChanges || !pendingPayrollMonthKey) return;
+            harvestLeaverEdits();
             const token = getSessionToken();
             try {
                 await callAppsScript('sharePayroll', { token, month: pendingPayrollMonthKey, changes: pendingPayrollChanges, notes: '' });
                 document.getElementById('payroll-snapshot-modal').style.display = 'none';
-                alert(`Payroll changes for ${monthLabelFromKey(pendingPayrollMonthKey)} shared with Finance ✅`);
+                alert(`Payroll changes for ${monthLabelFromKey(pendingPayrollMonthKey)} shared with Finance ✅ (timestamped ${new Date().toLocaleString()})`);
                 checkFinanceDeadline();
             } catch (err) {
                 alert('Could not share payroll changes: ' + err.message);
@@ -3101,7 +3170,10 @@
                     <td>${s.leaverCount || 0}</td>
                     <td>${s.changeCount || 0}</td>
                     <td>${s.notes || '—'}</td>
-                    <td><button onclick="viewPayrollChanges('${String(s.month).replace(/'/g, "\\'")}')">View</button></td>
+                    <td>
+                        <button onclick="viewPayrollChanges('${String(s.month).replace(/'/g, "\\'")}')" title="View">View</button>
+                        <button onclick="printPayrollChangesPDF('${String(s.month).replace(/'/g, "\\'")}')" title="Download PDF"><i class="fas fa-file-pdf"></i></button>
+                    </td>
                 </tr>`).join('');
         }
 
@@ -3111,10 +3183,80 @@
             let changes = {};
             try { changes = JSON.parse(share.changes || '{}'); } catch (e) { changes = {}; }
 
-            document.getElementById('payroll-snapshot-title').textContent = 'Payroll Changes — ' + monthLabelFromKey(monthKey);
+            document.getElementById('payroll-snapshot-title').textContent = 'Payroll Changes — ' + monthLabelFromKey(monthKey) + ' (submitted ' + (share.sharedAt ? new Date(share.sharedAt).toLocaleString() : '') + ')';
             document.getElementById('payroll-changes-confirm-wrapper').style.display = 'none';
-            renderPayrollChangesBody(changes);
+            renderPayrollChangesBody(changes, false);
             document.getElementById('payroll-snapshot-modal').style.display = 'flex';
+        }
+
+        function printPayrollChangesPDF(monthKey) {
+            const share = cachedPayrollShares.find(s => s.month === monthKey);
+            if (!share) { alert('Payroll share not found.'); return; }
+            let changes = {};
+            try { changes = JSON.parse(share.changes || '{}'); } catch (e) { changes = {}; }
+
+            const nj = changes.newJoiners || [], lv = changes.leavers || [], lvs = changes.leaves || [];
+            const dsc = changes.designationSalaryChanges || [], la = changes.loanAdvanceEntries || [], od = changes.otherDeductions || [];
+
+            const section = (title, headers, rows) => {
+                if (!rows || rows.length === 0) return '';
+                return `<h2>${title}</h2><table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;
+            };
+
+            const html = `<!DOCTYPE html><html><head><title>Payroll Changes — ${monthLabelFromKey(monthKey)}</title>
+            <style>
+                @page { size: A4; margin: 0.65in; }
+                * { box-sizing: border-box; }
+                body { font-family: 'Segoe UI', Arial, sans-serif; color: #333; font-size: 9.5pt; line-height: 1.35; }
+                .letterhead { display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 2.5px solid #A05252; padding-bottom: 8pt; margin-bottom: 10pt; }
+                .letterhead h1 { color: #A05252; font-size: 14pt; margin: 0; }
+                .letterhead .tagline { margin: 2pt 0 0; color: #777; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; }
+                .letterhead .meta-right { text-align: right; font-size: 8.3pt; color: #666; }
+                h2 { color: #A05252; font-size: 9.5pt; margin: 12pt 0 4pt; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1px solid #EAEAEA; padding-bottom: 3pt; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 6pt; font-size: 8.6pt; }
+                th { background: #A05252; color: #fff; text-align: left; padding: 4pt 6pt; }
+                td { padding: 3.5pt 6pt; border-bottom: 0.5pt solid #EEE; }
+                tr:nth-child(even) td { background: #FBF8F8; }
+                .disclaimer-note { margin-top: 14pt; padding: 6pt 10pt; background: #F9F9F9; border-left: 2.5px solid #A05252; font-size: 9pt; color: #666; }
+                .footer { margin-top: 10pt; font-size: 7.8pt; color: #999; text-align: center; }
+            </style></head>
+            <body>
+                <div class="letterhead">
+                    <div><h1>Research &amp; Development Solutions</h1><p class="tagline">Monthly Payroll Changes — Finance Handoff</p></div>
+                    <div class="meta-right">Month: ${monthLabelFromKey(monthKey)}<br>Submitted: ${share.sharedAt ? new Date(share.sharedAt).toLocaleString() : '—'} by ${share.sharedByName || share.sharedByUsername || ''}</div>
+                </div>
+
+                ${section('New Joiners', ['Name', 'Designation', 'Department', 'Date of Joining', 'Basic Pay', 'Travel Allowance', 'Grocery/Fuel Allowance', 'Project Allowance'],
+                    nj.map(r => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.dateOfJoining || ''}</td><td>PKR ${parseFloat(r.basicPay || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.travelAllowance || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.groceryFuelAllowance || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.projectAllowance || 0).toLocaleString()}</td></tr>`).join(''))}
+
+                ${section('Leavers', ['Name', 'Designation', 'Department', 'Last Working Day', 'Deductions', 'Salary to be Held', 'Other Information'],
+                    lv.map(r => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.lastWorkingDay || ''}</td><td>${r.deductions ? 'PKR ' + parseFloat(r.deductions).toLocaleString() : '—'}</td><td>${r.salaryHeld ? 'Yes' + (r.salaryHoldReason ? ' — ' + r.salaryHoldReason : '') : 'No'}</td><td>${r.otherInfo || '—'}</td></tr>`).join(''))}
+
+                ${section('Leave Details', ['Name', 'Department', 'Start', 'End', 'Days', 'Type', 'Notes'],
+                    lvs.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.startDate || ''}</td><td>${r.endDate || ''}</td><td>${r.days || ''}</td><td>${r.leaveType || ''}</td><td>${r.notes || '—'}</td></tr>`).join(''))}
+
+                ${section('Designation / Salary Changes', ['Name', 'Department', 'Type', 'Effective Date', 'Old', 'New', 'Reason'],
+                    dsc.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.type}</td><td>${r.effectiveDate || ''}</td><td>${r.oldValue || ''}</td><td>${r.newValue || ''}</td><td>${r.reason || '—'}</td></tr>`).join(''))}
+
+                ${section('Loan / Advance Activity', ['Name', 'Department', 'Date', 'Type', 'Amount', 'Notes'],
+                    la.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>${r.type}</td><td>PKR ${parseFloat(r.amount || 0).toLocaleString()}</td><td>${r.notes || '—'}</td></tr>`).join(''))}
+
+                ${section('Other Deductions', ['Name', 'Department', 'Date', 'Amount', 'Reason'],
+                    od.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>PKR ${parseFloat(r.amount || 0).toLocaleString()}</td><td>${r.reason || '—'}</td></tr>`).join(''))}
+
+                <div class="disclaimer-note">System-generated document, compiled by HR and shared with Finance via the RADS HR Dashboard.</div>
+                <div class="footer">Research &amp; Development Solutions — Confidential Payroll Handoff Record</div>
+            </body></html>`;
+
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) { alert('Please allow pop-ups to download the PDF.'); return; }
+            printWindow.document.open();
+            printWindow.document.write(html);
+            printWindow.document.close();
+            printWindow.onload = function() {
+                printWindow.focus();
+                printWindow.print();
+            };
         }
 
         // ---------------------------------------------------------------
@@ -3945,6 +4087,15 @@
                     try { detail = JSON.parse(r.Notes || '{}'); } catch (e) {}
                     return `<tr><td>${r.StartDate}</td><td>${detail.oldAccount || '—'}</td><td>${detail.newAccount || r.Category || '—'}</td><td>${r.CreatedByName}</td></tr>`;
                 }).join('');
+
+            const designationChanges = cachedPersonalFileRecords.filter(r => r.RecordType === 'DesignationChange').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
+            document.querySelector('#pf-designation-table tbody').innerHTML = designationChanges.length === 0
+                ? `<tr><td colspan="5" style="color: var(--secondary-color);">No designation changes recorded.</td></tr>`
+                : designationChanges.map(r => {
+                    let detail = {};
+                    try { detail = JSON.parse(r.Notes || '{}'); } catch (e) {}
+                    return `<tr><td>${r.StartDate}</td><td>${detail.oldDesignation || '—'}</td><td>${detail.newDesignation || '—'}</td><td>${detail.reason || '—'}</td><td>${r.CreatedByName}</td></tr>`;
+                }).join('');
         }
 
         async function handlePfDeductionFormSubmit(e) {
@@ -4007,6 +4158,29 @@
                 loadPersonalFileRecords();
             } catch (err) {
                 alert('Could not add bank account change: ' + err.message);
+            }
+        }
+
+        async function handlePfDesignationFormSubmit(e) {
+            e.preventDefault();
+            const employeeId = document.getElementById('pf-employee-id').value;
+            const oldDesignation = document.getElementById('pf-designation-old').value;
+            const newDesignation = document.getElementById('pf-designation-new').value;
+            const reason = document.getElementById('pf-designation-reason').value;
+            const record = {
+                employeeId,
+                employeeName: document.getElementById('pf-employee-name').value,
+                recordType: 'DesignationChange',
+                startDate: document.getElementById('pf-designation-date').value,
+                notes: JSON.stringify({ oldDesignation, newDesignation, reason })
+            };
+            const token = getSessionToken();
+            try {
+                await callAppsScript('addPersonalFileRecord', { token, record });
+                document.getElementById('pf-designation-form').reset();
+                loadPersonalFileRecords();
+            } catch (err) {
+                alert('Could not add designation change: ' + err.message);
             }
         }
 
@@ -4194,6 +4368,8 @@
             if (pfSalaryHoldForm) pfSalaryHoldForm.addEventListener('submit', handlePfSalaryHoldFormSubmit);
             const pfBankChangeForm = document.getElementById('pf-bankchange-form');
             if (pfBankChangeForm) pfBankChangeForm.addEventListener('submit', handlePfBankChangeFormSubmit);
+            const pfDesignationForm = document.getElementById('pf-designation-form');
+            if (pfDesignationForm) pfDesignationForm.addEventListener('submit', handlePfDesignationFormSubmit);
 
             const hiringRequestForm = document.getElementById('hiring-request-form');
             if (hiringRequestForm) hiringRequestForm.addEventListener('submit', handleHiringRequestFormSubmit);
