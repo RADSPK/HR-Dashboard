@@ -876,6 +876,7 @@
             </header>
 
             <!-- Page Sections -->
+            <div id="probation-due-banner" style="display:none;"></div>
             <div id="no-access-message" style="display:none; text-align:center; padding: 60px 20px; color: var(--secondary-color);">
                 <i class="fas fa-lock" style="font-size: 2.5rem; margin-bottom: 16px; display:block;"></i>
                 <h2 style="color: var(--text-color); margin-bottom: 8px;">No access has been set up for your account yet</h2>
@@ -883,7 +884,6 @@
             </div>
 
             <section id="dashboard" class="page active">
-                <div id="probation-due-banner" style="display:none;"></div>
                 <h2 style="margin-bottom: 16px; font-size: 1.3rem; color: var(--secondary-color);">Overview Metrics</h2>
                 <div class="card-grid">
                     <div class="card clickable-card" onclick="showMetricDetails('total-employees')"><div class="metric-content"><div class="value" id="total-employees">0</div><p>Total Employees</p></div><div class="metric-icon-container"><i class="fas fa-users"></i></div></div>
@@ -1109,7 +1109,7 @@
                 </div>
 
                 <h3 style="margin: 20px 0 10px; color: var(--secondary-color);">All Hiring Requests</h3>
-                <div class="table-responsive"><table class="data-table" id="hiring-history-table"><thead><tr><th>Position</th><th>Department</th><th>Requested By</th><th>Status</th><th>Submitted</th><th>Details</th></tr></thead><tbody></tbody></table></div>
+                <div class="table-responsive"><table class="data-table" id="hiring-history-table"><thead><tr><th>Position</th><th>Department</th><th>Requested By</th><th>Status</th><th>Submitted</th><th>Details</th><th>PDF</th></tr></thead><tbody></tbody></table></div>
             </section>
 
             <section id="offerLetters" class="page">
@@ -3305,12 +3305,13 @@
 
             const sorted = [...cachedHiringRequests].sort((a, b) => new Date(b.SubmittedAt) - new Date(a.SubmittedAt));
             historyBody.innerHTML = sorted.length === 0
-                ? `<tr><td colspan="6" style="color: var(--secondary-color);">No hiring requests yet.</td></tr>`
+                ? `<tr><td colspan="7" style="color: var(--secondary-color);">No hiring requests yet.</td></tr>`
                 : sorted.map(r => `<tr>
                     <td>${r.PositionTitle}</td><td>${r.Department}</td><td>${r.RequestedByName}</td>
                     <td><span class="${hiringStatusBadgeClass(r.Status)}">${r.Status}</span></td>
                     <td>${r.SubmittedAt ? new Date(r.SubmittedAt).toLocaleDateString() : ''}</td>
                     <td><button onclick="viewHiringDetails('${String(r.RequestID).replace(/'/g, "\\'")}')">Details</button></td>
+                    <td>${r.CEODecision ? `<button onclick="printHiringRequestPDF('${String(r.RequestID).replace(/'/g, "\\'")}')" title="Print / Download PDF"><i class="fas fa-file-pdf"></i></button>` : '—'}</td>
                 </tr>`).join('');
         }
 
@@ -3385,9 +3386,12 @@
                     <div class="permission-row"><span style="flex:1;">Finance Review</span><strong>${r.FinanceDecision || 'Pending'}${r.FinanceReviewByName ? ' — ' + r.FinanceReviewByName + ' (Budget: ' + (r.BudgetAvailable || '—') + ')' : ''}</strong></div>
                     <div class="permission-row"><span style="flex:1;">CEO Decision</span><strong>${r.CEODecision || 'Pending'}${r.CEOName ? ' — ' + r.CEOName : ''}</strong></div>
                 </div>`;
+            const pdfButton = r.CEODecision
+                ? `<button type="button" style="width:100%; margin-top:14px;" onclick="printHiringRequestPDF('${String(r.RequestID).replace(/'/g, "\\'")}')"><i class="fas fa-file-pdf"></i> Download PDF</button>`
+                : '';
             document.getElementById('hiring-details-body').innerHTML =
                 `<p style="margin-bottom:10px;">Status: <span class="${hiringStatusBadgeClass(r.Status)}">${r.Status}</span></p>` +
-                hiringDetailsBlock(r) + statusRows;
+                hiringDetailsBlock(r) + statusRows + pdfButton;
             document.getElementById('hiring-details-modal').style.display = 'flex';
         }
 
@@ -3566,6 +3570,7 @@
                 .signature .name { font-size: 1.3rem; font-style: italic; color: #A05252; border-bottom: 1px solid #333; padding-bottom: 4px; margin-bottom: 4px; min-height: 1.6rem; }
                 .signature .meta { font-size: 0.8rem; color: #666; }
                 .esign-note { font-size: 0.72rem; color: #999; margin-top: 6px; }
+                .disclaimer-note { margin-top: 30px; padding: 12px 16px; background: #F9F9F9; border-left: 3px solid #A05252; font-size: 0.78rem; color: #666; line-height: 1.5; }
                 .footer { margin-top: 40px; font-size: 0.75rem; color: #999; text-align: center; }
             </style></head>
             <body>
@@ -3608,7 +3613,97 @@
                     </div>
                 </div>
 
+                <div class="disclaimer-note">This is a system-generated document. All approvals were reviewed and processed electronically within the RADS HR Dashboard, and as such this document does not require a hard/wet signature to be valid. For verification purposes, an original signed &amp; stamped copy may be obtained from the HR department upon request.</div>
+
                 <div class="footer">Prepared by ${o.PreparedByName} — Research &amp; Development Solutions HR Department</div>
+            </body></html>`;
+
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) { alert('Please allow pop-ups to download the PDF.'); return; }
+            printWindow.document.open();
+            printWindow.document.write(html);
+            printWindow.document.close();
+            printWindow.onload = function() {
+                printWindow.focus();
+                printWindow.print();
+            };
+        }
+
+        function printHiringRequestPDF(requestId) {
+            const r = cachedHiringRequests.find(x => String(x.RequestID) === String(requestId));
+            if (!r) { alert('Hiring request not found.'); return; }
+
+            const decisionColor = r.Status === 'Approved' ? '#2e7d32' : '#c0392b';
+            const decidedDate = r.CEODecidedAt ? new Date(r.CEODecidedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+
+            const html = `<!DOCTYPE html><html><head><title>Hiring Request — ${r.PositionTitle}</title>
+            <style>
+                @page { margin: 24mm 16mm; }
+                body { font-family: 'Segoe UI', Arial, sans-serif; color: #333; margin: 0; padding: 0 8px; }
+                .letterhead { display:flex; justify-content:space-between; align-items:center; border-bottom: 3px solid #A05252; padding-bottom: 14px; margin-bottom: 20px; }
+                .letterhead h1 { color: #A05252; font-size: 1.4rem; margin: 0; }
+                .letterhead p { margin: 2px 0 0; color: #666; font-size: 0.85rem; }
+                .status-banner { text-align: center; padding: 10px; border-radius: 8px; font-size: 1.1rem; font-weight: 700; color: #fff; background: ${decisionColor}; margin-bottom: 20px; }
+                h2 { color: #A05252; font-size: 1rem; margin: 20px 0 8px; border-bottom: 1px solid #EAEAEA; padding-bottom: 6px; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 4px; font-size: 0.85rem; }
+                td { padding: 6px 10px; border-bottom: 1px solid #EAEAEA; }
+                td.label { color: #888; width: 35%; }
+                .narrative { font-size: 0.88rem; line-height: 1.5; margin-bottom: 10px; }
+                .stage-block { padding: 10px 14px; background: #F9F9F9; border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem; }
+                .stage-block strong { color: #A05252; }
+                .signature-block { margin-top: 40px; }
+                .signature { width: 45%; }
+                .signature .name { font-size: 1.3rem; font-style: italic; color: #A05252; border-bottom: 1px solid #333; padding-bottom: 4px; margin-bottom: 4px; min-height: 1.6rem; }
+                .signature .meta { font-size: 0.8rem; color: #666; }
+                .esign-note { font-size: 0.72rem; color: #999; margin-top: 6px; }
+                .disclaimer-note { margin-top: 30px; padding: 12px 16px; background: #F9F9F9; border-left: 3px solid #A05252; font-size: 0.78rem; color: #666; line-height: 1.5; }
+                .footer { margin-top: 30px; font-size: 0.75rem; color: #999; text-align: center; }
+            </style></head>
+            <body>
+                <div class="letterhead">
+                    <div><h1>Research &amp; Development Solutions</h1><p>Hiring Request</p></div>
+                    <p>Generated: ${new Date().toLocaleString()}</p>
+                </div>
+
+                <div class="status-banner">${r.Status === 'Approved' ? 'APPROVED' : 'REJECTED'}</div>
+
+                <h2>Position Details</h2>
+                <table>
+                    <tr><td class="label">Position Title</td><td>${r.PositionTitle}</td></tr>
+                    <tr><td class="label">Designation</td><td>${r.Designation || '—'}</td></tr>
+                    <tr><td class="label">Department</td><td>${r.Department}</td></tr>
+                    <tr><td class="label">Employment Type</td><td>${r.EmploymentType || '—'}</td></tr>
+                    <tr><td class="label">Duration</td><td>${r.Duration || '—'}</td></tr>
+                    <tr><td class="label">Monthly Salary</td><td>PKR ${parseFloat(r.MonthlySalary || 0).toLocaleString()}</td></tr>
+                    <tr><td class="label">Supervisor</td><td>${r.Supervisor || '—'}</td></tr>
+                    <tr><td class="label">Date Required</td><td>${r.DateRequired || '—'}</td></tr>
+                    <tr><td class="label">Job Station</td><td>${r.JobStation || '—'}</td></tr>
+                    <tr><td class="label">Project</td><td>${r.Project || '—'}</td></tr>
+                    <tr><td class="label">Requested By</td><td>${r.RequestedByName} (${r.SubmittedAt ? new Date(r.SubmittedAt).toLocaleDateString() : ''})</td></tr>
+                </table>
+
+                <h2>Job Description</h2>
+                <p class="narrative">${r.JobDescription || '—'}</p>
+                <h2>Assets / Tools Required</h2>
+                <p class="narrative">${r.AssetsRequired || '—'}</p>
+
+                <h2>Approval Trail</h2>
+                <div class="stage-block"><strong>HR Review:</strong> ${r.HRDecision || 'Pending'} ${r.HRReviewByName ? '— ' + r.HRReviewByName : ''} ${r.HRReviewedAt ? '(' + new Date(r.HRReviewedAt).toLocaleDateString() + ')' : ''}${r.HRComments ? ' — "' + r.HRComments + '"' : ''}</div>
+                <div class="stage-block"><strong>Finance Review:</strong> ${r.FinanceDecision || 'Pending'} ${r.FinanceReviewByName ? '— ' + r.FinanceReviewByName : ''} ${r.FinanceReviewedAt ? '(' + new Date(r.FinanceReviewedAt).toLocaleDateString() + ')' : ''} — Budget Available: ${r.BudgetAvailable || '—'}${r.FinanceComments ? ' — "' + r.FinanceComments + '"' : ''}</div>
+                <div class="stage-block"><strong>CEO Decision:</strong> ${r.CEODecision || 'Pending'} ${r.CEOName ? '— ' + r.CEOName : ''} ${r.CEODecidedAt ? '(' + new Date(r.CEODecidedAt).toLocaleDateString() + ')' : ''}${r.CEOComments ? ' — "' + r.CEOComments + '"' : ''}</div>
+
+                <div class="signature-block">
+                    <div class="signature">
+                        <div class="name">${r.CEOName || ''}</div>
+                        <div class="meta">Chief Executive Officer</div>
+                        <div class="meta">Research &amp; Development Solutions</div>
+                        <div class="esign-note">${r.Status} &amp; e-signed on ${decidedDate} via RADS HR Dashboard</div>
+                    </div>
+                </div>
+
+                <div class="disclaimer-note">This is a system-generated document. All approvals (HR review, Finance budget check, and CEO decision) were reviewed and processed electronically within the RADS HR Dashboard, and as such this document does not require a hard/wet signature to be valid. For verification purposes, an original signed &amp; stamped copy may be obtained from the HR department upon request.</div>
+
+                <div class="footer">Research &amp; Development Solutions — Confidential Hiring Request Record</div>
             </body></html>`;
 
             const printWindow = window.open('', '_blank');
