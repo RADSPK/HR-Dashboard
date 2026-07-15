@@ -844,6 +844,8 @@
                 <a href="#reports" class="nav-link" data-page="reports"><i class="fas fa-chart-line"></i><span>Reports</span></a>
                 <a href="#approvals" class="nav-link" data-page="approvals" style="display:none;"><i class="fas fa-clipboard-check"></i><span>Approvals</span></a>
                 <a href="#payrollHandoff" class="nav-link" data-page="payrollHandoff" style="display:none;"><i class="fas fa-hand-holding-dollar"></i><span>Payroll Handoff</span></a>
+                <a href="#hiring" class="nav-link" data-page="hiring" style="display:none;"><i class="fas fa-user-plus"></i><span>Hiring Requests</span></a>
+                <a href="#offerLetters" class="nav-link" data-page="offerLetters" style="display:none;"><i class="fas fa-file-signature"></i><span>Offer Letters</span></a>
                 <a href="#users" class="nav-link" data-page="users" id="nav-users-link" style="display:none;"><i class="fas fa-user-shield"></i><span>Manage Users</span></a>
             </nav>
             
@@ -1086,6 +1088,42 @@
                 <div class="table-responsive"><table class="data-table" id="payroll-handoff-table"><thead><tr><th>Month</th><th>Shared By</th><th>Shared At</th><th>New Hires</th><th>Leavers</th><th>Salary Changes</th><th>Notes</th><th>Action</th></tr></thead><tbody></tbody></table></div>
             </section>
 
+            <section id="hiring" class="page">
+                <div class="section-header">
+                    <h2>Hiring Requests</h2>
+                    <button id="new-hiring-request-btn" onclick="openHiringRequestModal()" class="action-buttons primary" style="display:none; padding: 8px 16px; white-space: nowrap;">
+                        <i class="fas fa-plus"></i> New Hiring Request
+                    </button>
+                </div>
+                <p style="color: var(--secondary-color); margin-bottom: 16px;">Requested by a department head → reviewed by HR → budget checked by Finance → final approval by the CEO.</p>
+
+                <div id="hiring-action-wrapper" style="display:none;">
+                    <h3 style="margin: 10px 0; color: var(--secondary-color);">Awaiting Your Action</h3>
+                    <div class="table-responsive"><table class="data-table" id="hiring-action-table"><thead><tr><th>Position</th><th>Department</th><th>Requested By</th><th>Employment Type</th><th>Monthly Salary</th><th>Date Required</th><th>Stage</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+                </div>
+
+                <h3 style="margin: 20px 0 10px; color: var(--secondary-color);">All Hiring Requests</h3>
+                <div class="table-responsive"><table class="data-table" id="hiring-history-table"><thead><tr><th>Position</th><th>Department</th><th>Requested By</th><th>Status</th><th>Submitted</th><th>Details</th></tr></thead><tbody></tbody></table></div>
+            </section>
+
+            <section id="offerLetters" class="page">
+                <div class="section-header">
+                    <h2>Offer Letters</h2>
+                    <button id="new-offer-letter-btn" onclick="openOfferLetterModal()" class="action-buttons primary" style="display:none; padding: 8px 16px; white-space: nowrap;">
+                        <i class="fas fa-plus"></i> New Offer Letter
+                    </button>
+                </div>
+                <p style="color: var(--secondary-color); margin-bottom: 16px;">Drafted by HR → approved &amp; e-signed by the CEO → ready to download as a formatted PDF.</p>
+
+                <div id="offer-ceo-wrapper" style="display:none;">
+                    <h3 style="margin: 10px 0; color: var(--secondary-color);">Awaiting Your Approval</h3>
+                    <div class="table-responsive"><table class="data-table" id="offer-ceo-table"><thead><tr><th>Candidate</th><th>Designation</th><th>Department</th><th>Start Date</th><th>Prepared By</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+                </div>
+
+                <h3 style="margin: 20px 0 10px; color: var(--secondary-color);">All Offer Letters</h3>
+                <div class="table-responsive"><table class="data-table" id="offer-history-table"><thead><tr><th>Candidate</th><th>Designation</th><th>Department</th><th>Prepared By</th><th>Status</th><th>Prepared</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+            </section>
+
             <section id="users" class="page">
                 <div class="section-header">
                     <h2>Manage Users</h2>
@@ -1208,6 +1246,20 @@
                     <div class="permission-block">
                         <h4>Payroll Handoff (Finance)</h4>
                         <div class="permission-row"><input type="checkbox" id="perm-payrollhandoff-view"><label for="perm-payrollhandoff-view" style="margin:0;">Can view monthly payroll shared with Finance</label></div>
+                    </div>
+
+                    <div class="permission-block">
+                        <h4>Hiring Requests</h4>
+                        <div class="permission-row"><input type="checkbox" id="perm-hiring-submit"><label for="perm-hiring-submit" style="margin:0;">Can submit hiring requests (department head)</label></div>
+                        <div class="permission-row"><input type="checkbox" id="perm-hiring-hrreview"><label for="perm-hiring-hrreview" style="margin:0;">Can review requests as HR</label></div>
+                        <div class="permission-row"><input type="checkbox" id="perm-hiring-financereview"><label for="perm-hiring-financereview" style="margin:0;">Can review budget availability (Finance)</label></div>
+                        <div class="permission-row"><input type="checkbox" id="perm-hiring-ceoapprove"><label for="perm-hiring-ceoapprove" style="margin:0;">Can give final approval (CEO)</label></div>
+                    </div>
+
+                    <div class="permission-block">
+                        <h4>Offer Letters</h4>
+                        <div class="permission-row"><input type="checkbox" id="perm-offer-prepare"><label for="perm-offer-prepare" style="margin:0;">Can prepare offer letters (HR)</label></div>
+                        <div class="permission-row"><input type="checkbox" id="perm-offer-ceoapprove"><label for="perm-offer-ceoapprove" style="margin:0;">Can approve &amp; e-sign offer letters (CEO)</label></div>
                     </div>
                 </div>
 
@@ -1476,6 +1528,119 @@
         </div>
     </div>
 
+    <!-- New Hiring Request Modal -->
+    <div id="hiring-request-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close-button" onclick="closeHiringRequestModal()">&times;</span>
+            <h3 style="margin-bottom: 16px;">New Hiring Request</h3>
+            <form id="hiring-request-form">
+                <div class="form-grid">
+                    <div class="form-group"><label>Position Title</label><input type="text" id="hr-position-title" required></div>
+                    <div class="form-group"><label>Designation</label><input type="text" id="hr-designation"></div>
+                    <div class="form-group"><label>Department</label><input type="text" id="hr-department" required></div>
+                    <div class="form-group">
+                        <label>Employment Type</label>
+                        <select id="hr-employment-type">
+                            <option>Core</option><option>Contractual</option><option>Fixed Term</option><option>Short Term</option>
+                            <option>Consultant</option><option>Field Staff</option><option>Intern</option><option>Fellow</option>
+                            <option>Management Trainee</option><option>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Duration</label><input type="text" id="hr-duration" placeholder="e.g. 6 months, Permanent"></div>
+                    <div class="form-group"><label>Monthly Salary (PKR)</label><input type="number" id="hr-monthly-salary" min="0"></div>
+                    <div class="form-group"><label>Supervisor</label><input type="text" id="hr-supervisor"></div>
+                    <div class="form-group"><label>Date Resource Required</label><input type="date" id="hr-date-required"></div>
+                    <div class="form-group"><label>Job Station</label><input type="text" id="hr-job-station"></div>
+                    <div class="form-group"><label>Project (if project-based)</label><input type="text" id="hr-project"></div>
+                </div>
+                <div class="form-group"><label>Job Description</label><textarea id="hr-job-description" rows="3"></textarea></div>
+                <div class="form-group"><label>Assets / Tools Required</label><textarea id="hr-assets-required" rows="2" placeholder="e.g. Laptop, mobile SIM, vehicle"></textarea></div>
+                <button type="submit" style="width: 100%; margin-top: 10px;">Submit Hiring Request</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hiring Request Review Modal (shared by HR / Finance / CEO stages) -->
+    <div id="hiring-review-modal" class="modal">
+        <div class="modal-content" style="max-width: 640px;">
+            <span class="close-button" onclick="closeHiringReviewModal()">&times;</span>
+            <h3 style="margin-bottom: 16px;">Review Hiring Request</h3>
+            <div id="hiring-review-details" style="margin-bottom: 16px;"></div>
+            <div class="form-group" id="hiring-budget-group" style="display:none;">
+                <label>Budget Available?</label>
+                <select id="hiring-budget-available"><option value="yes">Yes</option><option value="no">No</option></select>
+            </div>
+            <div class="form-group">
+                <label>Comments</label>
+                <textarea id="hiring-review-comments" rows="3"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button type="button" style="flex:1; background-color: #2e7d32;" onclick="submitHiringReviewDecision('Approved')">Approve</button>
+                <button type="button" style="flex:1; background-color: #c0392b;" onclick="submitHiringReviewDecision('Rejected')">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hiring Request Details (read-only, from history table) -->
+    <div id="hiring-details-modal" class="modal">
+        <div class="modal-content" style="max-width: 640px;">
+            <span class="close-button" onclick="document.getElementById('hiring-details-modal').style.display='none';">&times;</span>
+            <h3 style="margin-bottom: 16px;">Hiring Request Details</h3>
+            <div id="hiring-details-body"></div>
+        </div>
+    </div>
+
+    <!-- New Offer Letter Modal -->
+    <div id="offer-letter-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close-button" onclick="closeOfferLetterModal()">&times;</span>
+            <h3 style="margin-bottom: 16px;">New Offer Letter</h3>
+            <form id="offer-letter-form">
+                <div class="form-group" id="offer-hiring-link-group" style="display:none;">
+                    <label>Link to an Approved Hiring Request (optional)</label>
+                    <select id="offer-linked-request" onchange="onOfferLinkedRequestChange(this.value)"><option value="">— None —</option></select>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Candidate Name</label><input type="text" id="offer-candidate-name" required></div>
+                    <div class="form-group"><label>Designation</label><input type="text" id="offer-designation" required></div>
+                    <div class="form-group"><label>Department</label><input type="text" id="offer-department"></div>
+                    <div class="form-group"><label>Supervisor</label><input type="text" id="offer-supervisor"></div>
+                    <div class="form-group"><label>Project (if applicable)</label><input type="text" id="offer-project"></div>
+                    <div class="form-group">
+                        <label>Employment Type</label>
+                        <select id="offer-employment-type">
+                            <option>Core</option><option>Contractual</option><option>Fixed Term</option><option>Short Term</option>
+                            <option>Consultant</option><option>Field Staff</option><option>Intern</option><option>Fellow</option>
+                            <option>Management Trainee</option><option>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Starting Date</label><input type="date" id="offer-start-date" required></div>
+                    <div class="form-group"><label>Job Station</label><input type="text" id="offer-job-station"></div>
+                    <div class="form-group"><label>Total Remuneration Package (PKR/month)</label><input type="number" id="offer-remuneration" min="0" required></div>
+                </div>
+                <div class="form-group"><label>Remuneration Breakdown</label><textarea id="offer-remuneration-breakdown" rows="2" placeholder="e.g. Base Salary PKR X, Travel Allowance PKR Y, ..."></textarea></div>
+                <button type="submit" style="width: 100%; margin-top: 10px;">Submit for CEO Approval</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Offer Letter CEO Review Modal -->
+    <div id="offer-review-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-button" onclick="closeOfferReviewModal()">&times;</span>
+            <h3 style="margin-bottom: 16px;">Review Offer Letter</h3>
+            <div id="offer-review-details" style="margin-bottom: 16px;"></div>
+            <div class="form-group">
+                <label>Comments</label>
+                <textarea id="offer-review-comments" rows="3"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button type="button" style="flex:1; background-color: #2e7d32;" onclick="submitOfferReviewDecision('Approved')">Approve &amp; E-Sign</button>
+                <button type="button" style="flex:1; background-color: #c0392b;" onclick="submitOfferReviewDecision('Rejected')">Reject</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Payroll Changes Modal (used both to preview before sending, and to view a past share) -->
     <div id="payroll-snapshot-modal" class="modal">
         <div class="modal-content" style="max-width: 820px;">
@@ -1683,6 +1848,10 @@
             });
             const usersLink = document.getElementById('nav-users-link');
             if (usersLink) usersLink.style.display = isAdmin() ? '' : 'none';
+            const hiringLink = document.querySelector('.nav-link[data-page="hiring"]');
+            if (hiringLink) hiringLink.style.display = canAccessHiring() ? '' : 'none';
+            const offerLink = document.querySelector('.nav-link[data-page="offerLetters"]');
+            if (offerLink) offerLink.style.display = canAccessOfferLetters() ? '' : 'none';
 
             // Edit-gated buttons
             const addEmployeeBtn = document.getElementById('add-employee-btn');
@@ -1699,7 +1868,7 @@
 
             // If current page is no longer permitted, redirect to the first available page
             const activePage = document.querySelector('.page.active');
-            if (activePage && activePage.id !== 'users' && !canView(activePage.id)) {
+            if (activePage && activePage.id !== 'users' && activePage.id !== 'hiring' && activePage.id !== 'offerLetters' && !canView(activePage.id)) {
                 const firstAvailable = ['dashboard', 'employees', 'payroll', 'departments', 'reports', 'approvals', 'payrollHandoff'].find(p => canView(p));
                 if (firstAvailable) showPage(firstAvailable);
             }
@@ -1713,6 +1882,24 @@
             if (canEditSection('employees') || isTeamLead()) checkProbationDue();
             if (canEditSection('payroll')) checkFinanceDeadline();
         }
+
+        function canAccessHiring() {
+            if (isAdmin()) return true;
+            const h = (getPerms().hiring) || {};
+            return !!(h.submit || h.hrReview || h.financeReview || h.ceoApprove);
+        }
+        function canSubmitHiring() { return isAdmin() || !!((getPerms().hiring || {}).submit); }
+        function canHrReviewHiring() { return isAdmin() || !!((getPerms().hiring || {}).hrReview); }
+        function canFinanceReviewHiring() { return isAdmin() || !!((getPerms().hiring || {}).financeReview); }
+        function canCeoApproveHiring() { return isAdmin() || !!((getPerms().hiring || {}).ceoApprove); }
+
+        function canAccessOfferLetters() {
+            if (isAdmin()) return true;
+            const o = (getPerms().offerLetters) || {};
+            return !!(o.prepare || o.ceoApprove);
+        }
+        function canPrepareOffers() { return isAdmin() || !!((getPerms().offerLetters || {}).prepare); }
+        function canApproveOffers() { return isAdmin() || !!((getPerms().offerLetters || {}).ceoApprove); }
 
         function canReviewApprovals() {
             if (isAdmin()) return true;
@@ -1793,7 +1980,7 @@
         function collectPermissionsFromForm() {
             const roleVal = document.getElementById('user-role').value;
             if (roleVal === 'admin') {
-                return { sections: { dashboard: true, employees: { view: true, edit: true }, payroll: { view: true, edit: true }, departments: { view: true }, reports: { view: true, categories: { employee: true, financial: true, analytical: true, compliance: true } }, approvals: { view: true, canReview: true }, payrollHandoff: { view: true } } };
+                return { sections: { dashboard: true, employees: { view: true, edit: true }, payroll: { view: true, edit: true }, departments: { view: true }, reports: { view: true, categories: { employee: true, financial: true, analytical: true, compliance: true } }, approvals: { view: true, canReview: true }, payrollHandoff: { view: true }, hiring: { submit: true, hrReview: true, financeReview: true, ceoApprove: true }, offerLetters: { prepare: true, ceoApprove: true } } };
             }
             const canReview = document.getElementById('perm-approvals-review').checked;
             return {
@@ -1819,6 +2006,16 @@
                     },
                     payrollHandoff: {
                         view: document.getElementById('perm-payrollhandoff-view').checked
+                    },
+                    hiring: {
+                        submit: document.getElementById('perm-hiring-submit').checked,
+                        hrReview: document.getElementById('perm-hiring-hrreview').checked,
+                        financeReview: document.getElementById('perm-hiring-financereview').checked,
+                        ceoApprove: document.getElementById('perm-hiring-ceoapprove').checked
+                    },
+                    offerLetters: {
+                        prepare: document.getElementById('perm-offer-prepare').checked,
+                        ceoApprove: document.getElementById('perm-offer-ceoapprove').checked
                     }
                 }
             };
@@ -1842,6 +2039,12 @@
             document.getElementById('perm-approvals-review').checked = !!(s.approvals && s.approvals.canReview);
             document.getElementById('perm-approvals-teamlead').checked = !!(s.approvals && s.approvals.teamLead);
             document.getElementById('perm-payrollhandoff-view').checked = !!(s.payrollHandoff && s.payrollHandoff.view);
+            document.getElementById('perm-hiring-submit').checked = !!(s.hiring && s.hiring.submit);
+            document.getElementById('perm-hiring-hrreview').checked = !!(s.hiring && s.hiring.hrReview);
+            document.getElementById('perm-hiring-financereview').checked = !!(s.hiring && s.hiring.financeReview);
+            document.getElementById('perm-hiring-ceoapprove').checked = !!(s.hiring && s.hiring.ceoApprove);
+            document.getElementById('perm-offer-prepare').checked = !!(s.offerLetters && s.offerLetters.prepare);
+            document.getElementById('perm-offer-ceoapprove').checked = !!(s.offerLetters && s.offerLetters.ceoApprove);
             toggleReportCategoryRows(document.getElementById('perm-reports-view').checked);
         }
 
@@ -2975,6 +3178,411 @@
             scheduleDiv.innerHTML = html;
         }
 
+
+        // ===================================================
+        // HIRING REQUESTS — Dept Head -> HR -> Finance -> CEO
+        // ===================================================
+        let cachedHiringRequests = [];
+
+        function openHiringRequestModal() {
+            document.getElementById('hiring-request-form').reset();
+            document.getElementById('hiring-request-modal').style.display = 'flex';
+        }
+
+        function closeHiringRequestModal() {
+            document.getElementById('hiring-request-modal').style.display = 'none';
+        }
+
+        async function handleHiringRequestFormSubmit(e) {
+            e.preventDefault();
+            const request = {
+                positionTitle: document.getElementById('hr-position-title').value,
+                designation: document.getElementById('hr-designation').value,
+                department: document.getElementById('hr-department').value,
+                employmentType: document.getElementById('hr-employment-type').value,
+                duration: document.getElementById('hr-duration').value,
+                monthlySalary: document.getElementById('hr-monthly-salary').value,
+                supervisor: document.getElementById('hr-supervisor').value,
+                jobDescription: document.getElementById('hr-job-description').value,
+                dateRequired: document.getElementById('hr-date-required').value,
+                assetsRequired: document.getElementById('hr-assets-required').value,
+                jobStation: document.getElementById('hr-job-station').value,
+                project: document.getElementById('hr-project').value
+            };
+            const token = getSessionToken();
+            try {
+                await callAppsScript('submitHiringRequest', { token, request });
+                closeHiringRequestModal();
+                alert('Hiring request submitted for HR review ✅');
+                loadHiringRequests();
+            } catch (err) {
+                alert('Could not submit hiring request: ' + err.message);
+            }
+        }
+
+        function hiringStageLabel(status) {
+            if (status === 'Pending HR Review') return 'HR Review';
+            if (status === 'Pending Finance Review') return 'Finance Review';
+            if (status === 'Pending CEO Approval') return 'CEO Approval';
+            return status;
+        }
+
+        function hiringStatusBadgeClass(status) {
+            if (status === 'Approved') return 'status-approved';
+            if (status === 'Rejected') return 'status-rejected';
+            return 'status-submitted';
+        }
+
+        async function loadHiringRequests() {
+            const actionWrapper = document.getElementById('hiring-action-wrapper');
+            const actionBody = document.querySelector('#hiring-action-table tbody');
+            const historyBody = document.querySelector('#hiring-history-table tbody');
+            const newBtn = document.getElementById('new-hiring-request-btn');
+            if (newBtn) newBtn.style.display = canSubmitHiring() ? '' : 'none';
+            if (!actionBody || !historyBody) return;
+
+            try {
+                const token = getSessionToken();
+                const result = await callAppsScript('listHiringRequests', { token });
+                cachedHiringRequests = result.requests || [];
+            } catch (err) {
+                historyBody.innerHTML = `<tr><td colspan="6" style="color: var(--secondary-color);">Could not load hiring requests: ${err.message}</td></tr>`;
+                return;
+            }
+
+            const actionable = cachedHiringRequests.filter(r => {
+                if (r.Status === 'Pending HR Review' && canHrReviewHiring()) return true;
+                if (r.Status === 'Pending Finance Review' && canFinanceReviewHiring()) return true;
+                if (r.Status === 'Pending CEO Approval' && canCeoApproveHiring()) return true;
+                return false;
+            });
+            actionWrapper.style.display = actionable.length > 0 ? 'block' : 'none';
+            actionBody.innerHTML = actionable.map(r => `<tr>
+                <td>${r.PositionTitle}</td><td>${r.Department}</td><td>${r.RequestedByName}</td>
+                <td>${r.EmploymentType || ''}</td><td>PKR ${parseFloat(r.MonthlySalary || 0).toLocaleString()}</td><td>${r.DateRequired || ''}</td>
+                <td>${hiringStageLabel(r.Status)}</td>
+                <td><button onclick="openHiringReviewModal('${String(r.RequestID).replace(/'/g, "\\'")}')">Review</button></td>
+            </tr>`).join('');
+
+            const sorted = [...cachedHiringRequests].sort((a, b) => new Date(b.SubmittedAt) - new Date(a.SubmittedAt));
+            historyBody.innerHTML = sorted.length === 0
+                ? `<tr><td colspan="6" style="color: var(--secondary-color);">No hiring requests yet.</td></tr>`
+                : sorted.map(r => `<tr>
+                    <td>${r.PositionTitle}</td><td>${r.Department}</td><td>${r.RequestedByName}</td>
+                    <td><span class="${hiringStatusBadgeClass(r.Status)}">${r.Status}</span></td>
+                    <td>${r.SubmittedAt ? new Date(r.SubmittedAt).toLocaleDateString() : ''}</td>
+                    <td><button onclick="viewHiringDetails('${String(r.RequestID).replace(/'/g, "\\'")}')">Details</button></td>
+                </tr>`).join('');
+        }
+
+        let currentHiringReviewId = null;
+        let currentHiringReviewStage = null;
+
+        function hiringDetailsBlock(r) {
+            return `
+                <p><strong>${r.PositionTitle}</strong>${r.Designation ? ' (' + r.Designation + ')' : ''} — ${r.Department}</p>
+                <p style="color: var(--secondary-color); font-size:0.85rem; margin-bottom:10px;">Requested by ${r.RequestedByName} on ${r.SubmittedAt ? new Date(r.SubmittedAt).toLocaleDateString() : ''}</p>
+                <div class="permission-block">
+                    <div class="permission-row"><span style="flex:1;">Employment Type</span><strong>${r.EmploymentType || '—'}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Duration</span><strong>${r.Duration || '—'}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Monthly Salary</span><strong>PKR ${parseFloat(r.MonthlySalary || 0).toLocaleString()}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Supervisor</span><strong>${r.Supervisor || '—'}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Date Required</span><strong>${r.DateRequired || '—'}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Job Station</span><strong>${r.JobStation || '—'}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Project</span><strong>${r.Project || '—'}</strong></div>
+                </div>
+                <p style="margin-top:10px;"><strong>Job Description:</strong> ${r.JobDescription || '—'}</p>
+                <p><strong>Assets/Tools Required:</strong> ${r.AssetsRequired || '—'}</p>`;
+        }
+
+        function openHiringReviewModal(requestId) {
+            const r = cachedHiringRequests.find(x => String(x.RequestID) === String(requestId));
+            if (!r) return;
+            currentHiringReviewId = requestId;
+            currentHiringReviewStage = r.Status;
+
+            let extra = '';
+            if (r.HRDecision) extra += `<p style="color: var(--secondary-color); font-size:0.85rem;"><strong>HR:</strong> ${r.HRDecision} by ${r.HRReviewByName} — ${r.HRComments || ''}</p>`;
+            if (r.FinanceDecision) extra += `<p style="color: var(--secondary-color); font-size:0.85rem;"><strong>Finance:</strong> ${r.FinanceDecision} (Budget available: ${r.BudgetAvailable || '—'}) by ${r.FinanceReviewByName} — ${r.FinanceComments || ''}</p>`;
+
+            document.getElementById('hiring-review-details').innerHTML = hiringDetailsBlock(r) + extra;
+            document.getElementById('hiring-budget-group').style.display = (r.Status === 'Pending Finance Review') ? '' : 'none';
+            document.getElementById('hiring-review-comments').value = '';
+            document.getElementById('hiring-review-modal').style.display = 'flex';
+        }
+
+        function closeHiringReviewModal() {
+            document.getElementById('hiring-review-modal').style.display = 'none';
+            currentHiringReviewId = null;
+            currentHiringReviewStage = null;
+        }
+
+        async function submitHiringReviewDecision(decision) {
+            if (!currentHiringReviewId) return;
+            const comments = document.getElementById('hiring-review-comments').value;
+            const token = getSessionToken();
+            try {
+                if (currentHiringReviewStage === 'Pending HR Review') {
+                    await callAppsScript('hrReviewHiringRequest', { token, requestId: currentHiringReviewId, decision, comments });
+                } else if (currentHiringReviewStage === 'Pending Finance Review') {
+                    const budgetAvailable = document.getElementById('hiring-budget-available').value === 'yes';
+                    await callAppsScript('financeReviewHiringRequest', { token, requestId: currentHiringReviewId, decision, budgetAvailable, comments });
+                } else if (currentHiringReviewStage === 'Pending CEO Approval') {
+                    await callAppsScript('ceoDecideHiringRequest', { token, requestId: currentHiringReviewId, decision, comments });
+                }
+                closeHiringReviewModal();
+                loadHiringRequests();
+            } catch (err) {
+                alert('Could not submit decision: ' + err.message);
+            }
+        }
+
+        function viewHiringDetails(requestId) {
+            const r = cachedHiringRequests.find(x => String(x.RequestID) === String(requestId));
+            if (!r) return;
+            const statusRows = `
+                <div class="permission-block" style="margin-top:12px;">
+                    <div class="permission-row"><span style="flex:1;">HR Review</span><strong>${r.HRDecision || 'Pending'}${r.HRReviewByName ? ' — ' + r.HRReviewByName : ''}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Finance Review</span><strong>${r.FinanceDecision || 'Pending'}${r.FinanceReviewByName ? ' — ' + r.FinanceReviewByName + ' (Budget: ' + (r.BudgetAvailable || '—') + ')' : ''}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">CEO Decision</span><strong>${r.CEODecision || 'Pending'}${r.CEOName ? ' — ' + r.CEOName : ''}</strong></div>
+                </div>`;
+            document.getElementById('hiring-details-body').innerHTML =
+                `<p style="margin-bottom:10px;">Status: <span class="${hiringStatusBadgeClass(r.Status)}">${r.Status}</span></p>` +
+                hiringDetailsBlock(r) + statusRows;
+            document.getElementById('hiring-details-modal').style.display = 'flex';
+        }
+
+        // ===================================================
+        // OFFER LETTERS — HR drafts -> CEO approves & e-signs
+        // ===================================================
+        let cachedOfferLetters = [];
+
+        async function openOfferLetterModal() {
+            document.getElementById('offer-letter-form').reset();
+            const linkGroup = document.getElementById('offer-hiring-link-group');
+            const linkSelect = document.getElementById('offer-linked-request');
+            linkGroup.style.display = 'none';
+            try {
+                const token = getSessionToken();
+                const result = await callAppsScript('listHiringRequests', { token });
+                cachedHiringRequests = result.requests || [];
+                const approvedRequests = cachedHiringRequests.filter(r => r.Status === 'Approved');
+                if (approvedRequests.length > 0) {
+                    linkGroup.style.display = '';
+                    linkSelect.innerHTML = `<option value="">— None —</option>` + approvedRequests.map(r => `<option value="${r.RequestID}">${r.PositionTitle} — ${r.Department}</option>`).join('');
+                }
+            } catch (err) {
+                console.error('Could not load hiring requests for linking:', err);
+            }
+            document.getElementById('offer-letter-modal').style.display = 'flex';
+        }
+
+        function closeOfferLetterModal() {
+            document.getElementById('offer-letter-modal').style.display = 'none';
+        }
+
+        function onOfferLinkedRequestChange(requestId) {
+            if (!requestId) return;
+            const r = cachedHiringRequests.find(x => String(x.RequestID) === String(requestId));
+            if (!r) return;
+            document.getElementById('offer-designation').value = r.Designation || r.PositionTitle || '';
+            document.getElementById('offer-department').value = r.Department || '';
+            document.getElementById('offer-supervisor').value = r.Supervisor || '';
+            document.getElementById('offer-project').value = r.Project || '';
+            if (r.EmploymentType) document.getElementById('offer-employment-type').value = r.EmploymentType;
+            document.getElementById('offer-job-station').value = r.JobStation || '';
+            document.getElementById('offer-remuneration').value = r.MonthlySalary || '';
+        }
+
+        async function handleOfferLetterFormSubmit(e) {
+            e.preventDefault();
+            const offer = {
+                candidateName: document.getElementById('offer-candidate-name').value,
+                designation: document.getElementById('offer-designation').value,
+                department: document.getElementById('offer-department').value,
+                supervisor: document.getElementById('offer-supervisor').value,
+                project: document.getElementById('offer-project').value,
+                employmentType: document.getElementById('offer-employment-type').value,
+                startDate: document.getElementById('offer-start-date').value,
+                jobStation: document.getElementById('offer-job-station').value,
+                remunerationPackage: document.getElementById('offer-remuneration').value,
+                remunerationBreakdown: document.getElementById('offer-remuneration-breakdown').value,
+                linkedHiringRequestId: document.getElementById('offer-linked-request').value || ''
+            };
+            const token = getSessionToken();
+            try {
+                await callAppsScript('createOfferLetter', { token, offer });
+                closeOfferLetterModal();
+                alert('Offer letter submitted for CEO approval ✅');
+                loadOfferLetters();
+            } catch (err) {
+                alert('Could not submit offer letter: ' + err.message);
+            }
+        }
+
+        async function loadOfferLetters() {
+            const ceoWrapper = document.getElementById('offer-ceo-wrapper');
+            const ceoBody = document.querySelector('#offer-ceo-table tbody');
+            const historyBody = document.querySelector('#offer-history-table tbody');
+            const newBtn = document.getElementById('new-offer-letter-btn');
+            if (newBtn) newBtn.style.display = canPrepareOffers() ? '' : 'none';
+            if (!ceoBody || !historyBody) return;
+
+            try {
+                const token = getSessionToken();
+                const result = await callAppsScript('listOfferLetters', { token });
+                cachedOfferLetters = result.offers || [];
+            } catch (err) {
+                historyBody.innerHTML = `<tr><td colspan="7" style="color: var(--secondary-color);">Could not load offer letters: ${err.message}</td></tr>`;
+                return;
+            }
+
+            const canApprove = canApproveOffers();
+            ceoWrapper.style.display = canApprove ? 'block' : 'none';
+            if (canApprove) {
+                const pending = cachedOfferLetters.filter(o => o.Status === 'Pending CEO Approval');
+                ceoBody.innerHTML = pending.length === 0
+                    ? `<tr><td colspan="6" style="color: var(--secondary-color);">Nothing awaiting your approval.</td></tr>`
+                    : pending.map(o => `<tr>
+                        <td>${o.CandidateName}</td><td>${o.Designation}</td><td>${o.Department || ''}</td>
+                        <td>${o.StartDate || ''}</td><td>${o.PreparedByName}</td>
+                        <td><button onclick="openOfferReviewModal('${String(o.OfferID).replace(/'/g, "\\'")}')">Review</button></td>
+                    </tr>`).join('');
+            }
+
+            const sorted = [...cachedOfferLetters].sort((a, b) => new Date(b.PreparedAt) - new Date(a.PreparedAt));
+            historyBody.innerHTML = sorted.length === 0
+                ? `<tr><td colspan="7" style="color: var(--secondary-color);">No offer letters yet.</td></tr>`
+                : sorted.map(o => `<tr>
+                    <td>${o.CandidateName}</td><td>${o.Designation}</td><td>${o.Department || ''}</td><td>${o.PreparedByName}</td>
+                    <td><span class="${hiringStatusBadgeClass(o.Status)}">${o.Status}</span></td>
+                    <td>${o.PreparedAt ? new Date(o.PreparedAt).toLocaleDateString() : ''}</td>
+                    <td>${o.Status === 'Approved' ? `<button onclick="printOfferLetterPDF('${String(o.OfferID).replace(/'/g, "\\'")}')" title="Download PDF"><i class="fas fa-file-pdf"></i></button>` : '—'}</td>
+                </tr>`).join('');
+        }
+
+        let currentOfferReviewId = null;
+
+        function openOfferReviewModal(offerId) {
+            const o = cachedOfferLetters.find(x => String(x.OfferID) === String(offerId));
+            if (!o) return;
+            currentOfferReviewId = offerId;
+            document.getElementById('offer-review-details').innerHTML = `
+                <p><strong>${o.CandidateName}</strong> — ${o.Designation}, ${o.Department || ''}</p>
+                <div class="permission-block">
+                    <div class="permission-row"><span style="flex:1;">Employment Type</span><strong>${o.EmploymentType || '—'}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Supervisor</span><strong>${o.Supervisor || '—'}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Project</span><strong>${o.Project || '—'}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Starting Date</span><strong>${o.StartDate || '—'}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Job Station</span><strong>${o.JobStation || '—'}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Remuneration</span><strong>PKR ${parseFloat(o.RemunerationPackage || 0).toLocaleString()}/month</strong></div>
+                </div>
+                <p style="margin-top:10px;"><strong>Breakdown:</strong> ${o.RemunerationBreakdown || '—'}</p>
+                <p style="color: var(--secondary-color); font-size:0.85rem;">Prepared by ${o.PreparedByName} on ${o.PreparedAt ? new Date(o.PreparedAt).toLocaleDateString() : ''}</p>
+            `;
+            document.getElementById('offer-review-comments').value = '';
+            document.getElementById('offer-review-modal').style.display = 'flex';
+        }
+
+        function closeOfferReviewModal() {
+            document.getElementById('offer-review-modal').style.display = 'none';
+            currentOfferReviewId = null;
+        }
+
+        async function submitOfferReviewDecision(decision) {
+            if (!currentOfferReviewId) return;
+            const comments = document.getElementById('offer-review-comments').value;
+            const token = getSessionToken();
+            try {
+                await callAppsScript('ceoDecideOfferLetter', { token, offerId: currentOfferReviewId, decision, comments });
+                closeOfferReviewModal();
+                alert(decision === 'Approved' ? 'Offer letter approved and e-signed ✅' : 'Offer letter rejected.');
+                loadOfferLetters();
+            } catch (err) {
+                alert('Could not submit decision: ' + err.message);
+            }
+        }
+
+        function printOfferLetterPDF(offerId) {
+            const o = cachedOfferLetters.find(x => String(x.OfferID) === String(offerId));
+            if (!o) { alert('Offer letter not found.'); return; }
+
+            const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const startDateFormatted = o.StartDate ? new Date(o.StartDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—';
+
+            const html = `<!DOCTYPE html><html><head><title>Offer Letter — ${o.CandidateName}</title>
+            <style>
+                @page { margin: 25mm 20mm; }
+                body { font-family: Georgia, 'Times New Roman', serif; color: #222; line-height: 1.6; }
+                .letterhead { text-align:center; border-bottom: 3px solid #A05252; padding-bottom: 14px; margin-bottom: 30px; }
+                .letterhead h1 { color: #A05252; font-size: 1.5rem; margin: 0; }
+                .letterhead p { margin: 4px 0 0; color: #666; font-size: 0.85rem; }
+                .date-line { text-align: right; margin-bottom: 20px; font-size: 0.9rem; color: #555; }
+                h2 { color: #A05252; font-size: 1.1rem; margin-top: 20px; }
+                table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.92rem; }
+                td { padding: 6px 10px; border-bottom: 1px solid #EAEAEA; }
+                td.label { color: #888; width: 40%; }
+                .signature-block { margin-top: 50px; display: flex; justify-content: space-between; }
+                .signature { width: 45%; }
+                .signature .name { font-size: 1.3rem; font-style: italic; color: #A05252; border-bottom: 1px solid #333; padding-bottom: 4px; margin-bottom: 4px; min-height: 1.6rem; }
+                .signature .meta { font-size: 0.8rem; color: #666; }
+                .esign-note { font-size: 0.72rem; color: #999; margin-top: 6px; }
+                .footer { margin-top: 40px; font-size: 0.75rem; color: #999; text-align: center; }
+            </style></head>
+            <body>
+                <div class="letterhead">
+                    <h1>Research &amp; Development Solutions</h1>
+                    <p>Letter of Offer</p>
+                </div>
+                <div class="date-line">${today}</div>
+
+                <p>Dear ${o.CandidateName},</p>
+                <p>We are pleased to offer you the position of <strong>${o.Designation}</strong>${o.Department ? ' in the ' + o.Department + ' department' : ''}${o.Project ? ', on the ' + o.Project + ' project' : ''}, with Research &amp; Development Solutions. Please find the details of this offer below.</p>
+
+                <table>
+                    <tr><td class="label">Designation</td><td>${o.Designation}</td></tr>
+                    <tr><td class="label">Department</td><td>${o.Department || '—'}</td></tr>
+                    <tr><td class="label">Reporting To</td><td>${o.Supervisor || '—'}</td></tr>
+                    ${o.Project ? `<tr><td class="label">Project</td><td>${o.Project}</td></tr>` : ''}
+                    <tr><td class="label">Employment Type</td><td>${o.EmploymentType || '—'}</td></tr>
+                    <tr><td class="label">Job Station</td><td>${o.JobStation || '—'}</td></tr>
+                    <tr><td class="label">Starting Date</td><td>${startDateFormatted}</td></tr>
+                    <tr><td class="label">Remuneration Package</td><td>PKR ${parseFloat(o.RemunerationPackage || 0).toLocaleString()} / month</td></tr>
+                </table>
+
+                ${o.RemunerationBreakdown ? `<h2>Remuneration Breakdown</h2><p>${o.RemunerationBreakdown}</p>` : ''}
+
+                <p>This offer is contingent upon the terms and conditions of employment as per RADS policy. Please confirm your acceptance of this offer at your earliest convenience.</p>
+                <p>We look forward to welcoming you to the team.</p>
+
+                <div class="signature-block">
+                    <div class="signature">
+                        <div class="name">${o.CEOName || ''}</div>
+                        <div class="meta">Chief Executive Officer</div>
+                        <div class="meta">Research &amp; Development Solutions</div>
+                        <div class="esign-note">Approved &amp; e-signed on ${o.DecidedAt ? new Date(o.DecidedAt).toLocaleDateString() : ''} via RADS HR Dashboard</div>
+                    </div>
+                    <div class="signature">
+                        <div class="name">&nbsp;</div>
+                        <div class="meta">${o.CandidateName}</div>
+                        <div class="meta">Candidate Signature &amp; Date</div>
+                    </div>
+                </div>
+
+                <div class="footer">Prepared by ${o.PreparedByName} — Research &amp; Development Solutions HR Department</div>
+            </body></html>`;
+
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) { alert('Please allow pop-ups to download the PDF.'); return; }
+            printWindow.document.open();
+            printWindow.document.write(html);
+            printWindow.document.close();
+            printWindow.onload = function() {
+                printWindow.focus();
+                printWindow.print();
+            };
+        }
+
         function downloadPersonalFilePDF() {
             const employeeId = document.getElementById('pf-employee-id').value;
             const emp = employees.find(e => String(e['ID']) === String(employeeId));
@@ -3343,6 +3951,11 @@
             if (pfSalaryHoldForm) pfSalaryHoldForm.addEventListener('submit', handlePfSalaryHoldFormSubmit);
             const pfBankChangeForm = document.getElementById('pf-bankchange-form');
             if (pfBankChangeForm) pfBankChangeForm.addEventListener('submit', handlePfBankChangeFormSubmit);
+
+            const hiringRequestForm = document.getElementById('hiring-request-form');
+            if (hiringRequestForm) hiringRequestForm.addEventListener('submit', handleHiringRequestFormSubmit);
+            const offerLetterForm = document.getElementById('offer-letter-form');
+            if (offerLetterForm) offerLetterForm.addEventListener('submit', handleOfferLetterFormSubmit);
         });
 
 
@@ -3594,12 +4207,16 @@
             // Permission guard: block navigation to sections the current user isn't allowed to see
             if (pageId === 'users') {
                 if (!isAdmin()) return;
+            } else if (pageId === 'hiring') {
+                if (!canAccessHiring()) return;
+            } else if (pageId === 'offerLetters') {
+                if (!canAccessOfferLetters()) return;
             } else if (!canView(pageId)) {
                 return;
             }
             pages.forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            pageTitle.textContent = pageId === 'users' ? 'Manage Users' : (pageId === 'payrollHandoff' ? 'Payroll Handoff' : pageId.charAt(0).toUpperCase() + pageId.slice(1));
+            pageTitle.textContent = pageId === 'users' ? 'Manage Users' : (pageId === 'payrollHandoff' ? 'Payroll Handoff' : (pageId === 'offerLetters' ? 'Offer Letters' : pageId.charAt(0).toUpperCase() + pageId.slice(1)));
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             document.querySelector(`.nav-link[data-page="${pageId}"]`).classList.add('active');
             if (pageId === 'users') {
@@ -3608,6 +4225,10 @@
                 loadEvaluations();
             } else if (pageId === 'payrollHandoff') {
                 loadPayrollShares();
+            } else if (pageId === 'hiring') {
+                loadHiringRequests();
+            } else if (pageId === 'offerLetters') {
+                loadOfferLetters();
             } else {
                 updateUI();
             }
