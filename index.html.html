@@ -876,6 +876,12 @@
             </header>
 
             <!-- Page Sections -->
+            <div id="no-access-message" style="display:none; text-align:center; padding: 60px 20px; color: var(--secondary-color);">
+                <i class="fas fa-lock" style="font-size: 2.5rem; margin-bottom: 16px; display:block;"></i>
+                <h2 style="color: var(--text-color); margin-bottom: 8px;">No access has been set up for your account yet</h2>
+                <p>Contact your administrator to have permissions assigned.</p>
+            </div>
+
             <section id="dashboard" class="page active">
                 <div id="probation-due-banner" style="display:none;"></div>
                 <h2 style="margin-bottom: 16px; font-size: 1.3rem; color: var(--secondary-color);">Overview Metrics</h2>
@@ -1866,11 +1872,29 @@
             // Report category optgroups
             filterReportCategories();
 
-            // If current page is no longer permitted, redirect to the first available page
+            // If current page is no longer permitted, redirect to the first available page —
+            // or show a clean "no access" state if the user has nothing enabled at all.
+            const noAccessMsg = document.getElementById('no-access-message');
             const activePage = document.querySelector('.page.active');
-            if (activePage && activePage.id !== 'users' && activePage.id !== 'hiring' && activePage.id !== 'offerLetters' && !canView(activePage.id)) {
-                const firstAvailable = ['dashboard', 'employees', 'payroll', 'departments', 'reports', 'approvals', 'payrollHandoff'].find(p => canView(p));
-                if (firstAvailable) showPage(firstAvailable);
+            const activePageId = activePage ? activePage.id : null;
+            const activePageIsPermitted = !activePageId ? false :
+                activePageId === 'users' ? isAdmin() :
+                activePageId === 'hiring' ? canAccessHiring() :
+                activePageId === 'offerLetters' ? canAccessOfferLetters() :
+                canView(activePageId);
+
+            if (activePageId && !activePageIsPermitted) {
+                const firstAvailable = getFirstAccessiblePage();
+                if (firstAvailable) {
+                    if (noAccessMsg) noAccessMsg.style.display = 'none';
+                    showPage(firstAvailable);
+                } else {
+                    pages.forEach(page => page.classList.remove('active'));
+                    if (noAccessMsg) noAccessMsg.style.display = 'block';
+                    pageTitle.textContent = 'RADS HR Dashboard';
+                }
+            } else if (noAccessMsg) {
+                noAccessMsg.style.display = 'none';
             }
 
             // Re-render tables so action buttons reflect edit rights
@@ -1913,6 +1937,18 @@
             return !!(perms.approvals && perms.approvals.teamLead);
         }
 
+        // Order matters: if Dashboard isn't permitted, land on Evaluations next (most
+        // relevant for department heads / evaluators), then the rest.
+        function getFirstAccessiblePage() {
+            const priority = ['dashboard', 'approvals', 'employees', 'payroll', 'departments', 'reports', 'payrollHandoff', 'hiring', 'offerLetters'];
+            for (const p of priority) {
+                if (p === 'hiring') { if (canAccessHiring()) return p; continue; }
+                if (p === 'offerLetters') { if (canAccessOfferLetters()) return p; continue; }
+                if (canView(p)) return p;
+            }
+            return null;
+        }
+
         function filterReportCategories() {
             const reportTypeSelect = document.getElementById('report-type');
             if (!reportTypeSelect) return;
@@ -1943,7 +1979,10 @@
         function onTeamLeadChange(checked) {
             const wrapper = document.getElementById('team-assignment-wrapper');
             wrapper.style.display = checked ? 'block' : 'none';
-            if (checked) renderTeamAssignmentChecklist('');
+            if (checked) {
+                renderTeamAssignmentChecklist('');
+                document.getElementById('perm-approvals-view').checked = true;
+            }
         }
 
         function renderTeamAssignmentChecklist(filterText) {
@@ -1999,8 +2038,8 @@
                         }
                     },
                     approvals: {
-                        // Reviewing without being able to view the page makes no sense — canReview always implies view
-                        view: document.getElementById('perm-approvals-view').checked || canReview,
+                        // Reviewing OR being a team lead without being able to view the page makes no sense — either implies view
+                        view: document.getElementById('perm-approvals-view').checked || canReview || document.getElementById('perm-approvals-teamlead').checked,
                         canReview: canReview,
                         teamLead: document.getElementById('perm-approvals-teamlead').checked
                     },
