@@ -1542,7 +1542,6 @@
             <form id="hiring-request-form">
                 <div class="form-grid">
                     <div class="form-group"><label>Position Title</label><input type="text" id="hr-position-title" required></div>
-                    <div class="form-group"><label>Designation</label><input type="text" id="hr-designation"></div>
                     <div class="form-group"><label>Department</label><input type="text" id="hr-department" required></div>
                     <div class="form-group">
                         <label>Employment Type</label>
@@ -3236,7 +3235,6 @@
             e.preventDefault();
             const request = {
                 positionTitle: document.getElementById('hr-position-title').value,
-                designation: document.getElementById('hr-designation').value,
                 department: document.getElementById('hr-department').value,
                 employmentType: document.getElementById('hr-employment-type').value,
                 duration: document.getElementById('hr-duration').value,
@@ -3320,7 +3318,7 @@
 
         function hiringDetailsBlock(r) {
             return `
-                <p><strong>${r.PositionTitle}</strong>${r.Designation ? ' (' + r.Designation + ')' : ''} — ${r.Department}</p>
+                <p><strong>${r.PositionTitle}</strong> — ${r.Department}</p>
                 <p style="color: var(--secondary-color); font-size:0.85rem; margin-bottom:10px;">Requested by ${r.RequestedByName} on ${r.SubmittedAt ? new Date(r.SubmittedAt).toLocaleDateString() : ''}</p>
                 <div class="permission-block">
                     <div class="permission-row"><span style="flex:1;">Employment Type</span><strong>${r.EmploymentType || '—'}</strong></div>
@@ -3428,7 +3426,7 @@
             if (!requestId) return;
             const r = cachedHiringRequests.find(x => String(x.RequestID) === String(requestId));
             if (!r) return;
-            document.getElementById('offer-designation').value = r.Designation || r.PositionTitle || '';
+            document.getElementById('offer-designation').value = r.PositionTitle || '';
             document.getElementById('offer-department').value = r.Department || '';
             document.getElementById('offer-supervisor').value = r.Supervisor || '';
             document.getElementById('offer-project').value = r.Project || '';
@@ -3552,37 +3550,44 @@
 
             const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             const startDateFormatted = o.StartDate ? new Date(o.StartDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—';
+            const refNo = 'OFR-' + String(o.OfferID || '').replace(/^OFFER-/, '').toUpperCase();
 
             const html = `<!DOCTYPE html><html><head><title>Offer Letter — ${o.CandidateName}</title>
             <style>
-                @page { margin: 25mm 20mm; }
-                body { font-family: Georgia, 'Times New Roman', serif; color: #222; line-height: 1.6; }
-                .letterhead { text-align:center; border-bottom: 3px solid #A05252; padding-bottom: 14px; margin-bottom: 30px; }
-                .letterhead h1 { color: #A05252; font-size: 1.5rem; margin: 0; }
-                .letterhead p { margin: 4px 0 0; color: #666; font-size: 0.85rem; }
-                .date-line { text-align: right; margin-bottom: 20px; font-size: 0.9rem; color: #555; }
-                h2 { color: #A05252; font-size: 1.1rem; margin-top: 20px; }
-                table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.92rem; }
-                td { padding: 6px 10px; border-bottom: 1px solid #EAEAEA; }
-                td.label { color: #888; width: 40%; }
-                .signature-block { margin-top: 50px; display: flex; justify-content: space-between; }
-                .signature { width: 45%; }
-                .signature .name { font-size: 1.3rem; font-style: italic; color: #A05252; border-bottom: 1px solid #333; padding-bottom: 4px; margin-bottom: 4px; min-height: 1.6rem; }
-                .signature .meta { font-size: 0.8rem; color: #666; }
-                .esign-note { font-size: 0.72rem; color: #999; margin-top: 6px; }
-                .disclaimer-note { margin-top: 30px; padding: 12px 16px; background: #F9F9F9; border-left: 3px solid #A05252; font-size: 0.78rem; color: #666; line-height: 1.5; }
-                .footer { margin-top: 40px; font-size: 0.75rem; color: #999; text-align: center; }
+                @page { size: A4; margin: 0.65in; }
+                * { box-sizing: border-box; }
+                body { font-family: 'Georgia', 'Times New Roman', serif; color: #222; line-height: 1.42; font-size: 10.5pt; }
+                .letterhead { display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 2.5px solid #A05252; padding-bottom: 8pt; margin-bottom: 14pt; }
+                .letterhead h1 { color: #A05252; font-size: 15pt; margin: 0; letter-spacing: 0.3px; }
+                .letterhead .tagline { margin: 2pt 0 0; color: #777; font-size: 8pt; letter-spacing: 0.5px; text-transform: uppercase; }
+                .letterhead .meta-right { text-align: right; font-size: 8.5pt; color: #666; }
+                .subject-line { font-size: 11pt; font-weight: bold; color: #A05252; margin: 10pt 0 8pt; }
+                p { margin: 0 0 8pt; }
+                h2 { color: #A05252; font-size: 10pt; margin: 12pt 0 5pt; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid #EAEAEA; padding-bottom: 3pt; }
+                table { width: 100%; border-collapse: collapse; margin: 4pt 0 8pt; font-size: 9.7pt; }
+                td { padding: 3.5pt 8pt; border-bottom: 0.5pt solid #EEE; }
+                td.label { color: #888; width: 38%; font-size: 8.8pt; text-transform: uppercase; letter-spacing: 0.2px; }
+                tr:nth-child(even) { background: #FBF8F8; }
+                .signature-block { margin-top: 22pt; display: flex; justify-content: space-between; }
+                .signature { width: 46%; }
+                .signature .name { font-size: 13pt; font-style: italic; color: #A05252; border-bottom: 1px solid #333; padding-bottom: 3pt; margin-bottom: 3pt; min-height: 15pt; }
+                .signature .meta { font-size: 8pt; color: #666; line-height: 1.3; }
+                .esign-note { font-size: 7.3pt; color: #999; margin-top: 4pt; }
+                .disclaimer-note { margin-top: 14pt; padding: 6pt 10pt; background: #F9F9F9; border-left: 2.5px solid #A05252; font-size: 9pt; color: #666; line-height: 1.35; }
+                .footer { margin-top: 10pt; font-size: 8pt; color: #999; text-align: center; }
             </style></head>
             <body>
                 <div class="letterhead">
-                    <h1>Research &amp; Development Solutions</h1>
-                    <p>Letter of Offer</p>
+                    <div><h1>Research &amp; Development Solutions</h1><p class="tagline">Letter of Offer</p></div>
+                    <div class="meta-right">Ref: ${refNo}<br>${today}</div>
                 </div>
-                <div class="date-line">${today}</div>
+
+                <div class="subject-line">Subject: Offer of Employment — ${o.Designation}</div>
 
                 <p>Dear ${o.CandidateName},</p>
-                <p>We are pleased to offer you the position of <strong>${o.Designation}</strong>${o.Department ? ' in the ' + o.Department + ' department' : ''}${o.Project ? ', on the ' + o.Project + ' project' : ''}, with Research &amp; Development Solutions. Please find the details of this offer below.</p>
+                <p>We are pleased to offer you the position of <strong>${o.Designation}</strong>${o.Department ? ' in the ' + o.Department + ' department' : ''}${o.Project ? ', on the ' + o.Project + ' project' : ''}, with Research &amp; Development Solutions. Please find the details of this offer set out below.</p>
 
+                <h2>Terms of Offer</h2>
                 <table>
                     <tr><td class="label">Designation</td><td>${o.Designation}</td></tr>
                     <tr><td class="label">Department</td><td>${o.Department || '—'}</td></tr>
@@ -3596,24 +3601,21 @@
 
                 ${o.RemunerationBreakdown ? `<h2>Remuneration Breakdown</h2><p>${o.RemunerationBreakdown}</p>` : ''}
 
-                <p>This offer is contingent upon the terms and conditions of employment as per RADS policy. Please confirm your acceptance of this offer at your earliest convenience.</p>
-                <p>We look forward to welcoming you to the team.</p>
+                <p>This offer is contingent upon the terms and conditions of employment as per RADS policy. Please confirm your acceptance of this offer at your earliest convenience. We look forward to welcoming you to the team.</p>
 
                 <div class="signature-block">
                     <div class="signature">
                         <div class="name">${o.CEOName || ''}</div>
-                        <div class="meta">Chief Executive Officer</div>
-                        <div class="meta">Research &amp; Development Solutions</div>
+                        <div class="meta">Chief Executive Officer<br>Research &amp; Development Solutions</div>
                         <div class="esign-note">Approved &amp; e-signed on ${o.DecidedAt ? new Date(o.DecidedAt).toLocaleDateString() : ''} via RADS HR Dashboard</div>
                     </div>
                     <div class="signature">
                         <div class="name">&nbsp;</div>
-                        <div class="meta">${o.CandidateName}</div>
-                        <div class="meta">Candidate Signature &amp; Date</div>
+                        <div class="meta">${o.CandidateName}<br>Candidate Signature &amp; Date</div>
                     </div>
                 </div>
 
-                <div class="disclaimer-note">This is a system-generated document. All approvals were reviewed and processed electronically within the RADS HR Dashboard, and as such this document does not require a hard/wet signature to be valid. For verification purposes, an original signed &amp; stamped copy may be obtained from the HR department upon request.</div>
+                <div class="disclaimer-note">System-generated document — approved &amp; processed electronically; no hard/wet signature required. An original signed &amp; stamped copy may be obtained from HR for verification.</div>
 
                 <div class="footer">Prepared by ${o.PreparedByName} — Research &amp; Development Solutions HR Department</div>
             </body></html>`;
@@ -3634,35 +3636,39 @@
             if (!r) { alert('Hiring request not found.'); return; }
 
             const decisionColor = r.Status === 'Approved' ? '#2e7d32' : '#c0392b';
-            const decidedDate = r.CEODecidedAt ? new Date(r.CEODecidedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+            const formatDateOnly = (val) => val ? new Date(val).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—';
+            const decidedDate = formatDateOnly(r.CEODecidedAt);
 
             const html = `<!DOCTYPE html><html><head><title>Hiring Request — ${r.PositionTitle}</title>
             <style>
-                @page { margin: 24mm 16mm; }
-                body { font-family: 'Segoe UI', Arial, sans-serif; color: #333; margin: 0; padding: 0 8px; }
-                .letterhead { display:flex; justify-content:space-between; align-items:center; border-bottom: 3px solid #A05252; padding-bottom: 14px; margin-bottom: 20px; }
-                .letterhead h1 { color: #A05252; font-size: 1.4rem; margin: 0; }
-                .letterhead p { margin: 2px 0 0; color: #666; font-size: 0.85rem; }
-                .status-banner { text-align: center; padding: 10px; border-radius: 8px; font-size: 1.1rem; font-weight: 700; color: #fff; background: ${decisionColor}; margin-bottom: 20px; }
-                h2 { color: #A05252; font-size: 1rem; margin: 20px 0 8px; border-bottom: 1px solid #EAEAEA; padding-bottom: 6px; }
-                table { width: 100%; border-collapse: collapse; margin-bottom: 4px; font-size: 0.85rem; }
-                td { padding: 6px 10px; border-bottom: 1px solid #EAEAEA; }
-                td.label { color: #888; width: 35%; }
-                .narrative { font-size: 0.88rem; line-height: 1.5; margin-bottom: 10px; }
-                .stage-block { padding: 10px 14px; background: #F9F9F9; border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem; }
+                @page { size: A4; margin: 0.65in; }
+                * { box-sizing: border-box; }
+                body { font-family: 'Segoe UI', Arial, sans-serif; color: #333; font-size: 10pt; line-height: 1.35; }
+                .letterhead { display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 2.5px solid #A05252; padding-bottom: 8pt; margin-bottom: 10pt; }
+                .letterhead h1 { color: #A05252; font-size: 14pt; margin: 0; }
+                .letterhead .tagline { margin: 2pt 0 0; color: #777; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; }
+                .letterhead .meta-right { text-align: right; font-size: 8.3pt; color: #666; }
+                .status-banner { text-align: center; padding: 6pt; border-radius: 5pt; font-size: 11pt; font-weight: 700; letter-spacing: 1px; color: #fff; background: ${decisionColor}; margin-bottom: 10pt; }
+                h2 { color: #A05252; font-size: 9.5pt; margin: 10pt 0 4pt; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1px solid #EAEAEA; padding-bottom: 3pt; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 2pt; font-size: 9.3pt; }
+                td { padding: 3pt 8pt; border-bottom: 0.5pt solid #EEE; }
+                td.label { color: #888; width: 32%; font-size: 8.4pt; text-transform: uppercase; letter-spacing: 0.2px; }
+                tr:nth-child(even) { background: #FBF8F8; }
+                .narrative { font-size: 9.3pt; line-height: 1.35; margin-bottom: 4pt; }
+                .stage-block { padding: 5pt 10pt; background: #F9F9F9; border-radius: 4pt; margin-bottom: 4pt; font-size: 8.8pt; }
                 .stage-block strong { color: #A05252; }
-                .signature-block { margin-top: 40px; }
-                .signature { width: 45%; }
-                .signature .name { font-size: 1.3rem; font-style: italic; color: #A05252; border-bottom: 1px solid #333; padding-bottom: 4px; margin-bottom: 4px; min-height: 1.6rem; }
-                .signature .meta { font-size: 0.8rem; color: #666; }
-                .esign-note { font-size: 0.72rem; color: #999; margin-top: 6px; }
-                .disclaimer-note { margin-top: 30px; padding: 12px 16px; background: #F9F9F9; border-left: 3px solid #A05252; font-size: 0.78rem; color: #666; line-height: 1.5; }
-                .footer { margin-top: 30px; font-size: 0.75rem; color: #999; text-align: center; }
+                .signature-block { margin-top: 16pt; }
+                .signature { width: 46%; }
+                .signature .name { font-size: 12pt; font-style: italic; color: #A05252; border-bottom: 1px solid #333; padding-bottom: 3pt; margin-bottom: 3pt; min-height: 14pt; }
+                .signature .meta { font-size: 7.8pt; color: #666; line-height: 1.3; }
+                .esign-note { font-size: 7.2pt; color: #999; margin-top: 3pt; }
+                .disclaimer-note { margin-top: 10pt; padding: 5pt 10pt; background: #F9F9F9; border-left: 2.5px solid #A05252; font-size: 9pt; color: #666; line-height: 1.3; }
+                .footer { margin-top: 8pt; font-size: 7.8pt; color: #999; text-align: center; }
             </style></head>
             <body>
                 <div class="letterhead">
-                    <div><h1>Research &amp; Development Solutions</h1><p>Hiring Request</p></div>
-                    <p>Generated: ${new Date().toLocaleString()}</p>
+                    <div><h1>Research &amp; Development Solutions</h1><p class="tagline">Hiring Request</p></div>
+                    <div class="meta-right">Ref: ${String(r.RequestID || '')}<br>Generated: ${formatDateOnly(new Date())}</div>
                 </div>
 
                 <div class="status-banner">${r.Status === 'Approved' ? 'APPROVED' : 'REJECTED'}</div>
@@ -3670,16 +3676,15 @@
                 <h2>Position Details</h2>
                 <table>
                     <tr><td class="label">Position Title</td><td>${r.PositionTitle}</td></tr>
-                    <tr><td class="label">Designation</td><td>${r.Designation || '—'}</td></tr>
                     <tr><td class="label">Department</td><td>${r.Department}</td></tr>
                     <tr><td class="label">Employment Type</td><td>${r.EmploymentType || '—'}</td></tr>
                     <tr><td class="label">Duration</td><td>${r.Duration || '—'}</td></tr>
                     <tr><td class="label">Monthly Salary</td><td>PKR ${parseFloat(r.MonthlySalary || 0).toLocaleString()}</td></tr>
                     <tr><td class="label">Supervisor</td><td>${r.Supervisor || '—'}</td></tr>
-                    <tr><td class="label">Date Required</td><td>${r.DateRequired || '—'}</td></tr>
+                    <tr><td class="label">Date Required</td><td>${formatDateOnly(r.DateRequired)}</td></tr>
                     <tr><td class="label">Job Station</td><td>${r.JobStation || '—'}</td></tr>
                     <tr><td class="label">Project</td><td>${r.Project || '—'}</td></tr>
-                    <tr><td class="label">Requested By</td><td>${r.RequestedByName} (${r.SubmittedAt ? new Date(r.SubmittedAt).toLocaleDateString() : ''})</td></tr>
+                    <tr><td class="label">Requested By</td><td>${r.RequestedByName} (${formatDateOnly(r.SubmittedAt)})</td></tr>
                 </table>
 
                 <h2>Job Description</h2>
@@ -3688,20 +3693,19 @@
                 <p class="narrative">${r.AssetsRequired || '—'}</p>
 
                 <h2>Approval Trail</h2>
-                <div class="stage-block"><strong>HR Review:</strong> ${r.HRDecision || 'Pending'} ${r.HRReviewByName ? '— ' + r.HRReviewByName : ''} ${r.HRReviewedAt ? '(' + new Date(r.HRReviewedAt).toLocaleDateString() + ')' : ''}${r.HRComments ? ' — "' + r.HRComments + '"' : ''}</div>
-                <div class="stage-block"><strong>Finance Review:</strong> ${r.FinanceDecision || 'Pending'} ${r.FinanceReviewByName ? '— ' + r.FinanceReviewByName : ''} ${r.FinanceReviewedAt ? '(' + new Date(r.FinanceReviewedAt).toLocaleDateString() + ')' : ''} — Budget Available: ${r.BudgetAvailable || '—'}${r.FinanceComments ? ' — "' + r.FinanceComments + '"' : ''}</div>
-                <div class="stage-block"><strong>CEO Decision:</strong> ${r.CEODecision || 'Pending'} ${r.CEOName ? '— ' + r.CEOName : ''} ${r.CEODecidedAt ? '(' + new Date(r.CEODecidedAt).toLocaleDateString() + ')' : ''}${r.CEOComments ? ' — "' + r.CEOComments + '"' : ''}</div>
+                <div class="stage-block"><strong>HR Review:</strong> ${r.HRDecision || 'Pending'} ${r.HRReviewByName ? '— ' + r.HRReviewByName : ''} ${r.HRReviewedAt ? '(' + formatDateOnly(r.HRReviewedAt) + ')' : ''}${r.HRComments ? ' — "' + r.HRComments + '"' : ''}</div>
+                <div class="stage-block"><strong>Finance Review:</strong> ${r.FinanceDecision || 'Pending'} ${r.FinanceReviewByName ? '— ' + r.FinanceReviewByName : ''} ${r.FinanceReviewedAt ? '(' + formatDateOnly(r.FinanceReviewedAt) + ')' : ''} — Budget Available: ${r.BudgetAvailable || '—'}${r.FinanceComments ? ' — "' + r.FinanceComments + '"' : ''}</div>
+                <div class="stage-block"><strong>CEO Decision:</strong> ${r.CEODecision || 'Pending'} ${r.CEOName ? '— ' + r.CEOName : ''} ${r.CEODecidedAt ? '(' + formatDateOnly(r.CEODecidedAt) + ')' : ''}${r.CEOComments ? ' — "' + r.CEOComments + '"' : ''}</div>
 
                 <div class="signature-block">
                     <div class="signature">
                         <div class="name">${r.CEOName || ''}</div>
-                        <div class="meta">Chief Executive Officer</div>
-                        <div class="meta">Research &amp; Development Solutions</div>
+                        <div class="meta">Chief Executive Officer<br>Research &amp; Development Solutions</div>
                         <div class="esign-note">${r.Status} &amp; e-signed on ${decidedDate} via RADS HR Dashboard</div>
                     </div>
                 </div>
 
-                <div class="disclaimer-note">This is a system-generated document. All approvals (HR review, Finance budget check, and CEO decision) were reviewed and processed electronically within the RADS HR Dashboard, and as such this document does not require a hard/wet signature to be valid. For verification purposes, an original signed &amp; stamped copy may be obtained from the HR department upon request.</div>
+                <div class="disclaimer-note">System-generated document — approved &amp; processed electronically; no hard/wet signature required. An original signed &amp; stamped copy may be obtained from HR for verification.</div>
 
                 <div class="footer">Research &amp; Development Solutions — Confidential Hiring Request Record</div>
             </body></html>`;
