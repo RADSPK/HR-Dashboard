@@ -3260,6 +3260,8 @@
 
             if (!confirm(`Submit payroll changes for ${monthLabelFromKey(monthKey)} to Finance? This includes ${totalEntries} total entries across all sections.`)) return;
 
+            console.log('Submitting payroll draft for', monthKey, ':', JSON.parse(JSON.stringify(payrollDraft)));
+
             const token = getSessionToken();
             try {
                 await callAppsScript('sharePayroll', { token, month: monthKey, changes: payrollDraft, notes: '' });
@@ -3304,11 +3306,25 @@
                 </tr>`).join('');
         }
 
+        function findShareForMonth(monthKey) {
+            const matches = cachedPayrollShares.filter(s => s.month === monthKey);
+            if (matches.length === 0) return null;
+            // If old duplicate rows exist for the same month, always use the newest one
+            return matches.sort((a, b) => new Date(b.sharedAt) - new Date(a.sharedAt))[0];
+        }
+
         function viewPayrollChanges(monthKey) {
-            const share = cachedPayrollShares.find(s => s.month === monthKey);
-            if (!share) return;
+            const share = findShareForMonth(monthKey);
+            if (!share) { alert('Could not find that submission — try refreshing the page and clicking View again.'); return; }
             let changes = {};
-            try { changes = JSON.parse(share.changes || '{}'); } catch (e) { changes = {}; }
+            try { changes = JSON.parse(share.changes || '{}'); } catch (e) {
+                console.error('Could not parse stored payroll changes for', monthKey, '— raw value:', share.changes, e);
+                changes = {};
+            }
+            const totalEntries = Object.values(changes).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
+            if (totalEntries === 0) {
+                console.warn('This payroll submission has no entries in any section. Raw share record:', share);
+            }
 
             document.getElementById('payroll-snapshot-title').textContent = 'Payroll Changes — ' + monthLabelFromKey(monthKey) + ' (submitted ' + (share.sharedAt ? new Date(share.sharedAt).toLocaleString() : '') + ')';
             renderPayrollChangesBody(changes);
@@ -3316,10 +3332,13 @@
         }
 
         function printPayrollChangesPDF(monthKey) {
-            const share = cachedPayrollShares.find(s => s.month === monthKey);
-            if (!share) { alert('Payroll share not found.'); return; }
+            const share = findShareForMonth(monthKey);
+            if (!share) { alert('Could not find that submission — try refreshing the page and clicking Download PDF again.'); return; }
             let changes = {};
-            try { changes = JSON.parse(share.changes || '{}'); } catch (e) { changes = {}; }
+            try { changes = JSON.parse(share.changes || '{}'); } catch (e) {
+                console.error('Could not parse stored payroll changes for', monthKey, '— raw value:', share.changes, e);
+                changes = {};
+            }
 
             const nj = changes.newJoiners || [], lv = changes.leavers || [], lvs = changes.leaves || [];
             const dsc = changes.designationSalaryChanges || [], la = changes.loanAdvanceEntries || [], od = changes.otherDeductions || [];
