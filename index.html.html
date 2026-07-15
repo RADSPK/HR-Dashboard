@@ -1075,7 +1075,7 @@
                     <div class="table-responsive"><table class="data-table" id="approvals-pending-table"><thead><tr><th>Employee</th><th>Department</th><th>Position</th><th>Type</th><th>Evaluator</th><th>Overall Rating</th><th>Recommendation</th><th>Submitted</th><th>Action</th></tr></thead><tbody></tbody></table></div>
                 </div>
                 <h3 style="margin: 20px 0 10px; color: var(--secondary-color);">All Evaluations</h3>
-                <div class="table-responsive"><table class="data-table" id="approvals-history-table"><thead><tr><th>Employee</th><th>Department</th><th>Type</th><th>Evaluator</th><th>Overall Rating</th><th>Recommendation</th><th>Status</th><th>Submitted</th><th>Decision</th></tr></thead><tbody></tbody></table></div>
+                <div class="table-responsive"><table class="data-table" id="approvals-history-table"><thead><tr><th>Employee</th><th>Department</th><th>Type</th><th>Evaluator</th><th>Overall Rating</th><th>Recommendation</th><th>Status</th><th>Submitted</th><th>Decision</th><th>Action</th></tr></thead><tbody></tbody></table></div>
             </section>
 
             <section id="payrollHandoff" class="page">
@@ -1108,7 +1108,7 @@
     <div id="payroll-modal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-button" onclick="closePayrollModal()">&times;</span><h3>Update Payroll Components</h3><form id="payroll-form"><input type="hidden" id="payroll-employee-index" name="index"><div class="form-group"><label for="payroll-name">Employee</label><input type="text" id="payroll-name" name="Name" readonly></div><div class="form-group"><label for="payroll-salary">Base Salary (PKR)</label><input type="number" id="payroll-salary" name="Base Salary" required></div><div class="form-group"><label for="payroll-travel">Travel Allowance (PKR)</label><input type="number" id="payroll-travel" name="Travel Allowance"></div><div class="form-group"><label for="payroll-fuel">Fuel/Grocery Allowance (PKR)</label><input type="number" id="payroll-fuel" name="Fuel/Grocery Allowance"></div><div class="form-group"><label for="payroll-other">Other Allowance (PKR)</label><input type="number" id="payroll-other" name="Other Allowance"></div><div class="form-group"><label for="payroll-pf">Provident Fund (PKR)</label><input type="number" id="payroll-pf" name="Provident Fund"></div><div class="form-group"><label for="payroll-eobi">EOBI (PKR)</label><input type="number" id="payroll-eobi" name="EOBI"></div><div style="padding: 12px; background: var(--background-color); border-radius: 6px; margin: 12px 0;"><strong>Cost to Company:</strong> <span id="payroll-ctc-preview">PKR 0</span></div><button type="submit">Save Payroll</button></form></div></div>
 
     <!-- Details Modal -->
-    <div id="details-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeDetailsModal()">&times;</span><div id="employee-details-content"></div><div class="action-buttons"><button class="secondary" onclick="closeDetailsModal()">Close</button></div></div></div>
+    <div id="details-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeDetailsModal()">&times;</span><div id="employee-details-content"></div><div class="action-buttons"><button class="secondary" onclick="closeDetailsModal()">Close</button><button class="primary" id="details-open-pf-btn" style="display:none;" onclick="openPersonalFileFromDetails()"><i class="fas fa-folder-open"></i> Open Personal File</button></div></div></div>
     
     <!-- Department Details Modal -->
     <div id="department-details-modal" class="modal"><div class="modal-content"><span class="close-button" onclick="closeDepartmentDetailsModal()">&times;</span><h3 id="department-details-title" style="margin-bottom: 20px;"></h3><div id="department-details-content"></div><div class="action-buttons"><button class="secondary" onclick="closeDepartmentDetailsModal()">Close</button></div></div></div>
@@ -1357,12 +1357,25 @@
                         <div class="form-group"><label>Entry Type</label><select id="pf-loan-type"><option value="Loan">New Loan</option><option value="Advance">New Advance</option><option value="Repayment">Repayment</option></select></div>
                         <div class="form-group" id="pf-loan-ledger-group" style="display:none;"><label>Against Which Loan/Advance</label><select id="pf-loan-ledger"></select></div>
                         <div class="form-group"><label>Date</label><input type="date" id="pf-loan-date" required></div>
-                        <div class="form-group"><label>Amount (PKR)</label><input type="number" id="pf-loan-amount" min="0" required></div>
+                        <div class="form-group"><label>Amount (PKR)</label><input type="number" id="pf-loan-amount" min="0" required oninput="updateInstallmentPreview()"></div>
+                    </div>
+                    <div class="form-group" id="pf-loan-repayment-plan-group">
+                        <label>Repayment Plan</label>
+                        <select id="pf-loan-repayment-plan" onchange="onPfRepaymentPlanChange(this.value)">
+                            <option value="LumpSum">Lump Sum</option>
+                            <option value="Installments">Installments</option>
+                        </select>
+                    </div>
+                    <div class="form-grid" id="pf-loan-installment-fields" style="display:none;">
+                        <div class="form-group"><label>Number of Installments</label><input type="number" id="pf-loan-installment-count" min="2" step="1" oninput="updateInstallmentPreview()"></div>
+                        <div class="form-group"><label>First Installment Due</label><input type="date" id="pf-loan-installment-start" oninput="updateInstallmentPreview()"></div>
+                        <div class="form-group"><label>Amount per Installment</label><input type="text" id="pf-loan-installment-preview" readonly style="background: var(--background-color);"></div>
                     </div>
                     <div class="form-group"><label>Notes</label><input type="text" id="pf-loan-notes" placeholder="Reason / repayment method"></div>
                     <button type="submit" style="padding: 8px 16px;">Add Entry</button>
                 </form>
                 <div id="pf-loan-balances" style="margin-bottom: 12px;"></div>
+                <div id="pf-loan-schedules" style="margin-bottom: 12px;"></div>
                 <div class="table-responsive"><table class="data-table" id="pf-loan-table"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Notes</th><th>Recorded By</th></tr></thead><tbody></tbody></table></div>
             </div>
 
@@ -1418,7 +1431,7 @@
             <!-- Evaluations tab (read-only — evaluations are submitted from the Approvals workflow) -->
             <div id="pf-tab-evaluations" class="pf-tab-content">
                 <p style="color: var(--secondary-color); margin-bottom: 12px; font-size: 0.85rem;">All probation and periodic performance evaluations for this employee. Submit new ones from the Dashboard banner or the Approvals page.</p>
-                <div class="table-responsive"><table class="data-table" id="pf-evaluations-table"><thead><tr><th>Type</th><th>Evaluator</th><th>Overall Rating</th><th>Recommendation</th><th>Status</th><th>Submitted</th><th>CEO Decision</th></tr></thead><tbody></tbody></table></div>
+                <div class="table-responsive"><table class="data-table" id="pf-evaluations-table"><thead><tr><th>Type</th><th>Evaluator</th><th>Overall Rating</th><th>Recommendation</th><th>Status</th><th>Submitted</th><th>CEO Decision</th><th>Action</th></tr></thead><tbody></tbody></table></div>
             </div>
 
             <!-- Changes tab (read-only — pulled from the HR Transaction Log) -->
@@ -2201,6 +2214,89 @@
             }
         }
 
+        function printEvaluationPDF(evalId) {
+            const ev = (cachedEvaluations || []).find(e => String(e.EvalID) === String(evalId)) ||
+                       (pfCachedEvaluations || []).find(e => String(e.EvalID) === String(evalId));
+            if (!ev) { alert('Evaluation not found.'); return; }
+
+            let scores = {};
+            try { scores = JSON.parse(ev.Scores || '{}'); } catch (e) { scores = {}; }
+            const scoreLabels = {
+                jobKnowledge: 'Job Knowledge & Skills', qualityOfWork: 'Quality of Work', productivity: 'Productivity & Efficiency',
+                attendance: 'Attendance & Punctuality', teamwork: 'Teamwork & Collaboration', communication: 'Communication Skills',
+                initiative: 'Initiative & Problem-Solving', discipline: 'Discipline & Policy Adherence'
+            };
+            const scoreRows = Object.keys(scoreLabels).map(k =>
+                `<tr><td>${scoreLabels[k]}</td><td>${scores[k] || '—'} / 5</td></tr>`
+            ).join('');
+
+            const html = `<!DOCTYPE html><html><head><title>Evaluation — ${ev.EmployeeName}</title>
+            <style>
+                @page { margin: 24mm 16mm; }
+                body { font-family: 'Segoe UI', Arial, sans-serif; color: #333; margin: 0; padding: 0 8px; }
+                .letterhead { display:flex; justify-content:space-between; align-items:center; border-bottom: 3px solid #A05252; padding-bottom: 14px; margin-bottom: 20px; }
+                .letterhead h1 { color: #A05252; font-size: 1.4rem; margin: 0; }
+                .letterhead p { margin: 2px 0 0; color: #666; font-size: 0.85rem; }
+                .emp-header { background: #F9F9F9; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; }
+                .emp-header h2 { margin: 0 0 8px; color: #A05252; font-size: 1.15rem; }
+                .emp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 24px; font-size: 0.85rem; }
+                .emp-grid div span { color: #888; display:block; font-size: 0.75rem; text-transform: uppercase; }
+                h2 { color: #A05252; font-size: 1rem; margin: 24px 0 8px; border-bottom: 1px solid #EAEAEA; padding-bottom: 6px; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 4px; font-size: 0.85rem; }
+                th { background: #A05252; color: #fff; text-align: left; padding: 6px 10px; }
+                td { padding: 6px 10px; border-bottom: 1px solid #EAEAEA; }
+                .overall { background: #F9F9F9; padding: 12px 16px; border-radius: 8px; margin: 10px 0; font-size: 1rem; }
+                .narrative { font-size: 0.88rem; line-height: 1.5; margin-bottom: 12px; }
+                .narrative strong { color: #A05252; }
+                .footer { margin-top: 30px; font-size: 0.75rem; color: #999; text-align: center; }
+            </style></head>
+            <body>
+                <div class="letterhead">
+                    <div><h1>Research &amp; Development Solutions</h1><p>${evaluationTypeLabel(ev.EvaluationType)} Performance Evaluation</p></div>
+                    <p>Generated: ${new Date().toLocaleString()}</p>
+                </div>
+
+                <div class="emp-header">
+                    <h2>${ev.EmployeeName}</h2>
+                    <div class="emp-grid">
+                        <div><span>Position</span>${ev.Position || '—'}</div>
+                        <div><span>Department</span>${ev.Department || '—'}</div>
+                        <div><span>Date of Joining</span>${ev.DateOfJoining || '—'}</div>
+                        <div><span>Evaluator</span>${ev.EvaluatorName || '—'}</div>
+                        <div><span>Submitted</span>${ev.SubmittedAt ? new Date(ev.SubmittedAt).toLocaleDateString() : '—'}</div>
+                        <div><span>Status</span>${ev.Status || '—'}</div>
+                    </div>
+                </div>
+
+                <h2>Performance Ratings</h2>
+                <table><thead><tr><th>Criteria</th><th>Rating</th></tr></thead><tbody>${scoreRows}</tbody></table>
+                <div class="overall"><strong>Overall Rating: ${ev.OverallRating || '—'} / 5</strong></div>
+
+                <h2>Assessment</h2>
+                <div class="narrative"><strong>Strengths:</strong> ${ev.Strengths || '—'}</div>
+                <div class="narrative"><strong>Areas for Improvement:</strong> ${ev.AreasForImprovement || '—'}</div>
+                <div class="narrative"><strong>Recommendation:</strong> ${ev.Recommendation || '—'}${ev.Recommendation === 'Extend' && ev.ExtensionMonths ? ' (' + ev.ExtensionMonths + ' months)' : ''}</div>
+                <div class="narrative"><strong>Evaluator Comments:</strong> ${ev.EvaluatorComments || '—'}</div>
+
+                <h2>CEO Review</h2>
+                <div class="narrative"><strong>Decision:</strong> ${ev.CEODecision || 'Pending'}</div>
+                <div class="narrative"><strong>CEO Comments:</strong> ${ev.CEOComments || '—'}</div>
+                <div class="narrative"><strong>Decision Date:</strong> ${ev.DecisionAt ? new Date(ev.DecisionAt).toLocaleDateString() : '—'}</div>
+
+                <div class="footer">RADS Digital Finance Hub — Confidential Performance Evaluation. Generated automatically.</div>
+            </body></html>`;
+
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) { alert('Please allow pop-ups to download the PDF.'); return; }
+            printWindow.document.open();
+            printWindow.document.write(html);
+            printWindow.document.close();
+            printWindow.onload = function() {
+                printWindow.focus();
+                printWindow.print();
+            };
+        }
+
         function statusBadgeClass(status) {
             if (status === 'Approved') return 'status-approved';
             if (status === 'Rejected') return 'status-rejected';
@@ -2246,7 +2342,7 @@
 
             const sorted = [...cachedEvaluations].sort((a, b) => new Date(b.SubmittedAt) - new Date(a.SubmittedAt));
             historyBody.innerHTML = sorted.length === 0
-                ? `<tr><td colspan="9" style="color: var(--secondary-color);">No evaluations yet.</td></tr>`
+                ? `<tr><td colspan="10" style="color: var(--secondary-color);">No evaluations yet.</td></tr>`
                 : sorted.map(ev => `<tr>
                     <td>${ev.EmployeeName}</td>
                     <td>${ev.Department}</td>
@@ -2257,6 +2353,7 @@
                     <td><span class="${statusBadgeClass(ev.Status)}">${ev.Status}</span></td>
                     <td>${ev.SubmittedAt ? new Date(ev.SubmittedAt).toLocaleDateString() : ''}</td>
                     <td>${ev.CEODecision ? (ev.CEODecision + (ev.DecisionAt ? ' on ' + new Date(ev.DecisionAt).toLocaleDateString() : '')) : '—'}</td>
+                    <td><button onclick="printEvaluationPDF('${String(ev.EvalID).replace(/'/g, "\\'")}')" title="Print / Download PDF"><i class="fas fa-file-pdf"></i></button></td>
                 </tr>`).join('');
 
             // Admin-only: review window management
@@ -2706,7 +2803,7 @@
                     .sort((a, b) => new Date(b.SubmittedAt) - new Date(a.SubmittedAt));
                 pfCachedEvaluations = evals;
                 tbody.innerHTML = evals.length === 0
-                    ? `<tr><td colspan="7" style="color: var(--secondary-color);">No evaluations recorded yet.</td></tr>`
+                    ? `<tr><td colspan="8" style="color: var(--secondary-color);">No evaluations recorded yet.</td></tr>`
                     : evals.map(ev => `<tr>
                         <td>${evaluationTypeLabel(ev.EvaluationType)}</td>
                         <td>${ev.EvaluatorName}</td>
@@ -2715,10 +2812,11 @@
                         <td><span class="${statusBadgeClass(ev.Status)}">${ev.Status}</span></td>
                         <td>${ev.SubmittedAt ? new Date(ev.SubmittedAt).toLocaleDateString() : ''}</td>
                         <td>${ev.CEODecision || '—'}</td>
+                        <td><button onclick="printEvaluationPDF('${String(ev.EvalID).replace(/'/g, "\\'")}')" title="Print / Download PDF"><i class="fas fa-file-pdf"></i></button></td>
                     </tr>`).join('');
             } catch (err) {
                 pfCachedEvaluations = [];
-                tbody.innerHTML = `<tr><td colspan="7" style="color: var(--secondary-color);">Could not load evaluations: ${err.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" style="color: var(--secondary-color);">Could not load evaluations: ${err.message}</td></tr>`;
             }
         }
 
@@ -2827,6 +2925,54 @@
             ledgerSelect.innerHTML = openLedgers.length === 0
                 ? `<option value="">No open loans/advances</option>`
                 : openLedgers.map(id => `<option value="${id}">${ledgers[id].type} — PKR ${(ledgers[id].disbursed - ledgers[id].repaid).toLocaleString()} remaining (${ledgers[id].date})</option>`).join('');
+
+            renderInstallmentSchedules(ledgers);
+        }
+
+        function renderInstallmentSchedules(ledgers) {
+            const scheduleEntries = cachedPersonalFileRecords.filter(r => r.RecordType === 'InstallmentSchedule');
+            const scheduleDiv = document.getElementById('pf-loan-schedules');
+            if (scheduleEntries.length === 0) { scheduleDiv.innerHTML = ''; return; }
+
+            // Group schedule entries by ledger
+            const byLedger = {};
+            scheduleEntries.forEach(r => {
+                if (!r.LedgerID) return;
+                if (!byLedger[r.LedgerID]) byLedger[r.LedgerID] = [];
+                byLedger[r.LedgerID].push(r);
+            });
+
+            let html = '';
+            Object.keys(byLedger).forEach(ledgerId => {
+                const l = ledgers[ledgerId];
+                if (!l) return;
+                const installments = byLedger[ledgerId].sort((a, b) => new Date(a.StartDate) - new Date(b.StartDate));
+
+                // Waterfall: apply total repaid so far across installments in due-date order
+                let remainingRepaid = l.repaid;
+                const rows = installments.map(inst => {
+                    const due = parseFloat(inst.Amount || 0);
+                    let status, statusClass;
+                    if (remainingRepaid >= due) {
+                        status = 'Paid'; statusClass = 'status-approved';
+                        remainingRepaid -= due;
+                    } else if (remainingRepaid > 0) {
+                        status = `Partially Paid (PKR ${remainingRepaid.toLocaleString()} of ${due.toLocaleString()})`; statusClass = 'status-submitted';
+                        remainingRepaid = 0;
+                    } else {
+                        const isOverdue = new Date(inst.StartDate) < new Date();
+                        status = isOverdue ? 'Overdue' : 'Pending'; statusClass = isOverdue ? 'status-rejected' : 'status-exempted';
+                    }
+                    return `<tr><td>${inst.Category}</td><td>${inst.StartDate}</td><td>PKR ${due.toLocaleString()}</td><td><span class="${statusClass}">${status}</span></td></tr>`;
+                }).join('');
+
+                html += `<div class="permission-block">
+                    <h4>Installment Schedule — ${l.type} of PKR ${l.disbursed.toLocaleString()} (${l.date})</h4>
+                    <div class="table-responsive"><table class="data-table"><thead><tr><th>#</th><th>Due Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>
+                </div>`;
+            });
+
+            scheduleDiv.innerHTML = html;
         }
 
         function downloadPersonalFilePDF() {
@@ -3016,6 +3162,36 @@
         function onPfLoanTypeChange() {
             const type = document.getElementById('pf-loan-type').value;
             document.getElementById('pf-loan-ledger-group').style.display = type === 'Repayment' ? '' : 'none';
+            const showPlan = type === 'Loan' || type === 'Advance';
+            document.getElementById('pf-loan-repayment-plan-group').style.display = showPlan ? '' : 'none';
+            if (!showPlan) {
+                document.getElementById('pf-loan-installment-fields').style.display = 'none';
+            } else {
+                onPfRepaymentPlanChange(document.getElementById('pf-loan-repayment-plan').value);
+            }
+        }
+
+        function onPfRepaymentPlanChange(plan) {
+            document.getElementById('pf-loan-installment-fields').style.display = plan === 'Installments' ? '' : 'none';
+            updateInstallmentPreview();
+        }
+
+        function updateInstallmentPreview() {
+            const total = parseFloat(document.getElementById('pf-loan-amount').value || 0);
+            const count = parseInt(document.getElementById('pf-loan-installment-count').value || 0, 10);
+            const preview = document.getElementById('pf-loan-installment-preview');
+            if (total > 0 && count > 1) {
+                const perInstallment = total / count;
+                preview.value = `PKR ${perInstallment.toLocaleString(undefined, { maximumFractionDigits: 0 })} × ${count}`;
+            } else {
+                preview.value = '';
+            }
+        }
+
+        function addMonths(dateStr, months) {
+            const d = new Date(dateStr);
+            d.setMonth(d.getMonth() + months);
+            return d.toISOString().split('T')[0];
         }
 
         async function handlePfLeaveFormSubmit(e) {
@@ -3065,13 +3241,15 @@
         async function handlePfLoanFormSubmit(e) {
             e.preventDefault();
             const employeeId = document.getElementById('pf-employee-id').value;
+            const employeeName = document.getElementById('pf-employee-name').value;
             const type = document.getElementById('pf-loan-type').value;
+            const totalAmount = parseFloat(document.getElementById('pf-loan-amount').value || 0);
             const record = {
                 employeeId,
-                employeeName: document.getElementById('pf-employee-name').value,
+                employeeName,
                 recordType: type,
                 startDate: document.getElementById('pf-loan-date').value,
-                amount: document.getElementById('pf-loan-amount').value,
+                amount: totalAmount,
                 notes: document.getElementById('pf-loan-notes').value
             };
             if (type === 'Repayment') {
@@ -3079,9 +3257,37 @@
                 if (!ledgerId) { alert('Select which loan/advance this repayment is against.'); return; }
                 record.ledgerId = ledgerId;
             }
+
+            const isInstallmentPlan = (type === 'Loan' || type === 'Advance') && document.getElementById('pf-loan-repayment-plan').value === 'Installments';
+            let installmentCount = 0, installmentStart = '';
+            if (isInstallmentPlan) {
+                installmentCount = parseInt(document.getElementById('pf-loan-installment-count').value || 0, 10);
+                installmentStart = document.getElementById('pf-loan-installment-start').value;
+                if (!installmentCount || installmentCount < 2) { alert('Enter a number of installments (2 or more).'); return; }
+                if (!installmentStart) { alert('Select the first installment due date.'); return; }
+            }
+
             const token = getSessionToken();
             try {
-                await callAppsScript('addPersonalFileRecord', { token, record });
+                const result = await callAppsScript('addPersonalFileRecord', { token, record });
+
+                if (isInstallmentPlan && result.ledgerId) {
+                    const baseAmount = Math.floor((totalAmount / installmentCount) * 100) / 100;
+                    const lastAmount = totalAmount - (baseAmount * (installmentCount - 1));
+                    for (let i = 0; i < installmentCount; i++) {
+                        const dueDate = addMonths(installmentStart, i);
+                        const amt = (i === installmentCount - 1) ? lastAmount : baseAmount;
+                        await callAppsScript('addPersonalFileRecord', {
+                            token,
+                            record: {
+                                employeeId, employeeName, recordType: 'InstallmentSchedule',
+                                startDate: dueDate, ledgerId: result.ledgerId, amount: amt,
+                                category: `${i + 1}/${installmentCount}`, notes: ''
+                            }
+                        });
+                    }
+                }
+
                 document.getElementById('pf-loan-form').reset();
                 onPfLoanTypeChange();
                 loadPersonalFileRecords();
@@ -3426,8 +3632,13 @@
             employeeModal.style.display = 'flex';
         }
 
+        let currentDetailsEmployeeId = null;
+
         function openDetailsModal(employee) {
             if (!employee) return;
+            currentDetailsEmployeeId = employee['ID'];
+            const pfBtn = document.getElementById('details-open-pf-btn');
+            if (pfBtn) pfBtn.style.display = (canEditSection('employees') || isTeamLead()) ? '' : 'none';
             const detailsContent = document.getElementById('employee-details-content');
             const formatCurrency = (value) => `PKR ${parseFloat(value || 0).toLocaleString()}`;
             const N_A = '<span style="color: var(--secondary-color);">N/A</span>';
@@ -3534,6 +3745,12 @@
         function closeEmployeeModal() { employeeModal.style.display = 'none'; }
         function closePayrollModal() { payrollModal.style.display = 'none'; }
         function closeDetailsModal() { detailsModal.style.display = 'none'; }
+
+        function openPersonalFileFromDetails() {
+            if (!currentDetailsEmployeeId) return;
+            closeDetailsModal();
+            openPersonalFileModal(currentDetailsEmployeeId);
+        }
         function closeDepartmentDetailsModal() { departmentDetailsModal.style.display = 'none'; }
         function openTransactionModal() { transactionModal.style.display = 'flex'; }
         function closeTransactionModal() { transactionModal.style.display = 'none'; }
