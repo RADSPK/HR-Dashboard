@@ -1237,9 +1237,12 @@
                             <div class="form-group"><label>Travel Allowance</label><input type="number" id="pd-nj-travel" min="0"></div>
                             <div class="form-group"><label>Grocery/Fuel Allowance</label><input type="number" id="pd-nj-grocery" min="0"></div>
                             <div class="form-group"><label>Project Allowance</label><input type="number" id="pd-nj-project" min="0"></div>
+                            <div class="form-group"><label>Bank Name</label><input type="text" id="pd-nj-bankname"></div>
+                            <div class="form-group"><label>Account Number</label><input type="text" id="pd-nj-accountno"></div>
+                            <div class="form-group"><label>IBAN</label><input type="text" id="pd-nj-iban"></div>
                         </div>
                         <button type="button" onclick="addPayrollDraftEntry('newJoiners')" style="padding:8px 16px;">Add New Joiner</button>
-                        <div class="table-responsive" style="margin-top:10px;"><table class="data-table" id="pd-newJoiners-table"><thead><tr><th>Name</th><th>Designation</th><th>Department</th><th>DoJ</th><th>Basic Pay</th><th>Travel</th><th>Grocery/Fuel</th><th>Project</th><th></th></tr></thead><tbody></tbody></table></div>
+                        <div class="table-responsive" style="margin-top:10px;"><table class="data-table" id="pd-newJoiners-table"><thead><tr><th>Name</th><th>Designation</th><th>Department</th><th>DoJ</th><th>Basic Pay</th><th>Travel</th><th>Grocery/Fuel</th><th>Project</th><th>Bank Name</th><th>Account No.</th><th>IBAN</th><th></th></tr></thead><tbody></tbody></table></div>
                     </div>
 
                     <!-- Leavers -->
@@ -1317,6 +1320,20 @@
                         <div class="form-group"><label>Reason</label><input type="text" id="pd-od-reason"></div>
                         <button type="button" onclick="addPayrollDraftEntry('otherDeductions')" style="padding:8px 16px;">Add Deduction</button>
                         <div class="table-responsive" style="margin-top:10px;"><table class="data-table" id="pd-otherDeductions-table"><thead><tr><th>Name</th><th>Department</th><th>Date</th><th>Amount</th><th>Reason</th><th></th></tr></thead><tbody></tbody></table></div>
+                    </div>
+
+                    <!-- Other Payroll Information -->
+                    <div class="permission-block">
+                        <h4>Other Payroll Information</h4>
+                        <p style="color: var(--secondary-color); font-size: 0.82rem; margin-bottom: 10px;">Anything not covered above — e.g. a bank account change, or any other one-off adjustment Finance should know about.</p>
+                        <div class="form-grid">
+                            <div class="form-group"><label>Name</label><input type="text" id="pd-opi-name"></div>
+                            <div class="form-group"><label>Department</label><input type="text" id="pd-opi-department"></div>
+                            <div class="form-group"><label>Date</label><input type="date" id="pd-opi-date"></div>
+                        </div>
+                        <div class="form-group"><label>Description</label><input type="text" id="pd-opi-description" placeholder="e.g. Bank account changed to XYZ Bank, new account 1234-5678"></div>
+                        <button type="button" onclick="addPayrollDraftEntry('otherPayrollInfo')" style="padding:8px 16px;">Add Entry</button>
+                        <div class="table-responsive" style="margin-top:10px;"><table class="data-table" id="pd-otherPayrollInfo-table"><thead><tr><th>Name</th><th>Department</th><th>Date</th><th>Description</th><th></th></tr></thead><tbody></tbody></table></div>
                     </div>
 
                     <button type="button" onclick="submitPayrollDraft()" style="width:100%; margin-top: 10px; padding: 12px;"><i class="fas fa-paper-plane"></i> Submit to Finance</button>
@@ -3119,7 +3136,7 @@
         // employee records or Personal File data. HR types in each section
         // by hand; nothing here is auto-extracted from anywhere else.
         // ---------------------------------------------------------------
-        let payrollDraft = { newJoiners: [], leavers: [], leaves: [], designationSalaryChanges: [], loanAdvanceEntries: [], otherDeductions: [] };
+        let payrollDraft = { newJoiners: [], leavers: [], leaves: [], designationSalaryChanges: [], loanAdvanceEntries: [], otherDeductions: [], otherPayrollInfo: [] };
 
         function switchPayrollTab(tab) {
             document.querySelectorAll('.payroll-tab-button').forEach(btn => btn.classList.toggle('active', btn.dataset.payrolltab === tab));
@@ -3152,10 +3169,13 @@
                     basicPay: parseFloat(document.getElementById('pd-nj-basic').value || 0),
                     travelAllowance: parseFloat(document.getElementById('pd-nj-travel').value || 0),
                     groceryFuelAllowance: parseFloat(document.getElementById('pd-nj-grocery').value || 0),
-                    projectAllowance: parseFloat(document.getElementById('pd-nj-project').value || 0)
+                    projectAllowance: parseFloat(document.getElementById('pd-nj-project').value || 0),
+                    bankName: document.getElementById('pd-nj-bankname').value,
+                    accountNumber: document.getElementById('pd-nj-accountno').value,
+                    iban: document.getElementById('pd-nj-iban').value
                 };
                 if (!entry.name) { alert('Enter a name.'); return; }
-                ['pd-nj-name', 'pd-nj-designation', 'pd-nj-department', 'pd-nj-doj', 'pd-nj-basic', 'pd-nj-travel', 'pd-nj-grocery', 'pd-nj-project'].forEach(id => document.getElementById(id).value = '');
+                ['pd-nj-name', 'pd-nj-designation', 'pd-nj-department', 'pd-nj-doj', 'pd-nj-basic', 'pd-nj-travel', 'pd-nj-grocery', 'pd-nj-project', 'pd-nj-bankname', 'pd-nj-accountno', 'pd-nj-iban'].forEach(id => document.getElementById(id).value = '');
             } else if (category === 'leavers') {
                 entry = {
                     name: document.getElementById('pd-lv-name').value,
@@ -3215,6 +3235,15 @@
                 };
                 if (!entry.name) { alert('Enter a name.'); return; }
                 ['pd-od-name', 'pd-od-department', 'pd-od-date', 'pd-od-amount', 'pd-od-reason'].forEach(id => document.getElementById(id).value = '');
+            } else if (category === 'otherPayrollInfo') {
+                entry = {
+                    name: document.getElementById('pd-opi-name').value,
+                    department: document.getElementById('pd-opi-department').value,
+                    date: document.getElementById('pd-opi-date').value,
+                    description: document.getElementById('pd-opi-description').value
+                };
+                if (!entry.name) { alert('Enter a name.'); return; }
+                ['pd-opi-name', 'pd-opi-department', 'pd-opi-date', 'pd-opi-description'].forEach(id => document.getElementById(id).value = '');
             }
             if (!entry) return;
             payrollDraft[category].push(entry);
@@ -3236,7 +3265,7 @@
             if (rows.length === 0) {
                 html = '';
             } else if (category === 'newJoiners') {
-                html = rows.map((r, i) => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.dateOfJoining || ''}</td><td>PKR ${r.basicPay.toLocaleString()}</td><td>PKR ${r.travelAllowance.toLocaleString()}</td><td>PKR ${r.groceryFuelAllowance.toLocaleString()}</td><td>PKR ${r.projectAllowance.toLocaleString()}</td>${removeBtn(i)}</tr>`).join('');
+                html = rows.map((r, i) => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.dateOfJoining || ''}</td><td>PKR ${r.basicPay.toLocaleString()}</td><td>PKR ${r.travelAllowance.toLocaleString()}</td><td>PKR ${r.groceryFuelAllowance.toLocaleString()}</td><td>PKR ${r.projectAllowance.toLocaleString()}</td><td>${r.bankName || '—'}</td><td>${r.accountNumber || '—'}</td><td>${r.iban || '—'}</td>${removeBtn(i)}</tr>`).join('');
             } else if (category === 'leavers') {
                 html = rows.map((r, i) => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.lastWorkingDay || ''}</td><td>PKR ${r.deductions.toLocaleString()}</td><td>${r.salaryHeld ? 'Yes' : 'No'}</td><td>${r.otherInfo || '—'}</td>${removeBtn(i)}</tr>`).join('');
             } else if (category === 'leaves') {
@@ -3247,6 +3276,8 @@
                 html = rows.map((r, i) => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>${r.type}</td><td>PKR ${r.amount.toLocaleString()}</td><td>${r.notes || '—'}</td>${removeBtn(i)}</tr>`).join('');
             } else if (category === 'otherDeductions') {
                 html = rows.map((r, i) => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>PKR ${r.amount.toLocaleString()}</td><td>${r.reason || '—'}</td>${removeBtn(i)}</tr>`).join('');
+            } else if (category === 'otherPayrollInfo') {
+                html = rows.map((r, i) => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>${r.description || '—'}</td>${removeBtn(i)}</tr>`).join('');
             }
             tbody.innerHTML = html;
         }
@@ -3266,7 +3297,7 @@
             try {
                 await callAppsScript('sharePayroll', { token, month: monthKey, changes: payrollDraft, notes: '' });
                 alert(`Payroll changes for ${monthLabelFromKey(monthKey)} shared with Finance ✅ (timestamped ${new Date().toLocaleString()})`);
-                payrollDraft = { newJoiners: [], leavers: [], leaves: [], designationSalaryChanges: [], loanAdvanceEntries: [], otherDeductions: [] };
+                payrollDraft = { newJoiners: [], leavers: [], leaves: [], designationSalaryChanges: [], loanAdvanceEntries: [], otherDeductions: [], otherPayrollInfo: [] };
                 Object.keys(payrollDraft).forEach(cat => renderPayrollDraftTable(cat));
                 document.getElementById('payroll-draft-month').value = '';
                 checkFinanceDeadline();
@@ -3306,6 +3337,47 @@
                 </tr>`).join('');
         }
 
+        function renderPayrollChangesBody(changes) {
+            const section = (title, headers, rowsHtml) => {
+                if (!rowsHtml) return '';
+                return `<h4 style="color: var(--primary-color); margin: 16px 0 8px;">${title}</h4>
+                <div class="table-responsive"><table class="data-table"><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+            };
+
+            const nj = changes.newJoiners || [];
+            const lv = changes.leavers || [];
+            const lvs = changes.leaves || [];
+            const dsc = changes.designationSalaryChanges || [];
+            const la = changes.loanAdvanceEntries || [];
+            const od = changes.otherDeductions || [];
+            const opi = changes.otherPayrollInfo || [];
+
+            let html = '';
+
+            html += section('New Joiners', ['Name', 'Designation', 'Department', 'Date of Joining', 'Basic Pay', 'Travel Allowance', 'Grocery/Fuel Allowance', 'Project Allowance', 'Bank Name', 'Account No.', 'IBAN'],
+                nj.map(r => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.dateOfJoining || ''}</td><td>PKR ${parseFloat(r.basicPay || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.travelAllowance || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.groceryFuelAllowance || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.projectAllowance || 0).toLocaleString()}</td><td>${r.bankName || '—'}</td><td>${r.accountNumber || '—'}</td><td>${r.iban || '—'}</td></tr>`).join(''));
+
+            html += section('Leavers', ['Name', 'Designation', 'Department', 'Last Working Day', 'Deductions', 'Salary to be Held', 'Other Information'],
+                lv.map(r => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.lastWorkingDay || ''}</td><td>${r.deductions ? 'PKR ' + parseFloat(r.deductions).toLocaleString() : '—'}</td><td>${r.salaryHeld ? 'Yes' + (r.salaryHoldReason ? ' — ' + r.salaryHoldReason : '') : 'No'}</td><td>${r.otherInfo || '—'}</td></tr>`).join(''));
+
+            html += section('Leave Details', ['Name', 'Department', 'Start', 'End', 'Days', 'Type', 'Notes'],
+                lvs.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.startDate || ''}</td><td>${r.endDate || ''}</td><td>${r.days || ''}</td><td>${r.leaveType || ''}</td><td>${r.notes || '—'}</td></tr>`).join(''));
+
+            html += section('Designation / Salary Changes', ['Name', 'Department', 'Type', 'Effective Date', 'Old', 'New', 'Reason'],
+                dsc.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.type}</td><td>${r.effectiveDate || ''}</td><td>${r.oldValue || ''}</td><td>${r.newValue || ''}</td><td>${r.reason || '—'}</td></tr>`).join(''));
+
+            html += section('Loan / Advance Activity', ['Name', 'Department', 'Date', 'Type', 'Amount', 'Notes'],
+                la.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>${r.type}</td><td>PKR ${parseFloat(r.amount || 0).toLocaleString()}</td><td>${r.notes || '—'}</td></tr>`).join(''));
+
+            html += section('Other Deductions', ['Name', 'Department', 'Date', 'Amount', 'Reason'],
+                od.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>PKR ${parseFloat(r.amount || 0).toLocaleString()}</td><td>${r.reason || '—'}</td></tr>`).join(''));
+
+            html += section('Other Payroll Information', ['Name', 'Department', 'Date', 'Description'],
+                opi.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>${r.description || '—'}</td></tr>`).join(''));
+
+            document.getElementById('payroll-changes-body').innerHTML = html || `<p style="color: var(--secondary-color);">No changes found for this month.</p>`;
+        }
+
         function findShareForMonth(monthKey) {
             const matches = cachedPayrollShares.filter(s => s.month === monthKey);
             if (matches.length === 0) return null;
@@ -3342,6 +3414,7 @@
 
             const nj = changes.newJoiners || [], lv = changes.leavers || [], lvs = changes.leaves || [];
             const dsc = changes.designationSalaryChanges || [], la = changes.loanAdvanceEntries || [], od = changes.otherDeductions || [];
+            const opi = changes.otherPayrollInfo || [];
 
             const section = (title, headers, rows) => {
                 if (!rows || rows.length === 0) return '';
@@ -3371,8 +3444,8 @@
                     <div class="meta-right">Month: ${monthLabelFromKey(monthKey)}<br>Submitted: ${share.sharedAt ? new Date(share.sharedAt).toLocaleString() : '—'} by ${share.sharedByName || share.sharedByUsername || ''}</div>
                 </div>
 
-                ${section('New Joiners', ['Name', 'Designation', 'Department', 'Date of Joining', 'Basic Pay', 'Travel Allowance', 'Grocery/Fuel Allowance', 'Project Allowance'],
-                    nj.map(r => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.dateOfJoining || ''}</td><td>PKR ${parseFloat(r.basicPay || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.travelAllowance || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.groceryFuelAllowance || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.projectAllowance || 0).toLocaleString()}</td></tr>`).join(''))}
+                ${section('New Joiners', ['Name', 'Designation', 'Department', 'Date of Joining', 'Basic Pay', 'Travel Allowance', 'Grocery/Fuel Allowance', 'Project Allowance', 'Bank Name', 'Account No.', 'IBAN'],
+                    nj.map(r => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.dateOfJoining || ''}</td><td>PKR ${parseFloat(r.basicPay || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.travelAllowance || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.groceryFuelAllowance || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.projectAllowance || 0).toLocaleString()}</td><td>${r.bankName || '—'}</td><td>${r.accountNumber || '—'}</td><td>${r.iban || '—'}</td></tr>`).join(''))}
 
                 ${section('Leavers', ['Name', 'Designation', 'Department', 'Last Working Day', 'Deductions', 'Salary to be Held', 'Other Information'],
                     lv.map(r => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.lastWorkingDay || ''}</td><td>${r.deductions ? 'PKR ' + parseFloat(r.deductions).toLocaleString() : '—'}</td><td>${r.salaryHeld ? 'Yes' + (r.salaryHoldReason ? ' — ' + r.salaryHoldReason : '') : 'No'}</td><td>${r.otherInfo || '—'}</td></tr>`).join(''))}
@@ -3388,6 +3461,9 @@
 
                 ${section('Other Deductions', ['Name', 'Department', 'Date', 'Amount', 'Reason'],
                     od.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>PKR ${parseFloat(r.amount || 0).toLocaleString()}</td><td>${r.reason || '—'}</td></tr>`).join(''))}
+
+                ${section('Other Payroll Information', ['Name', 'Department', 'Date', 'Description'],
+                    opi.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.date || ''}</td><td>${r.description || '—'}</td></tr>`).join(''))}
 
                 <div class="disclaimer-note">System-generated document, compiled by HR and shared with Finance via the RADS HR Dashboard.</div>
                 <div class="footer">Research &amp; Development Solutions — Confidential Payroll Handoff Record</div>
