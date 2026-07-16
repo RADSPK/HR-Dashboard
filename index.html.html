@@ -937,6 +937,9 @@
                         <i class="fas fa-sync-alt"></i>
                         Refresh
                     </button>
+                    <button class="toggle-button" onclick="openChangePasswordModal()" title="Change Password">
+                        <i class="fas fa-key"></i>
+                    </button>
                     <button id="theme-toggle" class="toggle-button"><i class="fas fa-moon"></i></button>
                     <button class="toggle-button" onclick="logout()" title="Logout">
                         <i class="fas fa-sign-out-alt"></i>
@@ -1379,6 +1382,30 @@
     <!-- HR Transaction Modal -->
     <div id="transaction-modal" class="modal"><div class="modal-content" style="max-width: 600px;"><span class="close-button" onclick="closeTransactionModal()">&times;</span><h3>Record HR Transaction</h3><form id="transaction-form"><div class="form-grid"><div class="form-group"><label for="transaction-type">Transaction Type</label><select id="transaction-type" name="type" required onchange="updateTransactionForm(this.value)"><option value="">Select Action...</option><option value="promotion">Salary/Position Change</option><option value="lwp">Leave Without Pay (LWP)</option><option value="termination">Termination / Leaver</option></select></div><div class="form-group"><label for="transaction-employee-id">Employee</label><select id="transaction-employee-id" name="employee_id" required><option value="">Select Employee...</option></select></div></div><div id="dynamic-transaction-fields" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;"></div><div class="form-grid"><div class="form-group"><label for="transaction-date">Effective Date</label><input type="date" id="transaction-date" name="effective_date" required></div></div><div class="form-group"><label for="transaction-notes">Detailed Notes</label><textarea id="transaction-notes" name="notes" rows="3" placeholder="Enter full details and rationale..."></textarea></div><button type="submit" id="transaction-submit-btn" style="width: 100%;">Log Transaction</button></form></div></div>
 
+    <!-- Change Password Modal -->
+    <div id="change-password-modal" class="modal">
+        <div class="modal-content" style="max-width: 440px;">
+            <span class="close-button" onclick="closeChangePasswordModal()">&times;</span>
+            <h3 style="margin-bottom: 16px;">Change Password</h3>
+            <form id="change-password-form">
+                <div class="form-group">
+                    <label for="cp-current-password">Current Password</label>
+                    <input type="password" id="cp-current-password" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="cp-new-password">New Password</label>
+                    <input type="password" id="cp-new-password" required autocomplete="off" minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="cp-confirm-password">Confirm New Password</label>
+                    <input type="password" id="cp-confirm-password" required autocomplete="off" minlength="6">
+                </div>
+                <div id="cp-error" style="display:none; color: #c0392b; font-size: 0.85rem; margin-bottom: 10px;"></div>
+                <button type="submit" style="width: 100%;">Update Password</button>
+            </form>
+        </div>
+    </div>
+
     <!-- User Modal -->
     <div id="user-modal" class="modal">
         <div class="modal-content" style="max-width: 640px;">
@@ -1630,20 +1657,17 @@
                     <div class="form-grid">
                         <div class="form-group"><label>Entry Type</label><select id="pf-loan-type"><option value="Loan">New Loan</option><option value="Advance">New Advance</option><option value="Repayment">Repayment</option></select></div>
                         <div class="form-group" id="pf-loan-ledger-group" style="display:none;"><label>Against Which Loan/Advance</label><select id="pf-loan-ledger"></select></div>
-                        <div class="form-group"><label>Date</label><input type="date" id="pf-loan-date" required></div>
-                        <div class="form-group"><label>Amount (PKR)</label><input type="number" id="pf-loan-amount" min="0" required oninput="updateInstallmentPreview()"></div>
+                        <div class="form-group"><label>Date Sanctioned</label><input type="date" id="pf-loan-date" required onchange="generateInstallmentRows()"></div>
+                        <div class="form-group"><label>Loan Amount (PKR)</label><input type="number" id="pf-loan-amount" min="0" required oninput="generateInstallmentRows()"></div>
                     </div>
-                    <div class="form-group" id="pf-loan-repayment-plan-group">
-                        <label>Repayment Plan</label>
-                        <select id="pf-loan-repayment-plan" onchange="onPfRepaymentPlanChange(this.value)">
-                            <option value="LumpSum">Lump Sum</option>
-                            <option value="Installments">Installments</option>
-                        </select>
+                    <div class="form-group" id="pf-loan-installment-count-group" style="max-width: 220px;">
+                        <label>No. of Installments</label>
+                        <input type="number" id="pf-loan-installment-count" min="1" step="1" value="1" oninput="generateInstallmentRows()">
                     </div>
-                    <div class="form-grid" id="pf-loan-installment-fields" style="display:none;">
-                        <div class="form-group"><label>Number of Installments</label><input type="number" id="pf-loan-installment-count" min="2" step="1" oninput="updateInstallmentPreview()"></div>
-                        <div class="form-group"><label>First Installment Due</label><input type="date" id="pf-loan-installment-start" oninput="updateInstallmentPreview()"></div>
-                        <div class="form-group"><label>Amount per Installment</label><input type="text" id="pf-loan-installment-preview" readonly style="background: var(--background-color);"></div>
+                    <div id="pf-loan-installment-schedule-wrapper" style="margin: 10px 0; display:none;">
+                        <label style="display:block; margin-bottom:6px; font-size:0.85rem; color: var(--secondary-color);">Repayment Installments — edit any amount or date as needed</label>
+                        <div class="table-responsive"><table class="data-table"><thead><tr><th>#</th><th>Amount (PKR)</th><th>Due Date</th></tr></thead><tbody id="pf-loan-installment-rows"></tbody></table></div>
+                        <div id="pf-loan-installment-check" style="font-size:0.8rem; margin-top:6px;"></div>
                     </div>
                     <div class="form-group"><label>Notes</label><input type="text" id="pf-loan-notes" placeholder="Reason / repayment method"></div>
                     <button type="submit" style="padding: 8px 16px;">Add Entry</button>
@@ -1916,6 +1940,49 @@
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
             return hashHex;
+        }
+
+        function openChangePasswordModal() {
+            document.getElementById('change-password-form').reset();
+            document.getElementById('cp-error').style.display = 'none';
+            document.getElementById('change-password-modal').style.display = 'flex';
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('change-password-modal').style.display = 'none';
+        }
+
+        async function handleChangePasswordFormSubmit(e) {
+            e.preventDefault();
+            const errorDiv = document.getElementById('cp-error');
+            errorDiv.style.display = 'none';
+
+            const currentPassword = document.getElementById('cp-current-password').value;
+            const newPassword = document.getElementById('cp-new-password').value;
+            const confirmPassword = document.getElementById('cp-confirm-password').value;
+
+            if (newPassword !== confirmPassword) {
+                errorDiv.textContent = 'New password and confirmation do not match.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            if (newPassword.length < 6) {
+                errorDiv.textContent = 'New password must be at least 6 characters.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const oldPasswordHash = await hashPassword(currentPassword);
+                const newPasswordHash = await hashPassword(newPassword);
+                const token = getSessionToken();
+                await callAppsScript('changePassword', { token, oldPasswordHash, newPasswordHash });
+                closeChangePasswordModal();
+                alert('Password updated ✅');
+            } catch (err) {
+                errorDiv.textContent = err.message || 'Could not change password.';
+                errorDiv.style.display = 'block';
+            }
         }
 
         async function callAppsScript(action, payload) {
@@ -3497,6 +3564,9 @@
 
             switchPersonalFileTab('leaves');
             document.getElementById('personal-file-modal').style.display = 'flex';
+            document.getElementById('pf-loan-type').value = 'Loan';
+            document.getElementById('pf-loan-installment-count').value = '1';
+            onPfLoanTypeChange();
             loadPersonalFileRecords();
             loadPersonalFileEvaluations(emp['ID']);
             renderPersonalFileChangesTab(emp['ID']);
@@ -3624,7 +3694,7 @@
                 balanceDiv.innerHTML = ledgerIds.map(id => {
                     const l = ledgers[id];
                     const balance = l.disbursed - l.repaid;
-                    return `<div class="permission-row"><span style="flex:1;">${l.type} of PKR ${l.disbursed.toLocaleString()} (${l.date}) — Repaid PKR ${l.repaid.toLocaleString()}</span><strong>Balance: PKR ${balance.toLocaleString()}</strong></div>`;
+                    return `<div class="permission-row"><span style="flex:1;">${l.type} of PKR ${l.disbursed.toLocaleString()} (${l.date}) — Repaid PKR ${l.repaid.toLocaleString()}</span><strong style="margin-right:12px;">Balance: PKR ${balance.toLocaleString()}</strong><button type="button" style="padding:5px 10px; font-size:0.78rem;" onclick="printLoanStatementPDF('${id}')"><i class="fas fa-file-pdf"></i> Print Statement</button></div>`;
                 }).join('');
             }
 
@@ -3682,6 +3752,93 @@
             });
 
             scheduleDiv.innerHTML = html;
+        }
+
+        function printLoanStatementPDF(ledgerId) {
+            const employeeId = document.getElementById('pf-employee-id').value;
+            const employeeName = document.getElementById('pf-employee-name').value;
+            const emp = employees.find(e => String(e['ID']) === String(employeeId));
+
+            const ledgerEntries = cachedPersonalFileRecords.filter(r => (r.RecordType === 'Loan' || r.RecordType === 'Advance' || r.RecordType === 'Repayment') && r.LedgerID === ledgerId);
+            const originEntry = ledgerEntries.find(r => r.RecordType === 'Loan' || r.RecordType === 'Advance');
+            const repayments = ledgerEntries.filter(r => r.RecordType === 'Repayment').sort((a, b) => new Date(a.StartDate) - new Date(b.StartDate));
+            const scheduleEntries = cachedPersonalFileRecords.filter(r => r.RecordType === 'InstallmentSchedule' && r.LedgerID === ledgerId).sort((a, b) => new Date(a.StartDate) - new Date(b.StartDate));
+
+            if (!originEntry) { alert('Could not find that loan/advance.'); return; }
+
+            const disbursed = parseFloat(originEntry.Amount || 0);
+            const repaid = repayments.reduce((sum, r) => sum + parseFloat(r.Amount || 0), 0);
+            const balance = disbursed - repaid;
+
+            let remainingRepaid = repaid;
+            const scheduleRowsHtml = scheduleEntries.map(inst => {
+                const due = parseFloat(inst.Amount || 0);
+                let status;
+                if (remainingRepaid >= due) { status = 'Paid'; remainingRepaid -= due; }
+                else if (remainingRepaid > 0) { status = `Partial (PKR ${remainingRepaid.toLocaleString()} of PKR ${due.toLocaleString()})`; remainingRepaid = 0; }
+                else { status = new Date(inst.StartDate) < new Date() ? 'Overdue' : 'Pending'; }
+                return `<tr><td>${inst.Category}</td><td>${inst.StartDate}</td><td>PKR ${due.toLocaleString()}</td><td>${status}</td></tr>`;
+            }).join('');
+
+            const repaymentRowsHtml = repayments.map(r => `<tr><td>${r.StartDate}</td><td>PKR ${parseFloat(r.Amount || 0).toLocaleString()}</td><td>${r.Notes || '—'}</td></tr>`).join('');
+
+            const html = `<!DOCTYPE html><html><head><title>Loan Statement — ${employeeName}</title>
+            <style>
+                @page { size: A4; margin: 0.65in; }
+                * { box-sizing: border-box; }
+                body { font-family: 'Segoe UI', Arial, sans-serif; color: #333; font-size: 10pt; line-height: 1.4; }
+                .letterhead { display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 2.5px solid #A05252; padding-bottom: 8pt; margin-bottom: 14pt; }
+                .letterhead h1 { color: #A05252; font-size: 14pt; margin: 0; }
+                .letterhead .tagline { margin: 2pt 0 0; color: #777; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; }
+                .emp-header { background: #F9F9F9; border-radius: 8px; padding: 12pt 16pt; margin-bottom: 16pt; }
+                .emp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6pt 20pt; font-size: 9pt; }
+                .emp-grid div span { color: #888; display:block; font-size: 7.5pt; text-transform: uppercase; }
+                .summary-cards { display: flex; gap: 12pt; margin-bottom: 16pt; }
+                .summary-card { flex:1; background: #F9F9F9; border-radius: 6pt; padding: 10pt; text-align:center; }
+                .summary-card .label { font-size: 7.5pt; color: #888; text-transform: uppercase; }
+                .summary-card .value { font-size: 13pt; font-weight: 700; color: #A05252; margin-top: 3pt; }
+                h2 { color: #A05252; font-size: 10pt; margin: 14pt 0 5pt; border-bottom: 1px solid #EAEAEA; padding-bottom: 4pt; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 6pt; font-size: 9pt; }
+                th { background: #A05252; color: #fff; text-align: left; padding: 5pt 8pt; }
+                td { padding: 4pt 8pt; border-bottom: 0.5pt solid #EEE; }
+                .footer { margin-top: 20pt; font-size: 7.8pt; color: #999; text-align: center; }
+            </style></head>
+            <body>
+                <div class="letterhead">
+                    <div><h1>Research &amp; Development Solutions</h1><p class="tagline">Loan / Advance Statement</p></div>
+                    <p style="font-size:8.3pt; color:#666;">Generated: ${new Date().toLocaleDateString()}</p>
+                </div>
+                <div class="emp-header">
+                    <div class="emp-grid">
+                        <div><span>Employee</span>${employeeName}</div>
+                        <div><span>Department</span>${emp ? (emp['Department'] || '—') : '—'}</div>
+                        <div><span>Type</span>${originEntry.RecordType}</div>
+                        <div><span>Amount Sanctioned</span>PKR ${disbursed.toLocaleString()}</div>
+                        <div><span>Date Sanctioned</span>${originEntry.StartDate}</div>
+                        <div><span>Number of Installments</span>${scheduleEntries.length || '—'}</div>
+                    </div>
+                </div>
+                <div class="summary-cards">
+                    <div class="summary-card"><div class="label">Amount Sanctioned</div><div class="value">PKR ${disbursed.toLocaleString()}</div></div>
+                    <div class="summary-card"><div class="label">Repaid to Date</div><div class="value">PKR ${repaid.toLocaleString()}</div></div>
+                    <div class="summary-card"><div class="label">Balance</div><div class="value">PKR ${balance.toLocaleString()}</div></div>
+                </div>
+                <h2>Installment Schedule</h2>
+                <table><thead><tr><th>#</th><th>Due Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>${scheduleRowsHtml || '<tr><td colspan="4">No installment schedule recorded.</td></tr>'}</tbody></table>
+                <h2>Repayment History</h2>
+                <table><thead><tr><th>Date</th><th>Amount</th><th>Notes</th></tr></thead><tbody>${repaymentRowsHtml || '<tr><td colspan="3">No repayments recorded yet.</td></tr>'}</tbody></table>
+                <div class="footer">Research &amp; Development Solutions — Confidential Loan/Advance Statement</div>
+            </body></html>`;
+
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) { alert('Please allow pop-ups to download the PDF.'); return; }
+            printWindow.document.open();
+            printWindow.document.write(html);
+            printWindow.document.close();
+            printWindow.onload = function() {
+                printWindow.focus();
+                printWindow.print();
+            };
         }
 
 
@@ -4408,29 +4565,58 @@
         function onPfLoanTypeChange() {
             const type = document.getElementById('pf-loan-type').value;
             document.getElementById('pf-loan-ledger-group').style.display = type === 'Repayment' ? '' : 'none';
-            const showPlan = type === 'Loan' || type === 'Advance';
-            document.getElementById('pf-loan-repayment-plan-group').style.display = showPlan ? '' : 'none';
-            if (!showPlan) {
-                document.getElementById('pf-loan-installment-fields').style.display = 'none';
-            } else {
-                onPfRepaymentPlanChange(document.getElementById('pf-loan-repayment-plan').value);
-            }
+            const showInstallments = type === 'Loan' || type === 'Advance';
+            document.getElementById('pf-loan-installment-count-group').style.display = showInstallments ? '' : 'none';
+            document.getElementById('pf-loan-installment-schedule-wrapper').style.display = showInstallments ? '' : 'none';
+            if (showInstallments) generateInstallmentRows();
         }
 
-        function onPfRepaymentPlanChange(plan) {
-            document.getElementById('pf-loan-installment-fields').style.display = plan === 'Installments' ? '' : 'none';
-            updateInstallmentPreview();
-        }
+        function generateInstallmentRows() {
+            const type = document.getElementById('pf-loan-type').value;
+            if (type === 'Repayment') return;
 
-        function updateInstallmentPreview() {
-            const total = parseFloat(document.getElementById('pf-loan-amount').value || 0);
             const count = parseInt(document.getElementById('pf-loan-installment-count').value || 0, 10);
-            const preview = document.getElementById('pf-loan-installment-preview');
-            if (total > 0 && count > 1) {
-                const perInstallment = total / count;
-                preview.value = `PKR ${perInstallment.toLocaleString(undefined, { maximumFractionDigits: 0 })} × ${count}`;
+            const totalAmount = parseFloat(document.getElementById('pf-loan-amount').value || 0);
+            const sanctionDate = document.getElementById('pf-loan-date').value;
+            const tbody = document.getElementById('pf-loan-installment-rows');
+            if (!tbody) return;
+
+            if (!count || count < 1) { tbody.innerHTML = ''; updateInstallmentTotalCheck(); return; }
+
+            // Preserve any amounts/dates the user has already edited if the count hasn't changed the row count
+            const existingAmounts = Array.from(document.querySelectorAll('.installment-amount-input')).map(i => i.value);
+            const existingDates = Array.from(document.querySelectorAll('.installment-date-input')).map(i => i.value);
+
+            const baseAmount = totalAmount > 0 ? Math.floor((totalAmount / count) * 100) / 100 : 0;
+            let rowsHtml = '';
+            for (let i = 0; i < count; i++) {
+                const defaultAmount = existingAmounts[i] !== undefined ? existingAmounts[i] :
+                    ((i === count - 1 && totalAmount > 0) ? (totalAmount - baseAmount * (count - 1)).toFixed(2) : baseAmount.toFixed(2));
+                const defaultDate = existingDates[i] !== undefined && existingDates[i] ? existingDates[i] :
+                    (sanctionDate ? addMonths(sanctionDate, i + 1) : '');
+                rowsHtml += `<tr>
+                    <td>${i + 1}</td>
+                    <td><input type="number" class="installment-amount-input" data-idx="${i}" value="${defaultAmount}" min="0" style="width:110px; padding:4px; border:1px solid var(--border-color); border-radius:4px;" oninput="updateInstallmentTotalCheck()"></td>
+                    <td><input type="date" class="installment-date-input" data-idx="${i}" value="${defaultDate}" style="padding:4px; border:1px solid var(--border-color); border-radius:4px;"></td>
+                </tr>`;
+            }
+            tbody.innerHTML = rowsHtml;
+            updateInstallmentTotalCheck();
+        }
+
+        function updateInstallmentTotalCheck() {
+            const totalAmount = parseFloat(document.getElementById('pf-loan-amount').value || 0);
+            let sum = 0;
+            document.querySelectorAll('.installment-amount-input').forEach(inp => { sum += parseFloat(inp.value || 0); });
+            const checkDiv = document.getElementById('pf-loan-installment-check');
+            if (!checkDiv) return;
+            const diff = totalAmount - sum;
+            if (Math.abs(diff) < 0.01) {
+                checkDiv.textContent = `Installments total: PKR ${sum.toLocaleString()} — matches loan amount ✓`;
+                checkDiv.style.color = '#2e7d32';
             } else {
-                preview.value = '';
+                checkDiv.textContent = `Installments total: PKR ${sum.toLocaleString()} — differs from loan amount by PKR ${Math.abs(diff).toLocaleString()}`;
+                checkDiv.style.color = '#c0392b';
             }
         }
 
@@ -4504,37 +4690,38 @@
                 record.ledgerId = ledgerId;
             }
 
-            const isInstallmentPlan = (type === 'Loan' || type === 'Advance') && document.getElementById('pf-loan-repayment-plan').value === 'Installments';
-            let installmentCount = 0, installmentStart = '';
-            if (isInstallmentPlan) {
-                installmentCount = parseInt(document.getElementById('pf-loan-installment-count').value || 0, 10);
-                installmentStart = document.getElementById('pf-loan-installment-start').value;
-                if (!installmentCount || installmentCount < 2) { alert('Enter a number of installments (2 or more).'); return; }
-                if (!installmentStart) { alert('Select the first installment due date.'); return; }
+            const isLoanOrAdvance = (type === 'Loan' || type === 'Advance');
+            let installments = [];
+            if (isLoanOrAdvance) {
+                const amountInputs = Array.from(document.querySelectorAll('.installment-amount-input'));
+                const dateInputs = Array.from(document.querySelectorAll('.installment-date-input'));
+                if (amountInputs.length === 0) { alert('Enter the number of installments.'); return; }
+                for (let i = 0; i < amountInputs.length; i++) {
+                    installments.push({ amount: parseFloat(amountInputs[i].value || 0), date: dateInputs[i].value });
+                }
+                if (installments.some(inst => !inst.date)) { alert('Enter a due date for every installment.'); return; }
+                if (installments.some(inst => !inst.amount || inst.amount <= 0)) { alert('Enter an amount greater than zero for every installment.'); return; }
             }
 
             const token = getSessionToken();
             try {
                 const result = await callAppsScript('addPersonalFileRecord', { token, record });
 
-                if (isInstallmentPlan && result.ledgerId) {
-                    const baseAmount = Math.floor((totalAmount / installmentCount) * 100) / 100;
-                    const lastAmount = totalAmount - (baseAmount * (installmentCount - 1));
-                    for (let i = 0; i < installmentCount; i++) {
-                        const dueDate = addMonths(installmentStart, i);
-                        const amt = (i === installmentCount - 1) ? lastAmount : baseAmount;
+                if (isLoanOrAdvance && result.ledgerId) {
+                    for (let i = 0; i < installments.length; i++) {
                         await callAppsScript('addPersonalFileRecord', {
                             token,
                             record: {
                                 employeeId, employeeName, recordType: 'InstallmentSchedule',
-                                startDate: dueDate, ledgerId: result.ledgerId, amount: amt,
-                                category: `${i + 1}/${installmentCount}`, notes: ''
+                                startDate: installments[i].date, ledgerId: result.ledgerId, amount: installments[i].amount,
+                                category: `${i + 1}/${installments.length}`, notes: ''
                             }
                         });
                     }
                 }
 
                 document.getElementById('pf-loan-form').reset();
+                document.getElementById('pf-loan-installment-count').value = '1';
                 onPfLoanTypeChange();
                 loadPersonalFileRecords();
             } catch (err) {
@@ -4572,6 +4759,8 @@
             if (evalForm) evalForm.addEventListener('submit', handleEvaluationFormSubmit);
             const windowForm = document.getElementById('review-window-form');
             if (windowForm) windowForm.addEventListener('submit', handleReviewWindowFormSubmit);
+            const changePasswordForm = document.getElementById('change-password-form');
+            if (changePasswordForm) changePasswordForm.addEventListener('submit', handleChangePasswordFormSubmit);
 
             const pfLeaveForm = document.getElementById('pf-leave-form');
             if (pfLeaveForm) pfLeaveForm.addEventListener('submit', handlePfLeaveFormSubmit);
