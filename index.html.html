@@ -204,17 +204,41 @@
             padding: 48px 24px;
         }
         body.employee-mode .header {
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
             position: relative;
+            padding-top: 8px;
+            margin-bottom: 40px;
+        }
+        body.employee-mode #employee-portal-brand {
+            display: block !important;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: var(--primary-color);
+            margin: 0 0 6px;
         }
         body.employee-mode .header h1 {
+            font-size: 1.6rem;
             text-align: center;
-            width: 100%;
         }
         body.employee-mode .header .controls {
             position: absolute;
+            top: 8px;
             right: 0;
-            top: 0;
+            gap: 12px;
+        }
+        body.employee-mode .user-badge {
+            display: none !important;
+        }
+        @media (max-width: 700px) {
+            body.employee-mode .header .controls {
+                position: static;
+                margin-top: 14px;
+                justify-content: center;
+            }
         }
 
         .header {
@@ -1155,6 +1179,7 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="header">
+                <p id="employee-portal-brand" style="display:none;"></p>
                 <h1 id="page-title">Dashboard</h1>
                 <div class="controls">
                     <div class="notif-bell-wrapper">
@@ -3910,6 +3935,18 @@
         };
         let selfAssessmentScores = {};
         let selfAssessmentContext = null; // { employee, evaluationType, windowId, windowTitle, manager }
+        let selfAssessmentHistoryCache = [];
+
+        function toggleSelfAssessmentHistory() {
+            const wrapper = document.getElementById('sa-history-wrapper');
+            if (!wrapper) return;
+            const isOpen = wrapper.style.display === 'block';
+            if (isOpen) { wrapper.style.display = 'none'; return; }
+            wrapper.innerHTML = `<div class="table-responsive"><table class="data-table"><thead><tr><th>Type</th><th>Submitted</th><th>Status</th><th></th></tr></thead><tbody>
+                ${selfAssessmentHistoryCache.map(ev => `<tr><td>${evaluationTypeLabel(ev.EvaluationType)}</td><td>${formatDateOnly(ev.SelfSubmittedAt)}</td><td><span class="${statusBadgeClass(ev.Status)}">${ev.Status}</span></td><td><button class="icon-btn icon-btn-pdf" onclick="printSelfAssessmentPDF('${String(ev.EvalID).replace(/'/g, "\\'")}')" title="Download PDF"><i class="fas fa-file-pdf"></i></button></td></tr>`).join('')}
+            </tbody></table></div>`;
+            wrapper.style.display = 'block';
+        }
 
         function updateSelfAssessmentNavVisibility() {
             const link = document.getElementById('nav-selfassessment-link');
@@ -3928,7 +3965,12 @@
         }
 
         function applyEmployeeModeUI() {
-            document.body.classList.toggle('employee-mode', isPureEmployeeAccount());
+            const isEmployeeMode = isPureEmployeeAccount();
+            document.body.classList.toggle('employee-mode', isEmployeeMode);
+            if (isEmployeeMode) {
+                const brandEl = document.getElementById('employee-portal-brand');
+                if (brandEl) brandEl.textContent = BRAND.companyName;
+            }
         }
 
         async function loadSelfAssessmentStatus() {
@@ -3988,13 +4030,15 @@
 
             if (!pending) {
                 const history = nonReopened.filter(ev => ev.SelfSubmittedAt).sort((a, b) => new Date(b.SelfSubmittedAt) - new Date(a.SelfSubmittedAt));
+                selfAssessmentHistoryCache = history;
                 content.innerHTML = `
-                    <p style="font-size: 18px; font-weight: 600; margin: 0 0 4px;">You're all caught up</p>
-                    <p style="color: var(--secondary-color); margin: 0 0 16px;">Nothing needs your attention right now. We'll let you know when your next self-assessment is due.</p>
-                    ${history.length > 0 ? `<h4 style="margin: 16px 0 8px; color: var(--secondary-color);">Past submissions</h4>
-                    <div class="table-responsive"><table class="data-table"><thead><tr><th>Type</th><th>Submitted</th><th>Status</th><th></th></tr></thead><tbody>
-                        ${history.map(ev => `<tr><td>${evaluationTypeLabel(ev.EvaluationType)}</td><td>${formatDateOnly(ev.SelfSubmittedAt)}</td><td><span class="${statusBadgeClass(ev.Status)}">${ev.Status}</span></td><td><button class="icon-btn icon-btn-pdf" onclick="printSelfAssessmentPDF('${String(ev.EvalID).replace(/'/g, "\\'")}')" title="Download PDF"><i class="fas fa-file-pdf"></i></button></td></tr>`).join('')}
-                    </tbody></table></div>` : ''}
+                    <div style="text-align:center;">
+                        <div style="width:56px; height:56px; border-radius:50%; background: rgba(46,125,50,0.12); color:#2e7d32; display:flex; align-items:center; justify-content:center; font-size:1.6rem; margin:0 auto 16px;"><i class="fas fa-check"></i></div>
+                        <p style="font-size: 18px; font-weight: 600; margin: 0 0 4px;">You're all caught up</p>
+                        <p style="color: var(--secondary-color); margin: 0 0 20px;">Nothing needs your attention right now. We'll let you know when your next self-assessment is due.</p>
+                        ${history.length > 0 ? `<button type="button" onclick="toggleSelfAssessmentHistory()" style="background:none; border:1px solid var(--border-color); color: var(--text-color); padding:9px 18px; border-radius: var(--border-radius); cursor:pointer; font-size:0.88rem;"><i class="fas fa-clock-rotate-left"></i> View past submissions (${history.length})</button>` : ''}
+                    </div>
+                    <div id="sa-history-wrapper" style="display:none; margin-top:20px;"></div>
                 `;
                 return;
             }
@@ -6153,7 +6197,7 @@
             }
             pages.forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            pageTitle.textContent = pageId === 'users' ? 'Manage Users' : (pageId === 'payrollHandoff' ? 'Payroll Handoff' : (pageId === 'selfAssessment' ? 'My Self-Assessment' : pageId.charAt(0).toUpperCase() + pageId.slice(1)));
+            pageTitle.textContent = pageId === 'users' ? 'Manage Users' : (pageId === 'payrollHandoff' ? 'Payroll Handoff' : (pageId === 'selfAssessment' ? 'Employee Performance Evaluation Portal' : pageId.charAt(0).toUpperCase() + pageId.slice(1)));
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             document.querySelector(`.nav-link[data-page="${pageId}"]`).classList.add('active');
             if (pageId === 'users') {
