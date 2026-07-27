@@ -827,6 +827,43 @@
         .table-actions button:hover {
             color: var(--primary-color);
         }
+
+        .icon-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: transform 0.15s ease, background 0.15s ease;
+        }
+        .icon-btn:hover {
+            transform: translateY(-1px);
+        }
+        .icon-btn-pdf {
+            background: rgba(192, 57, 43, 0.12);
+            color: #C0392B;
+        }
+        .icon-btn-pdf:hover {
+            background: rgba(192, 57, 43, 0.22);
+        }
+        .icon-btn-edit {
+            background: rgba(41, 128, 185, 0.12);
+            color: #2980B9;
+        }
+        .icon-btn-edit:hover {
+            background: rgba(41, 128, 185, 0.22);
+        }
+        .icon-btn-cancel {
+            background: rgba(192, 57, 43, 0.12);
+            color: #C0392B;
+        }
+        .icon-btn-cancel:hover {
+            background: rgba(192, 57, 43, 0.22);
+        }
         
         .transaction-log-header {
             display: flex;
@@ -2778,7 +2815,7 @@
                     tr.innerHTML = `<td>${u.username}</td><td>${u.fullName || ''}</td><td>${u.email || '—'}</td>` +
                         `<td><span class="role-badge ${u.role === 'admin' ? 'admin' : 'user'}">${u.role === 'admin' ? 'Admin' : 'User'}</span></td>` +
                         `<td><span class="${isActive ? 'active-badge' : 'inactive-badge'}">${isActive ? 'Active' : 'Disabled'}</span></td>` +
-                        `<td>${u.lastLogin ? new Date(u.lastLogin).toLocaleString() : '—'}</td>` +
+                        `<td>${u.lastLogin ? formatDateOnly(u.lastLogin) : '—'}</td>` +
                         `<td><div class="table-actions">` +
                         `<button title="Edit" onclick='openUserModal(${JSON.stringify(u).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>` +
                         `<button title="${isActive ? 'Disable' : 'Enable'}" onclick="toggleUserActive('${u.username}', ${!isActive})"><i class="fas fa-power-off"></i></button>` +
@@ -2957,7 +2994,7 @@
             document.getElementById('eval-probation-end').value = probationEndStr;
 
             const typeLabel = evaluationTypeLabel(currentEvalContext.type);
-            const subtitleParts = [`${emp['Name']} — ${emp['Position'] || ''}, ${emp['Department'] || ''}`, `Joined: ${emp['Date of Joining'] || '—'}`];
+            const subtitleParts = [`${emp['Name']} — ${emp['Position'] || ''}, ${emp['Department'] || ''}`, `Joined: ${emp['Date of Joining'] ? formatDateOnly(emp['Date of Joining']) : '—'}`];
             if (currentEvalContext.type === 'Probation') {
                 subtitleParts.push(`Probation End: ${probationEndStr || '—'}`);
             } else {
@@ -3079,7 +3116,7 @@
             <body>
                 <div class="letterhead">
                     <div><h1>${BRAND.companyName}</h1><p>${evaluationTypeLabel(ev.EvaluationType)} Performance Evaluation</p></div>
-                    <p>Generated: ${new Date().toLocaleString()}</p>
+                    <p>Generated: ${new Date().toLocaleDateString()}</p>
                 </div>
 
                 <div class="emp-header">
@@ -3181,7 +3218,7 @@
                     <td>${ev.SubmittedAt ? new Date(ev.SubmittedAt).toLocaleDateString() : ''}</td>
                     <td>${ev.CEODecision ? (ev.CEODecision + (ev.DecisionAt ? ' on ' + new Date(ev.DecisionAt).toLocaleDateString() : '')) : '—'}</td>
                     <td>
-                        <button onclick="printEvaluationPDF('${String(ev.EvalID).replace(/'/g, "\\'")}')" title="Print / Download PDF"><i class="fas fa-file-pdf"></i></button>
+                        <button class="icon-btn icon-btn-pdf" onclick="printEvaluationPDF('${String(ev.EvalID).replace(/'/g, "\\'")}')" title="Print / Download PDF"><i class="fas fa-file-pdf"></i></button>
                         ${(isAdmin() && ev.Status === 'Exempted') ? `<button onclick="reopenEvaluation('${String(ev.EvalID).replace(/'/g, "\\'")}')" title="Reopen for evaluation"><i class="fas fa-rotate-left"></i></button>` : ''}
                     </td>
                 </tr>`).join('');
@@ -3697,7 +3734,7 @@
             } else if (category === 'newJoiners') {
                 html = rows.map((r, i) => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.dateOfJoining || ''}</td><td>PKR ${r.basicPay.toLocaleString()}</td><td>PKR ${r.travelAllowance.toLocaleString()}</td><td>PKR ${r.groceryFuelAllowance.toLocaleString()}</td><td>PKR ${r.projectAllowance.toLocaleString()}</td><td>${r.bankName || '—'}</td><td>${r.accountNumber || '—'}</td><td>${r.iban || '—'}</td>${removeBtn(i)}</tr>`).join('');
             } else if (category === 'leavers') {
-                html = rows.map((r, i) => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.lastWorkingDay || ''}</td><td>PKR ${r.deductions.toLocaleString()}</td><td>${r.salaryHeld ? 'Yes' : 'No'}</td><td>${r.otherInfo || '—'}</td>${removeBtn(i)}</tr>`).join('');
+                html = rows.map((r, i) => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.lastWorkingDay ? formatDateOnly(r.lastWorkingDay) : ''}</td><td>PKR ${r.deductions.toLocaleString()}</td><td>${r.salaryHeld ? 'Yes' : 'No'}</td><td>${r.otherInfo || '—'}</td>${removeBtn(i)}</tr>`).join('');
             } else if (category === 'leaves') {
                 html = rows.map((r, i) => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.startDate || ''}</td><td>${r.endDate || ''}</td><td>${r.days || ''}</td><td>${r.leaveType || ''}</td><td>${r.notes || '—'}</td>${removeBtn(i)}</tr>`).join('');
             } else if (category === 'designationSalaryChanges') {
@@ -3762,7 +3799,7 @@
                     <td>${s.notes || '—'}</td>
                     <td>
                         <button onclick="viewPayrollChanges('${String(s.month).replace(/'/g, "\\'")}')" title="View">View</button>
-                        <button onclick="printPayrollChangesPDF('${String(s.month).replace(/'/g, "\\'")}')" title="Download PDF"><i class="fas fa-file-pdf"></i></button>
+                        <button class="icon-btn icon-btn-pdf" onclick="printPayrollChangesPDF('${String(s.month).replace(/'/g, "\\'")}')" title="Download PDF"><i class="fas fa-file-pdf"></i></button>
                     </td>
                 </tr>`).join('');
         }
@@ -3788,7 +3825,7 @@
                 nj.map(r => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.dateOfJoining || ''}</td><td>PKR ${parseFloat(r.basicPay || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.travelAllowance || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.groceryFuelAllowance || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.projectAllowance || 0).toLocaleString()}</td><td>${r.bankName || '—'}</td><td>${r.accountNumber || '—'}</td><td>${r.iban || '—'}</td></tr>`).join(''));
 
             html += section('Leavers', ['Name', 'Designation', 'Department', 'Last Working Day', 'Deductions', 'Salary to be Held', 'Other Information'],
-                lv.map(r => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.lastWorkingDay || ''}</td><td>${r.deductions ? 'PKR ' + parseFloat(r.deductions).toLocaleString() : '—'}</td><td>${r.salaryHeld ? 'Yes' + (r.salaryHoldReason ? ' — ' + r.salaryHoldReason : '') : 'No'}</td><td>${r.otherInfo || '—'}</td></tr>`).join(''));
+                lv.map(r => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.lastWorkingDay ? formatDateOnly(r.lastWorkingDay) : ''}</td><td>${r.deductions ? 'PKR ' + parseFloat(r.deductions).toLocaleString() : '—'}</td><td>${r.salaryHeld ? 'Yes' + (r.salaryHoldReason ? ' — ' + r.salaryHoldReason : '') : 'No'}</td><td>${r.otherInfo || '—'}</td></tr>`).join(''));
 
             html += section('Leave Details', ['Name', 'Department', 'Start', 'End', 'Days', 'Type', 'Notes'],
                 lvs.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.startDate || ''}</td><td>${r.endDate || ''}</td><td>${r.days || ''}</td><td>${r.leaveType || ''}</td><td>${r.notes || '—'}</td></tr>`).join(''));
@@ -3878,7 +3915,7 @@
                     nj.map(r => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.dateOfJoining || ''}</td><td>PKR ${parseFloat(r.basicPay || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.travelAllowance || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.groceryFuelAllowance || 0).toLocaleString()}</td><td>PKR ${parseFloat(r.projectAllowance || 0).toLocaleString()}</td><td>${r.bankName || '—'}</td><td>${r.accountNumber || '—'}</td><td>${r.iban || '—'}</td></tr>`).join(''))}
 
                 ${section('Leavers', ['Name', 'Designation', 'Department', 'Last Working Day', 'Deductions', 'Salary to be Held', 'Other Information'],
-                    lv.map(r => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.lastWorkingDay || ''}</td><td>${r.deductions ? 'PKR ' + parseFloat(r.deductions).toLocaleString() : '—'}</td><td>${r.salaryHeld ? 'Yes' + (r.salaryHoldReason ? ' — ' + r.salaryHoldReason : '') : 'No'}</td><td>${r.otherInfo || '—'}</td></tr>`).join(''))}
+                    lv.map(r => `<tr><td>${r.name}</td><td>${r.designation || ''}</td><td>${r.department || ''}</td><td>${r.lastWorkingDay ? formatDateOnly(r.lastWorkingDay) : ''}</td><td>${r.deductions ? 'PKR ' + parseFloat(r.deductions).toLocaleString() : '—'}</td><td>${r.salaryHeld ? 'Yes' + (r.salaryHoldReason ? ' — ' + r.salaryHoldReason : '') : 'No'}</td><td>${r.otherInfo || '—'}</td></tr>`).join(''))}
 
                 ${section('Leave Details', ['Name', 'Department', 'Start', 'End', 'Days', 'Type', 'Notes'],
                     lvs.map(r => `<tr><td>${r.name}</td><td>${r.department || ''}</td><td>${r.startDate || ''}</td><td>${r.endDate || ''}</td><td>${r.days || ''}</td><td>${r.leaveType || ''}</td><td>${r.notes || '—'}</td></tr>`).join(''))}
@@ -3954,7 +3991,7 @@
                         <td><span class="${statusBadgeClass(ev.Status)}">${ev.Status}</span></td>
                         <td>${ev.SubmittedAt ? new Date(ev.SubmittedAt).toLocaleDateString() : ''}</td>
                         <td>${ev.CEODecision || '—'}</td>
-                        <td><button onclick="printEvaluationPDF('${String(ev.EvalID).replace(/'/g, "\\'")}')" title="Print / Download PDF"><i class="fas fa-file-pdf"></i></button></td>
+                        <td><button class="icon-btn icon-btn-pdf" onclick="printEvaluationPDF('${String(ev.EvalID).replace(/'/g, "\\'")}')" title="Print / Download PDF"><i class="fas fa-file-pdf"></i></button></td>
                     </tr>`).join('');
             } catch (err) {
                 pfCachedEvaluations = [];
@@ -4000,12 +4037,12 @@
             const leaves = cachedPersonalFileRecords.filter(r => r.RecordType === 'Leave').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
             document.querySelector('#pf-leave-table tbody').innerHTML = leaves.length === 0
                 ? `<tr><td colspan="6" style="color: var(--secondary-color);">No leave records yet.</td></tr>`
-                : leaves.map(r => `<tr><td>${r.StartDate}</td><td>${r.EndDate}</td><td>${r.Amount}</td><td>${r.Category}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
+                : leaves.map(r => `<tr><td>${formatDateOnly(r.StartDate)}</td><td>${formatDateOnly(r.EndDate)}</td><td>${r.Amount}</td><td>${r.Category}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
 
             const wfh = cachedPersonalFileRecords.filter(r => r.RecordType === 'WFH').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
             document.querySelector('#pf-wfh-table tbody').innerHTML = wfh.length === 0
                 ? `<tr><td colspan="4" style="color: var(--secondary-color);">No WFH records yet.</td></tr>`
-                : wfh.map(r => `<tr><td>${r.StartDate}</td><td>${r.EndDate}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
+                : wfh.map(r => `<tr><td>${formatDateOnly(r.StartDate)}</td><td>${formatDateOnly(r.EndDate)}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
 
             const increments = cachedPersonalFileRecords.filter(r => r.RecordType === 'Increment').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
             document.querySelector('#pf-increment-table tbody').innerHTML = increments.length === 0
@@ -4016,7 +4053,7 @@
                     const oldSalary = detail.oldSalary !== undefined ? detail.oldSalary : '';
                     const newSalary = detail.newSalary !== undefined ? detail.newSalary : r.Amount;
                     const change = (parseFloat(newSalary || 0) - parseFloat(oldSalary || 0));
-                    return `<tr><td>${r.StartDate}</td><td>PKR ${parseFloat(oldSalary || 0).toLocaleString()}</td><td>PKR ${parseFloat(newSalary || 0).toLocaleString()}</td><td>+PKR ${change.toLocaleString()}</td><td>${detail.reason || '—'}</td><td>${r.CreatedByName}</td></tr>`;
+                    return `<tr><td>${formatDateOnly(r.StartDate)}</td><td>PKR ${parseFloat(oldSalary || 0).toLocaleString()}</td><td>PKR ${parseFloat(newSalary || 0).toLocaleString()}</td><td>+PKR ${change.toLocaleString()}</td><td>${detail.reason || '—'}</td><td>${r.CreatedByName}</td></tr>`;
                 }).join('');
 
             renderLoansTab();
@@ -4044,7 +4081,7 @@
             const sorted = [...ledgerEntries].sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
             document.querySelector('#pf-loan-table tbody').innerHTML = sorted.length === 0
                 ? `<tr><td colspan="5" style="color: var(--secondary-color);">No loan/advance records yet.</td></tr>`
-                : sorted.map(r => `<tr><td>${r.StartDate}</td><td>${r.RecordType}</td><td>PKR ${parseFloat(r.Amount || 0).toLocaleString()}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
+                : sorted.map(r => `<tr><td>${formatDateOnly(r.StartDate)}</td><td>${r.RecordType}</td><td>PKR ${parseFloat(r.Amount || 0).toLocaleString()}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
 
             // Compute running balance per ledger
             const ledgers = computeLoanLedgers(ledgerEntries);
@@ -4057,7 +4094,7 @@
                 balanceDiv.innerHTML = ledgerIds.map(id => {
                     const l = ledgers[id];
                     const balance = l.disbursed - l.repaid;
-                    return `<div class="permission-row"><span style="flex:1;">${l.type} of PKR ${l.disbursed.toLocaleString()} (${l.date}) — Repaid PKR ${l.repaid.toLocaleString()}</span><strong style="margin-right:12px;">Balance: PKR ${balance.toLocaleString()}</strong><button type="button" style="padding:5px 10px; font-size:0.78rem;" onclick="printLoanStatementPDF('${id}')"><i class="fas fa-file-pdf"></i> Print Statement</button></div>`;
+                    return `<div class="permission-row"><span style="flex:1;">${l.type} of PKR ${l.disbursed.toLocaleString()} (${formatDateOnly(l.date)}) — Repaid PKR ${l.repaid.toLocaleString()}</span><strong style="margin-right:12px;">Balance: PKR ${balance.toLocaleString()}</strong><button type="button" style="padding:5px 10px; font-size:0.78rem;" onclick="printLoanStatementPDF('${id}')"><i class="fas fa-file-pdf"></i> Print Statement</button></div>`;
                 }).join('');
             }
 
@@ -4066,7 +4103,7 @@
             const openLedgers = ledgerIds.filter(id => (ledgers[id].disbursed - ledgers[id].repaid) > 0);
             ledgerSelect.innerHTML = openLedgers.length === 0
                 ? `<option value="">No open loans/advances</option>`
-                : openLedgers.map(id => `<option value="${id}">${ledgers[id].type} — PKR ${(ledgers[id].disbursed - ledgers[id].repaid).toLocaleString()} remaining (${ledgers[id].date})</option>`).join('');
+                : openLedgers.map(id => `<option value="${id}">${ledgers[id].type} — PKR ${(ledgers[id].disbursed - ledgers[id].repaid).toLocaleString()} remaining (${formatDateOnly(ledgers[id].date)})</option>`).join('');
 
             renderInstallmentSchedules(ledgers);
         }
@@ -4105,11 +4142,11 @@
                         const isOverdue = new Date(inst.StartDate) < new Date();
                         status = isOverdue ? 'Overdue' : 'Pending'; statusClass = isOverdue ? 'status-rejected' : 'status-exempted';
                     }
-                    return `<tr><td>${inst.Category}</td><td>${inst.StartDate}</td><td>PKR ${due.toLocaleString()}</td><td><span class="${statusClass}">${status}</span></td></tr>`;
+                    return `<tr><td>${inst.Category}</td><td>${formatDateOnly(inst.StartDate)}</td><td>PKR ${due.toLocaleString()}</td><td><span class="${statusClass}">${status}</span></td></tr>`;
                 }).join('');
 
                 html += `<div class="permission-block">
-                    <h4>Installment Schedule — ${l.type} of PKR ${l.disbursed.toLocaleString()} (${l.date})</h4>
+                    <h4>Installment Schedule — ${l.type} of PKR ${l.disbursed.toLocaleString()} (${formatDateOnly(l.date)})</h4>
                     <div class="table-responsive"><table class="data-table"><thead><tr><th>#</th><th>Due Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>
                 </div>`;
             });
@@ -4140,10 +4177,10 @@
                 if (remainingRepaid >= due) { status = 'Paid'; remainingRepaid -= due; }
                 else if (remainingRepaid > 0) { status = `Partial (PKR ${remainingRepaid.toLocaleString()} of PKR ${due.toLocaleString()})`; remainingRepaid = 0; }
                 else { status = new Date(inst.StartDate) < new Date() ? 'Overdue' : 'Pending'; }
-                return `<tr><td>${inst.Category}</td><td>${inst.StartDate}</td><td>PKR ${due.toLocaleString()}</td><td>${status}</td></tr>`;
+                return `<tr><td>${inst.Category}</td><td>${formatDateOnly(inst.StartDate)}</td><td>PKR ${due.toLocaleString()}</td><td>${status}</td></tr>`;
             }).join('');
 
-            const repaymentRowsHtml = repayments.map(r => `<tr><td>${r.StartDate}</td><td>PKR ${parseFloat(r.Amount || 0).toLocaleString()}</td><td>${r.Notes || '—'}</td></tr>`).join('');
+            const repaymentRowsHtml = repayments.map(r => `<tr><td>${formatDateOnly(r.StartDate)}</td><td>PKR ${parseFloat(r.Amount || 0).toLocaleString()}</td><td>${r.Notes || '—'}</td></tr>`).join('');
 
             const html = `<!DOCTYPE html><html><head><title>Loan Statement — ${employeeName}</title>
             <style>
@@ -4325,7 +4362,7 @@
             actionWrapper.style.display = actionable.length > 0 ? 'block' : 'none';
             actionBody.innerHTML = actionable.map(r => `<tr>
                 <td>${r.PositionTitle}</td><td>${r.Department}</td><td>${r.RequestedByName}</td>
-                <td>${r.EmploymentType || ''}</td><td>PKR ${parseFloat(r.MonthlySalary || 0).toLocaleString()}</td><td>${r.DateRequired || ''}</td>
+                <td>${r.EmploymentType || ''}</td><td>PKR ${parseFloat(r.MonthlySalary || 0).toLocaleString()}</td><td>${r.DateRequired ? formatDateOnly(r.DateRequired) : ''}</td>
                 <td>${hiringStageLabel(r.Status)}</td>
                 <td><button onclick="openHiringReviewModal('${String(r.RequestID).replace(/'/g, "\\'")}')">Review</button></td>
             </tr>`).join('');
@@ -4341,10 +4378,10 @@
                     <td><span class="${hiringStatusBadgeClass(r.Status)}">${r.Status}</span></td>
                     <td>${r.SubmittedAt ? new Date(r.SubmittedAt).toLocaleDateString() : ''}</td>
                     <td><button onclick="viewHiringDetails('${String(r.RequestID).replace(/'/g, "\\'")}')">Details</button></td>
-                    <td>${r.CEODecision ? `<button onclick="printHiringRequestPDF('${String(r.RequestID).replace(/'/g, "\\'")}')" title="Print / Download PDF"><i class="fas fa-file-pdf"></i></button>` : '—'}</td>
+                    <td>${r.CEODecision ? `<button class="icon-btn icon-btn-pdf" onclick="printHiringRequestPDF('${String(r.RequestID).replace(/'/g, "\\'")}')" title="Print / Download PDF"><i class="fas fa-file-pdf"></i></button>` : '—'}</td>
                     <td>${stillEditable ? `
-                        <button onclick="openEditHiringRequestModal('${String(r.RequestID).replace(/'/g, "\\'")}')" title="Edit"><i class="fas fa-edit"></i></button>
-                        <button onclick="cancelHiringRequestAction('${String(r.RequestID).replace(/'/g, "\\'")}')" title="Cancel"><i class="fas fa-ban"></i></button>
+                        <button class="icon-btn icon-btn-edit" onclick="openEditHiringRequestModal('${String(r.RequestID).replace(/'/g, "\\'")}')" title="Edit"><i class="fas fa-edit"></i></button>
+                        <button class="icon-btn icon-btn-cancel" onclick="cancelHiringRequestAction('${String(r.RequestID).replace(/'/g, "\\'")}')" title="Cancel"><i class="fas fa-ban"></i></button>
                     ` : '—'}</td>
                 </tr>`;
                 }).join('');
@@ -4374,7 +4411,7 @@
                     <div class="permission-row"><span style="flex:1;">Duration</span><strong>${r.Duration || '—'}</strong></div>
                     <div class="permission-row"><span style="flex:1;">Monthly Salary</span><strong>PKR ${parseFloat(r.MonthlySalary || 0).toLocaleString()}</strong></div>
                     <div class="permission-row"><span style="flex:1;">Supervisor</span><strong>${r.Supervisor || '—'}</strong></div>
-                    <div class="permission-row"><span style="flex:1;">Date Required</span><strong>${r.DateRequired || '—'}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Date Required</span><strong>${r.DateRequired ? formatDateOnly(r.DateRequired) : '—'}</strong></div>
                     <div class="permission-row"><span style="flex:1;">Job Station</span><strong>${r.JobStation || '—'}</strong></div>
                     <div class="permission-row"><span style="flex:1;">Project</span><strong>${r.Project || '—'}</strong></div>
                 </div>
@@ -4568,7 +4605,7 @@
                     <td>${o.CandidateName}</td><td>${o.Designation}</td><td>${o.Department || ''}</td><td>${o.PreparedByName}</td>
                     <td><span class="${hiringStatusBadgeClass(o.Status)}">${o.Status}</span></td>
                     <td>${o.PreparedAt ? new Date(o.PreparedAt).toLocaleDateString() : ''}</td>
-                    <td>${o.Status === 'Approved' ? `<button onclick="printOfferLetterPDF('${String(o.OfferID).replace(/'/g, "\\'")}')" title="Download PDF"><i class="fas fa-file-pdf"></i></button>` : '—'}</td>
+                    <td>${o.Status === 'Approved' ? `<button class="icon-btn icon-btn-pdf" onclick="printOfferLetterPDF('${String(o.OfferID).replace(/'/g, "\\'")}')" title="Download PDF"><i class="fas fa-file-pdf"></i></button>` : '—'}</td>
                 </tr>`).join('');
             updateApprovalCardCounts();
         }
@@ -4861,19 +4898,19 @@
                 <td>${ev.Recommendation}</td><td>${ev.Status}</td><td>${ev.SubmittedAt ? new Date(ev.SubmittedAt).toLocaleDateString() : ''}</td>
                 <td>${ev.CEODecision || '—'}</td></tr>`).join('');
 
-            const leaveRows = leaves.length === 0 ? '' : leaves.map(r => `<tr><td>${r.StartDate}</td><td>${r.EndDate}</td><td>${r.Amount}</td><td>${r.Category}</td><td>${r.Notes || '—'}</td></tr>`).join('');
-            const wfhRows = wfh.length === 0 ? '' : wfh.map(r => `<tr><td>${r.StartDate}</td><td>${r.EndDate}</td><td>${r.Notes || '—'}</td></tr>`).join('');
-            const loanRows = ledgerEntries.length === 0 ? '' : ledgerEntries.map(r => `<tr><td>${r.StartDate}</td><td>${r.RecordType}</td><td>${pkr(r.Amount)}</td><td>${r.Notes || '—'}</td></tr>`).join('');
+            const leaveRows = leaves.length === 0 ? '' : leaves.map(r => `<tr><td>${formatDateOnly(r.StartDate)}</td><td>${formatDateOnly(r.EndDate)}</td><td>${r.Amount}</td><td>${r.Category}</td><td>${r.Notes || '—'}</td></tr>`).join('');
+            const wfhRows = wfh.length === 0 ? '' : wfh.map(r => `<tr><td>${formatDateOnly(r.StartDate)}</td><td>${formatDateOnly(r.EndDate)}</td><td>${r.Notes || '—'}</td></tr>`).join('');
+            const loanRows = ledgerEntries.length === 0 ? '' : ledgerEntries.map(r => `<tr><td>${formatDateOnly(r.StartDate)}</td><td>${r.RecordType}</td><td>${pkr(r.Amount)}</td><td>${r.Notes || '—'}</td></tr>`).join('');
             const ledgerSummaryRows = Object.keys(ledgers).length === 0 ? '' : Object.keys(ledgers).map(id => {
                 const l = ledgers[id];
-                return `<tr><td>${l.type}</td><td>${l.date}</td><td>${pkr(l.disbursed)}</td><td>${pkr(l.repaid)}</td><td><strong>${pkr(l.disbursed - l.repaid)}</strong></td></tr>`;
+                return `<tr><td>${l.type}</td><td>${formatDateOnly(l.date)}</td><td>${pkr(l.disbursed)}</td><td>${pkr(l.repaid)}</td><td><strong>${pkr(l.disbursed - l.repaid)}</strong></td></tr>`;
             }).join('');
             const incrementRows = increments.length === 0 ? '' : increments.map(r => {
                 let detail = {};
                 try { detail = JSON.parse(r.Notes || '{}'); } catch (e) {}
                 const oldSalary = detail.oldSalary !== undefined ? detail.oldSalary : '';
                 const newSalary = detail.newSalary !== undefined ? detail.newSalary : r.Amount;
-                return `<tr><td>${r.StartDate}</td><td>${pkr(oldSalary)}</td><td>${pkr(newSalary)}</td><td>${detail.reason || '—'}</td></tr>`;
+                return `<tr><td>${formatDateOnly(r.StartDate)}</td><td>${pkr(oldSalary)}</td><td>${pkr(newSalary)}</td><td>${detail.reason || '—'}</td></tr>`;
             }).join('');
             const changeRows = pfCachedChanges.length === 0 ? '' : pfCachedChanges.map(log => `<tr><td>${new Date(log.date).toLocaleDateString()}</td><td>${log.type}</td><td>${log.details}</td></tr>`).join('');
 
@@ -4906,7 +4943,7 @@
             <body>
                 <div class="letterhead">
                     <div><h1>${BRAND.companyName}</h1><p>Employee Personal File</p></div>
-                    <p>Generated: ${new Date().toLocaleString()}</p>
+                    <p>Generated: ${new Date().toLocaleDateString()}</p>
                 </div>
 
                 <div class="emp-header">
@@ -4915,7 +4952,7 @@
                         <div><span>Employee ID</span>${emp['ID'] || '—'}</div>
                         <div><span>Department</span>${emp['Department'] || '—'}</div>
                         <div><span>Position</span>${emp['Position'] || '—'}</div>
-                        <div><span>Date of Joining</span>${emp['Date of Joining'] || '—'}</div>
+                        <div><span>Date of Joining</span>${emp['Date of Joining'] ? formatDateOnly(emp['Date of Joining']) : '—'}</div>
                         <div><span>Status</span>${emp['Status'] || '—'}</div>
                         <div><span>Supervisor</span>${emp['Supervisor'] || '—'}</div>
                     </div>
@@ -4947,7 +4984,7 @@
             const deductions = cachedPersonalFileRecords.filter(r => r.RecordType === 'Deduction').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
             document.querySelector('#pf-deduction-table tbody').innerHTML = deductions.length === 0
                 ? `<tr><td colspan="4" style="color: var(--secondary-color);">No deductions recorded.</td></tr>`
-                : deductions.map(r => `<tr><td>${r.StartDate}</td><td>PKR ${parseFloat(r.Amount || 0).toLocaleString()}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
+                : deductions.map(r => `<tr><td>${formatDateOnly(r.StartDate)}</td><td>PKR ${parseFloat(r.Amount || 0).toLocaleString()}</td><td>${r.Notes || '—'}</td><td>${r.CreatedByName}</td></tr>`).join('');
 
             const holds = cachedPersonalFileRecords.filter(r => r.RecordType === 'SalaryHold').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
             document.querySelector('#pf-salaryhold-table tbody').innerHTML = holds.length === 0
@@ -4960,7 +4997,7 @@
                 : bankChanges.map(r => {
                     let detail = {};
                     try { detail = JSON.parse(r.Notes || '{}'); } catch (e) {}
-                    return `<tr><td>${r.StartDate}</td><td>${detail.oldAccount || '—'}</td><td>${detail.newAccount || r.Category || '—'}</td><td>${r.CreatedByName}</td></tr>`;
+                    return `<tr><td>${formatDateOnly(r.StartDate)}</td><td>${detail.oldAccount || '—'}</td><td>${detail.newAccount || r.Category || '—'}</td><td>${r.CreatedByName}</td></tr>`;
                 }).join('');
 
             const designationChanges = cachedPersonalFileRecords.filter(r => r.RecordType === 'DesignationChange').sort((a, b) => new Date(b.StartDate) - new Date(a.StartDate));
@@ -4969,7 +5006,7 @@
                 : designationChanges.map(r => {
                     let detail = {};
                     try { detail = JSON.parse(r.Notes || '{}'); } catch (e) {}
-                    return `<tr><td>${r.StartDate}</td><td>${detail.oldDesignation || '—'}</td><td>${detail.newDesignation || '—'}</td><td>${detail.reason || '—'}</td><td>${r.CreatedByName}</td></tr>`;
+                    return `<tr><td>${formatDateOnly(r.StartDate)}</td><td>${detail.oldDesignation || '—'}</td><td>${detail.newDesignation || '—'}</td><td>${detail.reason || '—'}</td><td>${r.CreatedByName}</td></tr>`;
                 }).join('');
         }
 
@@ -5602,7 +5639,7 @@
                 <h3 style="font-size: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 10px;">Personal & Contact</h3>
                 <div class="details-grid">
                     <div class="details-item"><h4>Employee ID</h4><p>${employee.ID || N_A}</p></div>
-                    <div class="details-item"><h4>Gender</h4><p>${employee.Gender || N_A}</p></div><div class="details-item"><h4>CNIC No.</h4><p>${employee['CNIC No.'] || N_A}</p></div><div class="details-item"><h4>Date of Birth</h4><p>${employee['Date of Birth'] || N_A}</p></div>
+                    <div class="details-item"><h4>Gender</h4><p>${employee.Gender || N_A}</p></div><div class="details-item"><h4>CNIC No.</h4><p>${employee['CNIC No.'] || N_A}</p></div><div class="details-item"><h4>Date of Birth</h4><p>${employee['Date of Birth'] ? formatDateOnly(employee['Date of Birth']) : N_A}</p></div>
                     <div class="details-item"><h4>Contact Number</h4><p>${employee['Contact Number'] || N_A}</p></div>
                     <div class="details-item" style="grid-column: 1 / -1;"><h4>Address</h4><p>${employee.Address || N_A}</p></div>
                 </div>
@@ -5616,7 +5653,7 @@
 
                 <h3 style="font-size: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 10px;">Employment Details</h3>
                 <div class="details-grid">
-                    <div class="details-item"><h4>Date of Joining</h4><p>${employee['Date of Joining'] || N_A}</p></div>
+                    <div class="details-item"><h4>Date of Joining</h4><p>${employee['Date of Joining'] ? formatDateOnly(employee['Date of Joining']) : N_A}</p></div>
                     <div class="details-item"><h4>Supervisor</h4><p>${employee.Supervisor || N_A}</p></div>
                     <div class="details-item"><h4>Employment Type</h4><p>${employee['Employment Type'] || N_A}</p></div>
                     <div class="details-item"><h4>Stationed At</h4><p>${employee['Stationed At'] || N_A}</p></div>
@@ -5837,7 +5874,7 @@
                         return doj && doj >= cutoffDate;
                     }).sort((a,b) => new Date(b['Date of Joining']) - new Date(a['Date of Joining']));
                     content = joiners.length > 0 ? `<div class="table-responsive"><table class="data-table"><thead><tr><th>Name</th><th>Department</th><th>Position</th><th>Date of Joining</th></tr></thead><tbody>` +
-                        joiners.map(emp => `<tr><td>${emp.Name}</td><td>${emp.Department}</td><td>${emp.Position}</td><td>${emp['Date of Joining']}</td></tr>`).join('') + 
+                        joiners.map(emp => `<tr><td>${emp.Name}</td><td>${emp.Department}</td><td>${emp.Position}</td><td>${formatDateOnly(emp['Date of Joining'])}</td></tr>`).join('') + 
                         `</tbody></table></div>` : '<p>No joiners in this period.</p>';
                     break;
                     
@@ -6376,6 +6413,7 @@
                         cell.innerHTML = (editButtons || fileButton) ? `<div class="table-actions">${editButtons}${fileButton}</div>` : '';
                     }
                     else if (col === 'PayrollActions') cell.innerHTML = canEditSection('payroll') ? `<div class="table-actions"><button onclick="openPayrollModal(employees[${originalIndex}], ${originalIndex})" title="Edit Payroll"><i class="fas fa-pencil-alt"></i></button></div>` : '';
+                    else if (['Date of Joining', 'Date of Birth', 'Date of Leaving'].includes(col)) cell.textContent = employee[col] ? formatDateOnly(employee[col]) : 'N/A';
                     else if (['Base Salary', 'Total Cost to Company'].includes(col)) cell.textContent = `PKR ${parseFloat(employee[col] || 0).toLocaleString()}`;
                     else cell.textContent = employee[col] || 'N/A';
                     row.appendChild(cell);
@@ -6418,6 +6456,19 @@
             return { salary, totalCost };
         };
         const parseDate = dateStr => dateStr ? new Date(dateStr) : null;
+
+        // Google Sheets sometimes silently turns a plain date string into a full
+        // datetime value internally, which then comes back from Apps Script as an
+        // ISO timestamp (e.g. "2023-07-02T19:00:00.000Z") instead of just a date.
+        // Every date shown anywhere in the app — except the payroll submission
+        // timestamp, which intentionally includes the time — should go through
+        // this so only the date ever displays, never the time.
+        function formatDateOnly(value) {
+            if (!value) return '';
+            const d = new Date(value);
+            if (isNaN(d.getTime())) return String(value);
+            return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
         
         // --- Event Listeners ---
         document.addEventListener('DOMContentLoaded', () => {
