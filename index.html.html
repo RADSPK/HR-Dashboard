@@ -744,6 +744,30 @@
         .payroll-tab-content.active {
             display: block;
         }
+        .users-tab-button {
+            padding: 10px 18px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: var(--secondary-color);
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .users-tab-button.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            margin-bottom: -1px;
+        }
+        .users-tab-content {
+            display: none;
+        }
+        .users-tab-content.active {
+            display: block;
+        }
         .scrollable-table-wrapper {
             max-height: 420px;
             overflow-y: auto;
@@ -1623,14 +1647,39 @@
             <section id="users" class="page">
                 <div class="section-header">
                     <h2>Manage Users</h2>
-                    <button onclick="openUserModal()" class="action-buttons primary" style="padding: 8px 16px; white-space: nowrap;">
-                        <i class="fas fa-user-plus"></i> Add User
-                    </button>
                 </div>
                 <div id="users-config-warning" class="config-warning" style="display:none;">
                     <i class="fas fa-triangle-exclamation"></i> The Apps Script URL hasn't been configured yet. Set <code>APPS_SCRIPT_URL</code> near the top of the script section before user management will work.
                 </div>
-                <div class="table-responsive"><table class="data-table" id="users-table"><thead><tr><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Last Login</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+
+                <div class="approval-tabs">
+                    <button type="button" class="users-tab-button active" data-userstab="users" onclick="switchUsersTab('users')"><i class="fas fa-user-shield"></i> Users</button>
+                    <button type="button" class="users-tab-button" data-userstab="employees" onclick="switchUsersTab('employees')"><i class="fas fa-user-check"></i> Employees</button>
+                </div>
+
+                <!-- Users — dashboard/tool access accounts (HR, Finance, CEO, dept heads, admin) -->
+                <div id="users-tab-users" class="users-tab-content active">
+                    <div class="section-header" style="margin-top:0;">
+                        <h3 style="margin:0;">Users</h3>
+                        <button onclick="openUserModal(null, 'user')" class="action-buttons primary" style="padding: 8px 16px; white-space: nowrap;">
+                            <i class="fas fa-user-plus"></i> Add User
+                        </button>
+                    </div>
+                    <p style="color: var(--secondary-color); margin-bottom: 16px;">People who work in this dashboard — HR, Finance, department heads, and admins.</p>
+                    <div class="table-responsive"><table class="data-table" id="users-table-users"><thead><tr><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Last Login</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+                </div>
+
+                <!-- Employees — self-assessment-only accounts, linked to an employee record -->
+                <div id="users-tab-employees" class="users-tab-content">
+                    <div class="section-header" style="margin-top:0;">
+                        <h3 style="margin:0;">Employees</h3>
+                        <button onclick="openUserModal(null, 'employee')" class="action-buttons primary" style="padding: 8px 16px; white-space: nowrap;">
+                            <i class="fas fa-user-plus"></i> Add Employee
+                        </button>
+                    </div>
+                    <p style="color: var(--secondary-color); margin-bottom: 16px;">Logins for regular staff — access is limited to their own self-assessment, nothing else in the dashboard.</p>
+                    <div class="table-responsive"><table class="data-table" id="users-table-employees"><thead><tr><th>Username</th><th>Full Name</th><th>Linked Employee</th><th>Email</th><th>Status</th><th>Last Login</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+                </div>
             </section>
         </main>
     </div>
@@ -1708,7 +1757,7 @@
                         <label for="user-email">Email <span style="font-weight:400; color: var(--secondary-color);">(for approval notifications)</span></label>
                         <input type="email" id="user-email" name="email" autocomplete="off">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="user-employee-link-group">
                         <label for="user-employee-link">Linked Employee Record <span style="font-weight:400; color: var(--secondary-color);">(lets them log in and self-assess)</span></label>
                         <select id="user-employee-link"><option value="">— Not linked —</option></select>
                     </div>
@@ -1737,7 +1786,7 @@
 
                     <div class="permission-block">
                         <div class="permission-row">
-                            <input type="checkbox" id="perm-dashboard" checked>
+                            <input type="checkbox" id="perm-dashboard">
                             <label for="perm-dashboard" style="margin:0;">Dashboard (overview)</label>
                         </div>
                     </div>
@@ -2502,6 +2551,7 @@
             const activePageIsPermitted = !activePageId ? false :
                 activePageId === 'users' ? isAdmin() :
                 activePageId === 'approvals' ? canAccessApprovalsHub() :
+                activePageId === 'selfAssessment' ? !!(currentUser && currentUser.employeeId) :
                 canView(activePageId);
 
             if (activePageId && !activePageIsPermitted) {
@@ -2775,7 +2825,10 @@
             wrapper.style.display = role === 'admin' ? 'none' : 'block';
         }
 
-        function openUserModal(user) {
+        let currentUserModalType = 'user';
+
+        function openUserModal(user, type) {
+            currentUserModalType = type || (user && user.employeeId ? 'employee' : 'user');
             const form = document.getElementById('user-form');
             form.reset();
             document.getElementById('user-active-group').style.display = user ? '' : 'none';
@@ -2789,9 +2842,21 @@
             linkSelect.innerHTML = '<option value="">— Not linked —</option>' +
                 sortedEmployees.map(e => `<option value="${e.ID}">${e.Name} — ${e.Department || ''} (${e.ID})</option>`).join('');
 
+            const permsWrapper = document.getElementById('user-permissions-wrapper');
+            const linkGroup = document.getElementById('user-employee-link-group');
+            if (currentUserModalType === 'employee') {
+                if (permsWrapper) permsWrapper.style.display = 'none';
+                if (linkGroup) linkGroup.style.display = '';
+                linkSelect.required = true;
+            } else {
+                if (permsWrapper) permsWrapper.style.display = '';
+                if (linkGroup) linkGroup.style.display = '';
+                linkSelect.required = false;
+            }
+
             if (user) {
                 editingUsername = user.username;
-                document.getElementById('user-modal-title').textContent = 'Edit User: ' + user.username;
+                document.getElementById('user-modal-title').textContent = (currentUserModalType === 'employee' ? 'Edit Employee Account: ' : 'Edit User: ') + user.username;
                 document.getElementById('user-original-username').value = user.username;
                 document.getElementById('user-username').value = user.username;
                 document.getElementById('user-username').disabled = true;
@@ -2814,7 +2879,7 @@
                 }
             } else {
                 editingUsername = null;
-                document.getElementById('user-modal-title').textContent = 'Add New User';
+                document.getElementById('user-modal-title').textContent = currentUserModalType === 'employee' ? 'Add Employee Account' : 'Add New User';
                 document.getElementById('user-username').disabled = false;
                 document.getElementById('user-password-hint').textContent = '(required for new users)';
                 document.getElementById('user-role').value = 'user';
@@ -2847,8 +2912,13 @@
             const employeeId = document.getElementById('user-employee-link').value;
             const password = document.getElementById('user-password').value;
             const role = document.getElementById('user-role').value;
-            const permissions = collectPermissionsFromForm();
+            let permissions = collectPermissionsFromForm();
             const token = getSessionToken();
+
+            if (currentUserModalType === 'employee') {
+                if (!employeeId) { alert('Select which employee this account belongs to.'); return; }
+                permissions = {}; // employee accounts get no dashboard permissions — self-assessment access comes from the employee link alone
+            }
 
             if (employeeId) {
                 const linkedEmp = employees.find(e => String(e.ID) === String(employeeId));
@@ -2880,10 +2950,18 @@
             }
         }
 
+        function switchUsersTab(tab) {
+            document.querySelectorAll('.users-tab-button').forEach(btn => btn.classList.toggle('active', btn.dataset.userstab === tab));
+            document.querySelectorAll('.users-tab-content').forEach(tc => tc.classList.remove('active'));
+            const target = document.getElementById('users-tab-' + tab);
+            if (target) target.classList.add('active');
+        }
+
         async function loadUsers() {
-            const tbody = document.querySelector('#users-table tbody');
+            const usersBody = document.querySelector('#users-table-users tbody');
+            const employeesBody = document.querySelector('#users-table-employees tbody');
             const warning = document.getElementById('users-config-warning');
-            if (!tbody) return;
+            if (!usersBody || !employeesBody) return;
             if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
                 if (warning) warning.style.display = 'block';
                 return;
@@ -2892,24 +2970,44 @@
             try {
                 const token = getSessionToken();
                 const result = await callAppsScript('listUsers', { token });
-                tbody.innerHTML = '';
-                result.users.forEach(u => {
-                    const isActive = !(u.active === false || u.active === 'FALSE');
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${u.username}</td><td>${u.fullName || ''}</td><td>${u.email || '—'}</td>` +
-                        `<td><span class="role-badge ${u.role === 'admin' ? 'admin' : 'user'}">${u.role === 'admin' ? 'Admin' : 'User'}</span></td>` +
-                        `<td><span class="${isActive ? 'active-badge' : 'inactive-badge'}">${isActive ? 'Active' : 'Disabled'}</span></td>` +
-                        `<td>${u.lastLogin ? formatDateOnly(u.lastLogin) : '—'}</td>` +
-                        `<td><div class="table-actions">` +
-                        `<button title="Edit" onclick='openUserModal(${JSON.stringify(u).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>` +
-                        `<button title="${isActive ? 'Disable' : 'Enable'}" onclick="toggleUserActive('${u.username}', ${!isActive})"><i class="fas fa-power-off"></i></button>` +
-                        `<button title="Delete" onclick="deleteUserAccount('${u.username}')"><i class="fas fa-trash"></i></button>` +
-                        `</div></td>`;
-                    tbody.appendChild(tr);
-                });
+                const allUsers = result.users || [];
+                const staffAccounts = allUsers.filter(u => !u.employeeId);
+                const employeeAccounts = allUsers.filter(u => u.employeeId);
+
+                usersBody.innerHTML = staffAccounts.length === 0 ? `<tr><td colspan="7" style="color: var(--secondary-color);">No users yet.</td></tr>` :
+                    staffAccounts.map(u => {
+                        const isActive = !(u.active === false || u.active === 'FALSE');
+                        return `<tr>
+                            <td>${u.username}</td><td>${u.fullName || ''}</td><td>${u.email || '—'}</td>
+                            <td><span class="role-badge ${u.role === 'admin' ? 'admin' : 'user'}">${u.role === 'admin' ? 'Admin' : 'User'}</span></td>
+                            <td><span class="${isActive ? 'active-badge' : 'inactive-badge'}">${isActive ? 'Active' : 'Disabled'}</span></td>
+                            <td>${u.lastLogin ? formatDateOnly(u.lastLogin) : '—'}</td>
+                            <td><div class="table-actions">
+                                <button title="Edit" onclick='openUserModal(${JSON.stringify(u).replace(/'/g, "&#39;")}, "user")'><i class="fas fa-edit"></i></button>
+                                <button title="${isActive ? 'Disable' : 'Enable'}" onclick="toggleUserActive('${u.username}', ${!isActive})"><i class="fas fa-power-off"></i></button>
+                                <button title="Delete" onclick="deleteUserAccount('${u.username}')"><i class="fas fa-trash"></i></button>
+                            </div></td>
+                        </tr>`;
+                    }).join('');
+
+                employeesBody.innerHTML = employeeAccounts.length === 0 ? `<tr><td colspan="7" style="color: var(--secondary-color);">No employee accounts yet.</td></tr>` :
+                    employeeAccounts.map(u => {
+                        const isActive = !(u.active === false || u.active === 'FALSE');
+                        const linkedEmp = employees.find(e => String(e.ID) === String(u.employeeId));
+                        return `<tr>
+                            <td>${u.username}</td><td>${u.fullName || ''}</td><td>${linkedEmp ? linkedEmp.Name : '—'}</td><td>${u.email || '—'}</td>
+                            <td><span class="${isActive ? 'active-badge' : 'inactive-badge'}">${isActive ? 'Active' : 'Disabled'}</span></td>
+                            <td>${u.lastLogin ? formatDateOnly(u.lastLogin) : '—'}</td>
+                            <td><div class="table-actions">
+                                <button title="Edit" onclick='openUserModal(${JSON.stringify(u).replace(/'/g, "&#39;")}, "employee")'><i class="fas fa-edit"></i></button>
+                                <button title="${isActive ? 'Disable' : 'Enable'}" onclick="toggleUserActive('${u.username}', ${!isActive})"><i class="fas fa-power-off"></i></button>
+                                <button title="Delete" onclick="deleteUserAccount('${u.username}')"><i class="fas fa-trash"></i></button>
+                            </div></td>
+                        </tr>`;
+                    }).join('');
             } catch (err) {
                 console.error('Failed to load users:', err);
-                tbody.innerHTML = `<tr><td colspan="7" style="color: var(--secondary-color);">Could not load users: ${err.message}</td></tr>`;
+                usersBody.innerHTML = `<tr><td colspan="7" style="color: var(--secondary-color);">Could not load users: ${err.message}</td></tr>`;
             }
         }
 
@@ -5999,6 +6097,8 @@
                 if (!isAdmin()) return;
             } else if (pageId === 'approvals') {
                 if (!canAccessApprovalsHub()) return;
+            } else if (pageId === 'selfAssessment') {
+                if (!currentUser || !currentUser.employeeId) return;
             } else if (!canView(pageId)) {
                 return;
             }
