@@ -1089,6 +1089,7 @@
             <h2><strong style="font-weight: 800;">RESEARCH & DEVELOPMENT SOLUTIONS (RADS)</strong><br><br>HR Dashboard</h2>
             <nav>
                 <a href="#dashboard" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i><span>Dashboard</span></a>
+                <a href="#selfAssessment" class="nav-link" data-page="selfAssessment" id="nav-selfassessment-link" style="display:none;"><i class="fas fa-user-check"></i><span>My Self-Assessment</span></a>
                 <a href="#employees" class="nav-link" data-page="employees"><i class="fas fa-users"></i><span>Employees</span></a>
                 <a href="#payroll" class="nav-link" data-page="payroll"><i class="fas fa-money-check-alt"></i><span>Payroll & Log</span></a>
                 <a href="#departments" class="nav-link" data-page="departments"><i class="fas fa-sitemap"></i><span>Departments</span></a>
@@ -1321,6 +1322,63 @@
                 <div class="card" style="margin-top: 20px; flex-direction: column; align-items: flex-start;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px;"><h3>Report Output & Analytics</h3><button class="action-buttons primary" id="download-report-btn" style="display: none; padding: 6px 12px;" onclick="downloadReport()"><i class="fas fa-download"></i> Download CSV</button></div><div id="report-output-content" style="width: 100%; min-height: 100px;"><p style="color: var(--secondary-color);">Select a report type and click "Generate Report" to view detailed analytics.</p></div></div>
             </section>
 
+            <section id="selfAssessment" class="page">
+                <div class="section-header">
+                    <h2>My Self-Assessment</h2>
+                </div>
+
+                <!-- Welcome / status view -->
+                <div id="sa-welcome-view">
+                    <div id="sa-welcome-content" style="max-width: 440px;">
+                        <p style="color: var(--secondary-color);">Loading…</p>
+                    </div>
+                </div>
+
+                <!-- Form view -->
+                <div id="sa-form-view" style="display:none;">
+                    <button type="button" class="approval-back-btn" onclick="showSelfAssessmentWelcome()"><i class="fas fa-arrow-left"></i> Back</button>
+
+                    <div style="background: var(--card-bg); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; border: 1px solid var(--border-color);">
+                        <div><p style="font-size: 11px; color: var(--secondary-color); margin: 0 0 2px;">Name</p><p style="font-size: 14px; margin: 0;" id="sa-info-name"></p></div>
+                        <div><p style="font-size: 11px; color: var(--secondary-color); margin: 0 0 2px;">Position</p><p style="font-size: 14px; margin: 0;" id="sa-info-position"></p></div>
+                        <div><p style="font-size: 11px; color: var(--secondary-color); margin: 0 0 2px;">Department</p><p style="font-size: 14px; margin: 0;" id="sa-info-department"></p></div>
+                        <div><p style="font-size: 11px; color: var(--secondary-color); margin: 0 0 2px;">Review type</p><p style="font-size: 14px; margin: 0;" id="sa-info-type"></p></div>
+                    </div>
+
+                    <p style="font-weight: 600; margin-bottom: 10px;">Rate yourself — 1 (needs improvement) to 5 (outstanding)</p>
+                    <div id="sa-rating-rows" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.5rem;"></div>
+
+                    <p style="font-weight: 600; margin-bottom: 10px;">Tell us more</p>
+                    <div class="form-group">
+                        <label>Key achievements this period</label>
+                        <textarea id="sa-achievements" rows="2" maxlength="500" placeholder="What are you most proud of?"></textarea>
+                        <p style="font-size: 11px; color: var(--secondary-color); text-align: right; margin: 4px 0 0;"><span class="sa-char-count" data-for="sa-achievements">0</span>/500 characters, up to 100 words</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Challenges faced</label>
+                        <textarea id="sa-challenges" rows="2" maxlength="500" placeholder="What made this period difficult?"></textarea>
+                        <p style="font-size: 11px; color: var(--secondary-color); text-align: right; margin: 4px 0 0;"><span class="sa-char-count" data-for="sa-challenges">0</span>/500 characters, up to 100 words</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Areas I want to improve</label>
+                        <textarea id="sa-improvement" rows="2" maxlength="500" placeholder="Where would you like to grow?"></textarea>
+                        <p style="font-size: 11px; color: var(--secondary-color); text-align: right; margin: 4px 0 0;"><span class="sa-char-count" data-for="sa-improvement">0</span>/500 characters, up to 100 words</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Support or resources needed from my manager</label>
+                        <textarea id="sa-support" rows="2" maxlength="500" placeholder="What would help you do your job better?"></textarea>
+                        <p style="font-size: 11px; color: var(--secondary-color); text-align: right; margin: 4px 0 0;"><span class="sa-char-count" data-for="sa-support">0</span>/500 characters, up to 100 words</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Career goals <span style="font-weight:400; color: var(--secondary-color);">(optional)</span></label>
+                        <textarea id="sa-goals" rows="2" maxlength="500" placeholder="Where do you see yourself heading?"></textarea>
+                        <p style="font-size: 11px; color: var(--secondary-color); text-align: right; margin: 4px 0 0;"><span class="sa-char-count" data-for="sa-goals">0</span>/500 characters, up to 100 words</p>
+                    </div>
+
+                    <button type="button" class="btn-submit-prominent" id="sa-submit-btn" onclick="submitSelfAssessmentForm()"><i class="fas fa-paper-plane"></i> Submit</button>
+                </div>
+            </section>
+
             <section id="approvals" class="page">
                 <div class="section-header">
                     <h2>Approvals</h2>
@@ -1366,6 +1424,11 @@
                     <div id="evaluations-due-wrapper" style="display:none;">
                         <h4 style="margin: 20px 0 10px; color: var(--secondary-color);">Evaluations Due</h4>
                         <div class="table-responsive"><table class="data-table" id="evaluations-due-table"><thead><tr><th>Employee</th><th>Type</th><th>Review Window</th><th>Due Date</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+                    </div>
+
+                    <div id="self-assessments-pending-wrapper" style="display:none;">
+                        <h4 style="margin: 20px 0 10px; color: var(--secondary-color);">Self-Assessments Awaiting Your Review</h4>
+                        <div class="table-responsive"><table class="data-table" id="self-assessments-pending-table"><thead><tr><th>Employee</th><th>Department</th><th>Type</th><th>Self-Submitted</th><th>Action</th></tr></thead><tbody></tbody></table></div>
                     </div>
 
                     <div id="approvals-pending-wrapper" style="display:none;">
@@ -1646,6 +1709,10 @@
                         <input type="email" id="user-email" name="email" autocomplete="off">
                     </div>
                     <div class="form-group">
+                        <label for="user-employee-link">Linked Employee Record <span style="font-weight:400; color: var(--secondary-color);">(lets them log in and self-assess)</span></label>
+                        <select id="user-employee-link"><option value="">— Not linked —</option></select>
+                    </div>
+                    <div class="form-group">
                         <label for="user-password">Password <span id="user-password-hint" style="font-weight:400; color: var(--secondary-color);"></span></label>
                         <input type="password" id="user-password" name="password" autocomplete="new-password">
                     </div>
@@ -1746,6 +1813,7 @@
             <span class="close-button" onclick="closeEvaluationModal()">&times;</span>
             <h3 style="margin-bottom: 6px;" id="evaluation-modal-heading">3-Month Probation Assessment</h3>
             <p style="color: var(--secondary-color); margin-bottom: 16px;" id="eval-employee-subtitle"></p>
+            <div id="eval-self-assessment-block" style="display:none; background: var(--background-color); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px;"></div>
             <form id="evaluation-form">
                 <input type="hidden" id="eval-employee-id">
                 <input type="hidden" id="eval-employee-name">
@@ -2411,6 +2479,7 @@
             if (approvalsLink) approvalsLink.style.display = canAccessApprovalsHub() ? '' : 'none';
             updateApprovalTabVisibility();
             updatePayrollTabVisibility();
+            updateSelfAssessmentNavVisibility();
 
             // Edit-gated buttons
             const addEmployeeBtn = document.getElementById('add-employee-btn');
@@ -2457,7 +2526,7 @@
             // Probation-due check and Finance deadline banner (only for people who can act on them)
             if (canEditSection('employees') || isTeamLead()) checkProbationDue();
             if (canEditSection('payroll')) checkFinanceDeadline();
-            if (canReviewApprovals() || canHrReviewHiring() || canFinanceReviewHiring() || canCeoApproveHiring() || canApproveOffers()) checkPendingApprovals();
+            if (canReviewApprovals() || isTeamLead() || canHrReviewHiring() || canFinanceReviewHiring() || canCeoApproveHiring() || canApproveOffers()) checkPendingApprovals();
         }
 
         function canAccessHiring() {
@@ -2519,7 +2588,8 @@
                 if (count > 0) { el.textContent = count; el.style.display = ''; }
                 else { el.style.display = 'none'; }
             };
-            const pendingEvals = canReviewApprovals() ? (cachedEvaluations || []).filter(ev => ev.Status === 'Submitted').length : 0;
+            let pendingEvals = canReviewApprovals() ? (cachedEvaluations || []).filter(ev => ev.Status === 'Submitted').length : 0;
+            if (currentUser) pendingEvals += (cachedEvaluations || []).filter(ev => ev.Status === 'Pending Manager Review' && String(ev.EvaluatorUsername).toLowerCase() === String(currentUser.username).toLowerCase()).length;
             setCount('performance', pendingEvals);
 
             let hiringCount = 0;
@@ -2548,9 +2618,10 @@
         // Order matters: if Dashboard isn't permitted, land on Approvals next (most
         // relevant for department heads / evaluators / reviewers), then the rest.
         function getFirstAccessiblePage() {
-            const priority = ['dashboard', 'approvals', 'employees', 'payroll', 'departments', 'reports', 'payrollHandoff'];
+            const priority = ['dashboard', 'approvals', 'employees', 'payroll', 'departments', 'reports', 'payrollHandoff', 'selfAssessment'];
             for (const p of priority) {
                 if (p === 'approvals') { if (canAccessApprovalsHub()) return p; continue; }
+                if (p === 'selfAssessment') { if (currentUser && currentUser.employeeId) return p; continue; }
                 if (canView(p)) return p;
             }
             return null;
@@ -2713,6 +2784,11 @@
             document.getElementById('team-assignment-wrapper').style.display = 'none';
             document.getElementById('team-assignment-search').value = '';
 
+            const linkSelect = document.getElementById('user-employee-link');
+            const sortedEmployees = [...employees].sort((a, b) => (a.Name || '').localeCompare(b.Name || ''));
+            linkSelect.innerHTML = '<option value="">— Not linked —</option>' +
+                sortedEmployees.map(e => `<option value="${e.ID}">${e.Name} — ${e.Department || ''} (${e.ID})</option>`).join('');
+
             if (user) {
                 editingUsername = user.username;
                 document.getElementById('user-modal-title').textContent = 'Edit User: ' + user.username;
@@ -2721,6 +2797,7 @@
                 document.getElementById('user-username').disabled = true;
                 document.getElementById('user-fullname').value = user.fullName || '';
                 document.getElementById('user-email').value = user.email || '';
+                linkSelect.value = user.employeeId || '';
                 document.getElementById('user-password').value = '';
                 document.getElementById('user-password-hint').textContent = '(leave blank to keep current password)';
                 document.getElementById('user-role').value = user.role || 'user';
@@ -2767,20 +2844,27 @@
             const username = document.getElementById('user-username').value.trim();
             const fullName = document.getElementById('user-fullname').value.trim();
             const email = document.getElementById('user-email').value.trim();
+            const employeeId = document.getElementById('user-employee-link').value;
             const password = document.getElementById('user-password').value;
             const role = document.getElementById('user-role').value;
             const permissions = collectPermissionsFromForm();
             const token = getSessionToken();
 
+            if (employeeId) {
+                const linkedEmp = employees.find(e => String(e.ID) === String(employeeId));
+                const empName = linkedEmp ? linkedEmp.Name : employeeId;
+                if (!confirm(`Link this account to ${empName}'s employee record?\n\nThey'll be able to log in and submit their own self-assessment as ${empName}. Make sure this is the right person before confirming.`)) return;
+            }
+
             try {
                 if (editingUsername) {
-                    const payload = { token, user: { username: editingUsername, fullName, email, role, permissions, active: document.getElementById('user-active').value === 'TRUE' } };
+                    const payload = { token, user: { username: editingUsername, fullName, email, employeeId, role, permissions, active: document.getElementById('user-active').value === 'TRUE' } };
                     if (password) payload.user.passwordHash = await hashPassword(password);
                     await callAppsScript('updateUser', payload);
                 } else {
                     if (!password) { alert('Password is required for new users.'); return; }
                     const passwordHash = await hashPassword(password);
-                    await callAppsScript('createUser', { token, user: { username, fullName, email, role, permissions, passwordHash } });
+                    await callAppsScript('createUser', { token, user: { username, fullName, email, employeeId, role, permissions, passwordHash } });
                 }
 
                 // Save the department head's team assignment, if applicable
@@ -2970,13 +3054,14 @@
             }
         }
 
-        let currentEvalContext = { type: 'Probation', windowId: '', windowTitle: '' };
+        let currentEvalContext = { type: 'Probation', windowId: '', windowTitle: '', evalId: null };
 
         function openEvaluationModalForEmployee(employeeId, evaluationType, windowId, windowTitle) {
             const emp = employees.find(e => String(e['ID']) === String(employeeId));
             if (!emp) { alert('Employee not found.'); return; }
 
-            currentEvalContext = { type: evaluationType || 'Probation', windowId: windowId || '', windowTitle: windowTitle || '' };
+            currentEvalContext = { type: evaluationType || 'Probation', windowId: windowId || '', windowTitle: windowTitle || '', evalId: null };
+            document.getElementById('eval-self-assessment-block').style.display = 'none';
 
             document.getElementById('eval-employee-id').value = emp['ID'];
             document.getElementById('eval-employee-name').value = emp['Name'];
@@ -3002,6 +3087,57 @@
             }
             document.getElementById('eval-employee-subtitle').textContent = subtitleParts.join(' | ');
             document.getElementById('evaluation-modal-heading').textContent = currentEvalContext.type === 'Probation' ? '3-Month Probation Assessment' : `${typeLabel} Performance Assessment`;
+
+            document.getElementById('evaluation-form').reset();
+            document.querySelectorAll('.eval-rating').forEach(sel => { sel.value = ''; });
+            document.getElementById('eval-overall-rating').textContent = '—';
+            document.getElementById('eval-extension-months-group').style.display = 'none';
+
+            document.getElementById('evaluation-modal').style.display = 'flex';
+        }
+
+        function openEvaluationModalFromSelfAssessment(evalId) {
+            const ev = cachedEvaluations.find(e => String(e.EvalID) === String(evalId));
+            if (!ev) { alert('Self-assessment not found.'); return; }
+            const emp = employees.find(e => String(e['ID']) === String(ev.EmployeeID));
+            if (!emp) { alert('Employee record not found.'); return; }
+
+            currentEvalContext = { type: ev.EvaluationType || 'Probation', windowId: ev.WindowID || '', windowTitle: '', evalId: ev.EvalID };
+
+            document.getElementById('eval-employee-id').value = emp['ID'];
+            document.getElementById('eval-employee-name').value = emp['Name'];
+            document.getElementById('eval-department').value = emp['Department'];
+            document.getElementById('eval-position').value = emp['Position'];
+            document.getElementById('eval-doj').value = emp['Date of Joining'];
+
+            const doj = parseDate(emp['Date of Joining']);
+            let probationEndStr = '';
+            if (doj && !isNaN(doj.getTime())) {
+                const probationEnd = new Date(doj);
+                probationEnd.setMonth(probationEnd.getMonth() + 3);
+                probationEndStr = probationEnd.toISOString().split('T')[0];
+            }
+            document.getElementById('eval-probation-end').value = probationEndStr;
+
+            const typeLabel = evaluationTypeLabel(currentEvalContext.type);
+            document.getElementById('eval-employee-subtitle').textContent = `${emp['Name']} — ${emp['Position'] || ''}, ${emp['Department'] || ''} | Joined: ${emp['Date of Joining'] ? formatDateOnly(emp['Date of Joining']) : '—'}`;
+            document.getElementById('evaluation-modal-heading').textContent = currentEvalContext.type === 'Probation' ? '3-Month Probation Assessment' : `${typeLabel} Performance Assessment`;
+
+            let selfScores = {};
+            try { selfScores = JSON.parse(ev.SelfScores || '{}'); } catch (e) { selfScores = {}; }
+            const selfRows = Object.entries(SELF_ASSESSMENT_CRITERIA).map(([key, label]) =>
+                `<div style="display:flex; justify-content:space-between; padding:3px 0; font-size:12.5px;"><span>${label}</span><strong>${selfScores[key] || '—'} / 5</strong></div>`).join('');
+            document.getElementById('eval-self-assessment-block').innerHTML = `
+                <p style="font-weight:600; margin:0 0 8px;">${emp['Name'].split(' ')[0]}'s self-assessment</p>
+                ${selfRows}
+                <div style="display:flex; justify-content:space-between; padding:4px 0; font-size:12.5px; font-weight:700; border-top: 1px solid var(--border-color); margin-top:4px;"><span>Overall (self)</span><span>${ev.SelfOverallRating || '—'} / 5</span></div>
+                <p style="font-size:12px; font-weight:600; margin:10px 0 2px;">Achievements</p><p style="font-size:12.5px; margin:0;">${ev.SelfAchievements || '—'}</p>
+                <p style="font-size:12px; font-weight:600; margin:10px 0 2px;">Challenges</p><p style="font-size:12.5px; margin:0;">${ev.SelfChallenges || '—'}</p>
+                <p style="font-size:12px; font-weight:600; margin:10px 0 2px;">Wants to improve</p><p style="font-size:12.5px; margin:0;">${ev.SelfImprovementAreas || '—'}</p>
+                <p style="font-size:12px; font-weight:600; margin:10px 0 2px;">Support needed</p><p style="font-size:12.5px; margin:0;">${ev.SelfSupportNeeded || '—'}</p>
+                ${ev.SelfCareerGoals ? `<p style="font-size:12px; font-weight:600; margin:10px 0 2px;">Career goals</p><p style="font-size:12.5px; margin:0;">${ev.SelfCareerGoals}</p>` : ''}
+            `;
+            document.getElementById('eval-self-assessment-block').style.display = 'block';
 
             document.getElementById('evaluation-form').reset();
             document.querySelectorAll('.eval-rating').forEach(sel => { sel.value = ''; });
@@ -3047,6 +3183,7 @@
             const recommendation = document.getElementById('eval-recommendation').value;
 
             const evaluation = {
+                evalId: currentEvalContext.evalId || undefined,
                 employeeId: document.getElementById('eval-employee-id').value,
                 employeeName: document.getElementById('eval-employee-name').value,
                 department: document.getElementById('eval-department').value,
@@ -3186,6 +3323,20 @@
 
             const canReview = canReviewApprovals();
             pendingWrapper.style.display = canReview ? 'block' : 'none';
+
+            const selfPendingWrapper = document.getElementById('self-assessments-pending-wrapper');
+            const selfPendingBody = document.querySelector('#self-assessments-pending-table tbody');
+            if (selfPendingWrapper && selfPendingBody && currentUser) {
+                const myQueue = cachedEvaluations.filter(ev => ev.Status === 'Pending Manager Review' && String(ev.EvaluatorUsername).toLowerCase() === String(currentUser.username).toLowerCase());
+                selfPendingWrapper.style.display = myQueue.length > 0 ? 'block' : 'none';
+                selfPendingBody.innerHTML = myQueue.map(ev => `<tr>
+                    <td>${ev.EmployeeName}</td>
+                    <td>${ev.Department}</td>
+                    <td>${evaluationTypeLabel(ev.EvaluationType)}</td>
+                    <td>${ev.SelfSubmittedAt ? formatDateOnly(ev.SelfSubmittedAt) : ''}</td>
+                    <td><button onclick="openEvaluationModalFromSelfAssessment('${String(ev.EvalID).replace(/'/g, "\\'")}')">Complete Review</button></td>
+                </tr>`).join('');
+            }
 
             if (canReview) {
                 const pending = cachedEvaluations.filter(ev => ev.Status === 'Submitted');
@@ -3413,9 +3564,28 @@
                 `<div class="permission-row"><span style="flex:1;">${scoreLabels[k]}</span><strong>${scores[k] || '—'}</strong></div>`
             ).join('');
 
+            let selfBlock = '';
+            if (ev.SelfSubmittedAt) {
+                let selfScores = {};
+                try { selfScores = JSON.parse(ev.SelfScores || '{}'); } catch (e) { selfScores = {}; }
+                const selfRows = Object.entries(SELF_ASSESSMENT_CRITERIA).map(([key, label]) =>
+                    `<div class="permission-row"><span style="flex:1;">${label}</span><strong>${selfScores[key] || '—'}</strong></div>`).join('');
+                selfBlock = `
+                    <p style="font-weight:600; margin: 14px 0 6px; color: var(--secondary-color);">${ev.EmployeeName.split(' ')[0]}'s self-assessment</p>
+                    <div class="permission-block">${selfRows}<div style="margin-top:8px;"><strong>Overall (self): ${ev.SelfOverallRating || '—'} / 5</strong></div></div>
+                    <p style="margin-top:10px;"><strong>Achievements:</strong> ${ev.SelfAchievements || '—'}</p>
+                    <p><strong>Challenges:</strong> ${ev.SelfChallenges || '—'}</p>
+                    <p><strong>Wants to improve:</strong> ${ev.SelfImprovementAreas || '—'}</p>
+                    <p><strong>Support needed:</strong> ${ev.SelfSupportNeeded || '—'}</p>
+                    ${ev.SelfCareerGoals ? `<p><strong>Career goals:</strong> ${ev.SelfCareerGoals}</p>` : ''}
+                    <p style="font-weight:600; margin: 14px 0 6px; color: var(--secondary-color);">${ev.EvaluatorName}'s assessment</p>
+                `;
+            }
+
             document.getElementById('review-details').innerHTML = `
                 <p><strong>${ev.EmployeeName}</strong> — ${ev.Position}, ${ev.Department}</p>
                 <p style="color: var(--secondary-color); font-size: 0.85rem; margin-bottom: 10px;">Type: ${evaluationTypeLabel(ev.EvaluationType)} | Joined: ${ev.DateOfJoining} | Evaluator: ${ev.EvaluatorName}</p>
+                ${selfBlock}
                 <div class="permission-block">${scoreRows}<div style="margin-top:8px;"><strong>Overall Rating: ${ev.OverallRating} / 5</strong></div></div>
                 <p style="margin-top:10px;"><strong>Strengths:</strong> ${ev.Strengths || '—'}</p>
                 <p><strong>Areas for Improvement:</strong> ${ev.AreasForImprovement || '—'}</p>
@@ -3498,9 +3668,11 @@
             const token = getSessionToken();
 
             try {
-                if (canReviewApprovals()) {
+                if (canReviewApprovals() || currentUser) {
                     const evalResult = await callAppsScript('listEvaluations', { token });
-                    const count = (evalResult.evaluations || []).filter(ev => ev.Status === 'Submitted').length;
+                    const evals = evalResult.evaluations || [];
+                    let count = canReviewApprovals() ? evals.filter(ev => ev.Status === 'Submitted').length : 0;
+                    if (currentUser) count += evals.filter(ev => ev.Status === 'Pending Manager Review' && String(ev.EvaluatorUsername).toLowerCase() === String(currentUser.username).toLowerCase()).length;
                     if (count > 0) { total += count; breakdown.push(`${count} evaluation${count > 1 ? 's' : ''}`); }
                 }
 
@@ -3596,6 +3768,261 @@
                 dropdown.style.display = 'none';
             }
         });
+
+        // ---------------------------------------------------------------
+        // EMPLOYEE SELF-ASSESSMENT
+        // ---------------------------------------------------------------
+        const SELF_ASSESSMENT_CRITERIA = {
+            jobKnowledge: 'Job knowledge and skills', qualityOfWork: 'Quality of work', productivity: 'Productivity and efficiency',
+            attendance: 'Attendance and punctuality', teamwork: 'Teamwork and collaboration', communication: 'Communication skills',
+            initiative: 'Initiative and problem-solving', discipline: 'Discipline and policy adherence'
+        };
+        let selfAssessmentScores = {};
+        let selfAssessmentContext = null; // { employee, evaluationType, windowId, windowTitle, manager }
+
+        function updateSelfAssessmentNavVisibility() {
+            const link = document.getElementById('nav-selfassessment-link');
+            if (link) link.style.display = (currentUser && currentUser.employeeId) ? '' : 'none';
+        }
+
+        async function loadSelfAssessmentStatus() {
+            const content = document.getElementById('sa-welcome-content');
+            document.getElementById('sa-form-view').style.display = 'none';
+            document.getElementById('sa-welcome-view').style.display = 'block';
+            if (!content) return;
+
+            if (!currentUser || !currentUser.employeeId) {
+                content.innerHTML = `<p style="color: var(--secondary-color);">Your account isn't linked to an employee record yet. Contact HR to get this set up.</p>`;
+                return;
+            }
+            const emp = employees.find(e => String(e['ID']) === String(currentUser.employeeId));
+            if (!emp) {
+                content.innerHTML = `<p style="color: var(--secondary-color);">Your linked employee record couldn't be found. Contact HR.</p>`;
+                return;
+            }
+
+            content.innerHTML = `<p style="color: var(--secondary-color);">Loading…</p>`;
+            const token = getSessionToken();
+            let myEvaluations = [];
+            let openWindows = [];
+            try {
+                const [evalResult, windowResult] = await Promise.all([
+                    callAppsScript('listEvaluations', { token }),
+                    callAppsScript('listReviewWindows', { token })
+                ]);
+                myEvaluations = (evalResult.evaluations || []).filter(ev => String(ev.EmployeeID) === String(emp.ID));
+                openWindows = (windowResult.windows || []).filter(w => w.status === 'Open');
+            } catch (err) {
+                content.innerHTML = `<p style="color: var(--secondary-color);">Could not load your assessment status: ${err.message}</p>`;
+                return;
+            }
+            const nonReopened = myEvaluations.filter(ev => ev.Status !== 'Reopened');
+
+            // Probation: due once 3 months have passed since joining, if not already assessed
+            let pending = null;
+            const doj = parseDate(emp['Date of Joining']);
+            if (doj && !isNaN(doj.getTime()) && (emp['Status'] || '').toLowerCase() !== 'inactive' && !emp['Date of Leaving']) {
+                const probationEnd = new Date(doj);
+                probationEnd.setMonth(probationEnd.getMonth() + 3);
+                const alreadyProbation = nonReopened.some(ev => ev.EvaluationType === 'Probation');
+                if (!alreadyProbation && probationEnd <= new Date()) {
+                    pending = { evaluationType: 'Probation', windowId: '', label: 'Probation self-assessment' };
+                }
+            }
+            // Otherwise, check open review windows (quarterly/semi-annual/annual) that include this employee
+            if (!pending) {
+                for (const w of openWindows) {
+                    const ids = (w.employeeIds || []).map(String);
+                    if (ids.indexOf(String(emp.ID)) === -1) continue;
+                    const already = nonReopened.some(ev => ev.WindowID === w.windowId);
+                    if (!already) { pending = { evaluationType: w.type, windowId: w.windowId, label: w.title }; break; }
+                }
+            }
+
+            if (!pending) {
+                const history = nonReopened.filter(ev => ev.SelfSubmittedAt).sort((a, b) => new Date(b.SelfSubmittedAt) - new Date(a.SelfSubmittedAt));
+                content.innerHTML = `
+                    <p style="font-size: 18px; font-weight: 600; margin: 0 0 4px;">You're all caught up</p>
+                    <p style="color: var(--secondary-color); margin: 0 0 16px;">Nothing needs your attention right now. We'll let you know when your next self-assessment is due.</p>
+                    ${history.length > 0 ? `<h4 style="margin: 16px 0 8px; color: var(--secondary-color);">Past submissions</h4>
+                    <div class="table-responsive"><table class="data-table"><thead><tr><th>Type</th><th>Submitted</th><th>Status</th><th></th></tr></thead><tbody>
+                        ${history.map(ev => `<tr><td>${evaluationTypeLabel(ev.EvaluationType)}</td><td>${formatDateOnly(ev.SelfSubmittedAt)}</td><td><span class="${statusBadgeClass(ev.Status)}">${ev.Status}</span></td><td><button class="icon-btn icon-btn-pdf" onclick="printSelfAssessmentPDF('${String(ev.EvalID).replace(/'/g, "\\'")}')" title="Download PDF"><i class="fas fa-file-pdf"></i></button></td></tr>`).join('')}
+                    </tbody></table></div>` : ''}
+                `;
+                return;
+            }
+
+            const manager = await getManagerForCurrentEmployee();
+            selfAssessmentContext = { employee: emp, evaluationType: pending.evaluationType, windowId: pending.windowId, manager };
+
+            content.innerHTML = `
+                <div style="background: var(--card-bg); border-radius: 12px; padding: 2rem; border: 1px solid var(--border-color);">
+                    <p style="font-size: 20px; font-weight: 600; margin: 0 0 4px;">Welcome, ${(emp.Name || '').split(' ')[0]}</p>
+                    <p style="color: var(--secondary-color); margin: 0 0 20px; line-height: 1.5;">It's time for your ${pending.label.toLowerCase()}. Take a few minutes to reflect before your manager reviews it.</p>
+                    <div style="background: var(--background-color); border-radius: 8px; padding: 14px 16px; margin-bottom: 20px;">
+                        <table style="width:100%; font-size: 13px;">
+                            <tr><td style="color: var(--secondary-color); padding: 3px 0;">Position</td><td style="text-align:right;">${emp.Position || '—'}</td></tr>
+                            <tr><td style="color: var(--secondary-color); padding: 3px 0;">Department</td><td style="text-align:right;">${emp.Department || '—'}</td></tr>
+                            <tr><td style="color: var(--secondary-color); padding: 3px 0;">Review type</td><td style="text-align:right;">${pending.label}</td></tr>
+                            <tr><td style="color: var(--secondary-color); padding: 3px 0;">Goes to</td><td style="text-align:right;">${manager ? manager.fullName : 'Not yet assigned'}</td></tr>
+                        </table>
+                    </div>
+                    <button type="button" class="btn-submit-prominent" ${manager ? '' : 'disabled'} onclick="showSelfAssessmentForm()"><i class="fas fa-arrow-right"></i> Start my self-assessment</button>
+                    ${!manager ? '<p style="font-size:12px; color: var(--secondary-color); text-align:center; margin-top:10px;">No supervisor is assigned to you yet — contact HR.</p>' : ''}
+                </div>
+            `;
+        }
+
+        async function getManagerForCurrentEmployee() {
+            try {
+                const token = getSessionToken();
+                const result = await callAppsScript('getMyManager', { token });
+                return result.manager || null;
+            } catch (err) {
+                return null;
+            }
+        }
+
+        function showSelfAssessmentForm() {
+            if (!selfAssessmentContext) return;
+            const emp = selfAssessmentContext.employee;
+            document.getElementById('sa-welcome-view').style.display = 'none';
+            document.getElementById('sa-form-view').style.display = 'block';
+            document.getElementById('sa-info-name').textContent = emp.Name || '';
+            document.getElementById('sa-info-position').textContent = emp.Position || '—';
+            document.getElementById('sa-info-department').textContent = emp.Department || '—';
+            document.getElementById('sa-info-type').textContent = evaluationTypeLabel(selfAssessmentContext.evaluationType);
+
+            selfAssessmentScores = {};
+            const rowsDiv = document.getElementById('sa-rating-rows');
+            rowsDiv.innerHTML = Object.entries(SELF_ASSESSMENT_CRITERIA).map(([key, label]) => `
+                <div class="rate-row" data-key="${key}" style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border-color);">
+                    <span style="font-size:13px;">${label}</span>
+                    <div style="display:flex; gap:4px;">
+                        ${[1,2,3,4,5].map(v => `<button type="button" class="sa-rate-btn" data-key="${key}" data-v="${v}" onclick="setSelfAssessmentRating('${key}', ${v})" style="width:26px; height:26px; border-radius:50%; border:1px solid var(--border-color); background: var(--background-color); font-size:11px; cursor:pointer; color: var(--text-color);">${v}</button>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            ['sa-achievements', 'sa-challenges', 'sa-improvement', 'sa-support', 'sa-goals'].forEach(id => { document.getElementById(id).value = ''; });
+            document.querySelectorAll('.sa-char-count').forEach(el => el.textContent = '0');
+        }
+
+        function setSelfAssessmentRating(key, value) {
+            selfAssessmentScores[key] = value;
+            document.querySelectorAll(`.sa-rate-btn[data-key="${key}"]`).forEach(btn => {
+                const isSelected = parseInt(btn.dataset.v, 10) === value;
+                btn.style.background = isSelected ? BRAND.primaryColorHex : 'var(--background-color)';
+                btn.style.color = isSelected ? '#fff' : 'var(--text-color)';
+                btn.style.border = isSelected ? 'none' : '1px solid var(--border-color)';
+            });
+        }
+
+        function showSelfAssessmentWelcome() {
+            selfAssessmentContext = null;
+            loadSelfAssessmentStatus();
+        }
+
+        async function submitSelfAssessmentForm() {
+            if (!selfAssessmentContext) return;
+            const missing = Object.keys(SELF_ASSESSMENT_CRITERIA).filter(k => !selfAssessmentScores[k]);
+            if (missing.length > 0) { alert('Please rate yourself on every criterion before submitting.'); return; }
+
+            const emp = selfAssessmentContext.employee;
+            const overall = (Object.values(selfAssessmentScores).reduce((a, b) => a + b, 0) / Object.keys(selfAssessmentScores).length).toFixed(1);
+            const payload = {
+                employeeName: emp.Name, department: emp.Department, position: emp.Position,
+                dateOfJoining: emp['Date of Joining'], probationEndDate: '',
+                evaluationType: selfAssessmentContext.evaluationType, windowId: selfAssessmentContext.windowId,
+                scores: selfAssessmentScores, overallRating: overall,
+                achievements: document.getElementById('sa-achievements').value,
+                challenges: document.getElementById('sa-challenges').value,
+                improvementAreas: document.getElementById('sa-improvement').value,
+                supportNeeded: document.getElementById('sa-support').value,
+                careerGoals: document.getElementById('sa-goals').value
+            };
+
+            const token = getSessionToken();
+            try {
+                const result = await callAppsScript('submitSelfAssessment', { token, selfAssessment: payload });
+                alert('Self-assessment submitted ✅ Your manager has been notified.');
+                printSelfAssessmentPDF(null, payload, selfAssessmentContext.manager);
+                showSelfAssessmentWelcome();
+            } catch (err) {
+                alert('Could not submit your self-assessment: ' + err.message);
+            }
+        }
+
+        document.addEventListener('input', function(e) {
+            if (e.target.classList && e.target.classList.contains('sa-char-count')) return;
+            const id = e.target.id;
+            if (['sa-achievements', 'sa-challenges', 'sa-improvement', 'sa-support', 'sa-goals'].indexOf(id) !== -1) {
+                const counter = document.querySelector(`.sa-char-count[data-for="${id}"]`);
+                if (counter) counter.textContent = e.target.value.length;
+            }
+        });
+
+        function printSelfAssessmentPDF(evalId, payloadOverride, managerOverride) {
+            let data = payloadOverride;
+            let managerName = managerOverride ? managerOverride.fullName : '';
+            if (!data && evalId) {
+                const ev = cachedEvaluations.find(e => String(e.EvalID) === String(evalId));
+                if (!ev) { alert('Self-assessment not found.'); return; }
+                let scores = {};
+                try { scores = JSON.parse(ev.SelfScores || '{}'); } catch (e) { scores = {}; }
+                data = {
+                    employeeName: ev.EmployeeName, department: ev.Department, position: ev.Position,
+                    evaluationType: ev.EvaluationType, scores: scores, overallRating: ev.SelfOverallRating,
+                    achievements: ev.SelfAchievements, challenges: ev.SelfChallenges,
+                    improvementAreas: ev.SelfImprovementAreas, supportNeeded: ev.SelfSupportNeeded, careerGoals: ev.SelfCareerGoals
+                };
+                managerName = ev.EvaluatorName || '';
+            }
+            if (!data) { alert('Nothing to print.'); return; }
+
+            const rows = Object.entries(SELF_ASSESSMENT_CRITERIA).map(([key, label]) =>
+                `<tr><td class="label">${label}</td><td>${data.scores[key] || '—'} / 5</td></tr>`).join('');
+
+            const html = `<!DOCTYPE html><html><head><title>Self-Assessment — ${data.employeeName}</title>
+            <style>
+                @page { size: A4; margin: 0.65in; }
+                * { box-sizing: border-box; }
+                body { font-family: 'Segoe UI', Arial, sans-serif; color: #333; font-size: 10pt; line-height: 1.4; }
+                .letterhead { display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 2.5px solid ${BRAND.primaryColorHex}; padding-bottom: 8pt; margin-bottom: 20pt; }
+                .letterhead .brand-block { display:flex; align-items:center; gap: 10pt; }
+                .letterhead .brand-block img { height: 50pt; width: auto; }
+                .letterhead h1 { color: ${BRAND.primaryColorHex}; font-size: 14pt; margin: 0; }
+                .letterhead .tagline { margin: 2pt 0 0; color: #777; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; }
+                h2 { color: ${BRAND.primaryColorHex}; font-size: 9.5pt; margin: 14pt 0 5pt; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1px solid #EAEAEA; padding-bottom: 3pt; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 6pt; font-size: 9.3pt; }
+                td { padding: 4pt 8pt; border-bottom: 0.5pt solid #EEE; }
+                td.label { color: #888; width: 45%; }
+                tr:nth-child(even) { background: #FAFAFA; }
+                p.answer { background: #FAFAFA; border-radius: 6pt; padding: 8pt 10pt; margin: 0 0 10pt; font-size: 9.5pt; }
+                .footer { margin-top: 14pt; padding-top: 8pt; border-top: 0.5pt solid #EEE; font-size: 7.8pt; color: #999; text-align: center; }
+            </style></head>
+            <body>
+                <div class="letterhead">
+                    <div class="brand-block"><img src="${BRAND.logoDataUri}" alt="${BRAND.companyShortName} logo"><div><h1>${BRAND.companyName}</h1><p class="tagline">Employee self-assessment</p></div></div>
+                    <div style="text-align:right; font-size:8.3pt; color:#666;">${data.employeeName}<br>${formatDateOnly(new Date())}</div>
+                </div>
+                <h2>Self-ratings</h2>
+                <table>${rows}<tr style="font-weight:700;"><td class="label">Overall</td><td>${data.overallRating || '—'} / 5</td></tr></table>
+                <h2>Key achievements this period</h2><p class="answer">${data.achievements || '—'}</p>
+                <h2>Challenges faced</h2><p class="answer">${data.challenges || '—'}</p>
+                <h2>Areas I want to improve</h2><p class="answer">${data.improvementAreas || '—'}</p>
+                <h2>Support needed from my manager</h2><p class="answer">${data.supportNeeded || '—'}</p>
+                ${data.careerGoals ? `<h2>Career goals</h2><p class="answer">${data.careerGoals}</p>` : ''}
+                <div class="footer">This is a system-generated document and has been approved electronically.</div>
+            </body></html>`;
+
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) { alert('Please allow pop-ups to download the PDF.'); return; }
+            printWindow.document.open();
+            printWindow.document.write(html);
+            printWindow.document.close();
+            printWindow.onload = function() { printWindow.focus(); printWindow.print(); };
+        }
 
 
         // ---------------------------------------------------------------
@@ -5577,11 +6004,13 @@
             }
             pages.forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            pageTitle.textContent = pageId === 'users' ? 'Manage Users' : (pageId === 'payrollHandoff' ? 'Payroll Handoff' : pageId.charAt(0).toUpperCase() + pageId.slice(1));
+            pageTitle.textContent = pageId === 'users' ? 'Manage Users' : (pageId === 'payrollHandoff' ? 'Payroll Handoff' : (pageId === 'selfAssessment' ? 'My Self-Assessment' : pageId.charAt(0).toUpperCase() + pageId.slice(1)));
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             document.querySelector(`.nav-link[data-page="${pageId}"]`).classList.add('active');
             if (pageId === 'users') {
                 loadUsers();
+            } else if (pageId === 'selfAssessment') {
+                loadSelfAssessmentStatus();
             } else if (pageId === 'approvals') {
                 showApprovalsLanding();
                 updateApprovalTabVisibility();
