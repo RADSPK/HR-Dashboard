@@ -950,6 +950,7 @@
             </header>
 
             <!-- Page Sections -->
+            <div id="pending-approvals-banner" style="display:none;"></div>
             <div id="probation-due-banner" style="display:none;"></div>
             <div id="no-access-message" style="display:none; text-align:center; padding: 60px 20px; color: var(--secondary-color);">
                 <i class="fas fa-lock" style="font-size: 2.5rem; margin-bottom: 16px; display:block;"></i>
@@ -1361,7 +1362,7 @@
                 <div id="users-config-warning" class="config-warning" style="display:none;">
                     <i class="fas fa-triangle-exclamation"></i> The Apps Script URL hasn't been configured yet. Set <code>APPS_SCRIPT_URL</code> near the top of the script section before user management will work.
                 </div>
-                <div class="table-responsive"><table class="data-table" id="users-table"><thead><tr><th>Username</th><th>Full Name</th><th>Role</th><th>Status</th><th>Last Login</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+                <div class="table-responsive"><table class="data-table" id="users-table"><thead><tr><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Last Login</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
             </section>
         </main>
     </div>
@@ -1423,6 +1424,10 @@
                     <div class="form-group">
                         <label for="user-fullname">Full Name</label>
                         <input type="text" id="user-fullname" name="fullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-email">Email <span style="font-weight:400; color: var(--secondary-color);">(for approval notifications)</span></label>
+                        <input type="email" id="user-email" name="email" autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label for="user-password">Password <span id="user-password-hint" style="font-weight:400; color: var(--secondary-color);"></span></label>
@@ -1885,8 +1890,14 @@
                         <div class="form-group"><label>Project Allowance</label><input type="number" id="offer-project-allowance" min="0" value="0" oninput="updateOfferGrossSalary()"></div>
                         <div class="form-group"><label>Gross Salary</label><input type="text" id="offer-gross-salary" readonly style="background: var(--background-color); font-weight: 600;"></div>
                         <div class="form-group"><label>Grocery / Fuel Benefit (if any)</label><input type="number" id="offer-grocery-fuel" min="0" value="0"></div>
-                        <div class="form-group"><label>Provident Fund (if any)</label><input type="number" id="offer-provident-fund" min="0" value="0"></div>
                     </div>
+                </div>
+
+                <div class="permission-block">
+                    <h4>Benefits</h4>
+                    <div class="permission-row"><input type="checkbox" id="offer-benefit-pf"><label for="offer-benefit-pf" style="margin:0;">Provident Fund</label></div>
+                    <div class="permission-row"><input type="checkbox" id="offer-benefit-health"><label for="offer-benefit-health" style="margin:0;">Health Insurance</label></div>
+                    <div class="permission-row"><input type="checkbox" id="offer-benefit-life"><label for="offer-benefit-life" style="margin:0;">Life Insurance</label></div>
                 </div>
 
                 <button type="submit" style="width: 100%; margin-top: 10px;">Submit for CEO Approval</button>
@@ -2230,6 +2241,7 @@
             // Probation-due check and Finance deadline banner (only for people who can act on them)
             if (canEditSection('employees') || isTeamLead()) checkProbationDue();
             if (canEditSection('payroll')) checkFinanceDeadline();
+            if (canReviewApprovals() || canHrReviewHiring() || canFinanceReviewHiring() || canCeoApproveHiring() || canApproveOffers()) checkPendingApprovals();
         }
 
         function canAccessHiring() {
@@ -2469,6 +2481,7 @@
                 document.getElementById('user-username').value = user.username;
                 document.getElementById('user-username').disabled = true;
                 document.getElementById('user-fullname').value = user.fullName || '';
+                document.getElementById('user-email').value = user.email || '';
                 document.getElementById('user-password').value = '';
                 document.getElementById('user-password-hint').textContent = '(leave blank to keep current password)';
                 document.getElementById('user-role').value = user.role || 'user';
@@ -2514,6 +2527,7 @@
             e.preventDefault();
             const username = document.getElementById('user-username').value.trim();
             const fullName = document.getElementById('user-fullname').value.trim();
+            const email = document.getElementById('user-email').value.trim();
             const password = document.getElementById('user-password').value;
             const role = document.getElementById('user-role').value;
             const permissions = collectPermissionsFromForm();
@@ -2521,13 +2535,13 @@
 
             try {
                 if (editingUsername) {
-                    const payload = { token, user: { username: editingUsername, fullName, role, permissions, active: document.getElementById('user-active').value === 'TRUE' } };
+                    const payload = { token, user: { username: editingUsername, fullName, email, role, permissions, active: document.getElementById('user-active').value === 'TRUE' } };
                     if (password) payload.user.passwordHash = await hashPassword(password);
                     await callAppsScript('updateUser', payload);
                 } else {
                     if (!password) { alert('Password is required for new users.'); return; }
                     const passwordHash = await hashPassword(password);
-                    await callAppsScript('createUser', { token, user: { username, fullName, role, permissions, passwordHash } });
+                    await callAppsScript('createUser', { token, user: { username, fullName, email, role, permissions, passwordHash } });
                 }
 
                 // Save the department head's team assignment, if applicable
@@ -2559,7 +2573,7 @@
                 result.users.forEach(u => {
                     const isActive = !(u.active === false || u.active === 'FALSE');
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${u.username}</td><td>${u.fullName || ''}</td>` +
+                    tr.innerHTML = `<td>${u.username}</td><td>${u.fullName || ''}</td><td>${u.email || '—'}</td>` +
                         `<td><span class="role-badge ${u.role === 'admin' ? 'admin' : 'user'}">${u.role === 'admin' ? 'Admin' : 'User'}</span></td>` +
                         `<td><span class="${isActive ? 'active-badge' : 'inactive-badge'}">${isActive ? 'Active' : 'Disabled'}</span></td>` +
                         `<td>${u.lastLogin ? new Date(u.lastLogin).toLocaleString() : '—'}</td>` +
@@ -2572,7 +2586,7 @@
                 });
             } catch (err) {
                 console.error('Failed to load users:', err);
-                tbody.innerHTML = `<tr><td colspan="6" style="color: var(--secondary-color);">Could not load users: ${err.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="color: var(--secondary-color);">Could not load users: ${err.message}</td></tr>`;
             }
         }
 
@@ -3185,6 +3199,7 @@
                 await callAppsScript('reviewEvaluation', { token, evalId: currentReviewEvalId, decision, ceoComments });
                 closeReviewModal();
                 loadEvaluations();
+                checkPendingApprovals();
             } catch (err) {
                 alert('Could not submit decision: ' + err.message);
             }
@@ -3230,6 +3245,56 @@
                 <i class="fas fa-triangle-exclamation" style="font-size:1.3rem;"></i>
                 <div><strong>This month's payroll hasn't been shared with Finance yet.</strong> Deadline: 27th.</div>
                 <div class="banner-actions"><button type="button" onclick="goToPayrollSubmission()">Submit Payroll</button></div>
+            `;
+        }
+
+        async function checkPendingApprovals() {
+            const banner = document.getElementById('pending-approvals-banner');
+            if (!banner) return;
+
+            let total = 0;
+            const breakdown = [];
+            const token = getSessionToken();
+
+            try {
+                if (canReviewApprovals()) {
+                    const evalResult = await callAppsScript('listEvaluations', { token });
+                    const count = (evalResult.evaluations || []).filter(ev => ev.Status === 'Submitted').length;
+                    if (count > 0) { total += count; breakdown.push(`${count} evaluation${count > 1 ? 's' : ''}`); }
+                }
+
+                if (canHrReviewHiring() || canFinanceReviewHiring() || canCeoApproveHiring()) {
+                    const hiringResult = await callAppsScript('listHiringRequests', { token });
+                    const requests = hiringResult.requests || [];
+                    let count = 0;
+                    if (canHrReviewHiring()) count += requests.filter(r => r.Status === 'Pending HR Review').length;
+                    if (canFinanceReviewHiring()) count += requests.filter(r => r.Status === 'Pending Finance Review').length;
+                    if (canCeoApproveHiring()) count += requests.filter(r => r.Status === 'Pending CEO Approval').length;
+                    if (count > 0) { total += count; breakdown.push(`${count} hiring request${count > 1 ? 's' : ''}`); }
+                }
+
+                if (canApproveOffers()) {
+                    const offerResult = await callAppsScript('listOfferLetters', { token });
+                    const count = (offerResult.offers || []).filter(o => o.Status === 'Pending CEO Approval').length;
+                    if (count > 0) { total += count; breakdown.push(`${count} offer letter${count > 1 ? 's' : ''}`); }
+                }
+            } catch (err) {
+                banner.style.display = 'none';
+                return;
+            }
+
+            if (total === 0) {
+                banner.style.display = 'none';
+                banner.innerHTML = '';
+                return;
+            }
+
+            banner.style.display = 'flex';
+            banner.className = 'info-banner probation';
+            banner.innerHTML = `
+                <i class="fas fa-bell" style="font-size:1.4rem;"></i>
+                <div style="flex:1;"><strong>You have ${total} pending approval${total > 1 ? 's' : ''}</strong> — ${breakdown.join(', ')}</div>
+                <div class="banner-actions"><button type="button" onclick="showPage('approvals')">View Pending Approvals</button></div>
             `;
         }
 
@@ -3533,9 +3598,9 @@
                 .letterhead .tagline { margin: 2pt 0 0; color: #777; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; }
                 .letterhead .meta-right { text-align: right; font-size: 8.3pt; color: #666; }
                 h2 { color: ${BRAND.primaryColorHex}; font-size: 9.5pt; margin: 12pt 0 4pt; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1px solid #EAEAEA; padding-bottom: 3pt; }
-                table { width: 100%; border-collapse: collapse; margin-bottom: 6pt; font-size: 8.6pt; }
-                th { background: ${BRAND.primaryColorHex}; color: #fff; text-align: left; padding: 4pt 6pt; }
-                td { padding: 3.5pt 6pt; border-bottom: 0.5pt solid #EEE; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 6pt; font-size: 8.6pt; border: 0.75pt solid #CCC; }
+                th { background: ${BRAND.primaryColorHex}; color: #fff; text-align: left; padding: 4pt 6pt; border: 0.75pt solid ${BRAND.primaryColorHex}; }
+                td { padding: 3.5pt 6pt; border: 0.5pt solid #DDD; }
                 tr:nth-child(even) td { background: #FBF8F8; }
                 .disclaimer-note { margin-top: 14pt; padding: 6pt 10pt; background: #F9F9F9; border-left: 2.5px solid ${BRAND.primaryColorHex}; font-size: 9pt; color: #666; }
                 .footer { margin-top: 10pt; font-size: 7.8pt; color: #999; text-align: center; }
@@ -4030,6 +4095,7 @@
                 }
                 closeHiringReviewModal();
                 loadHiringRequests();
+                checkPendingApprovals();
             } catch (err) {
                 alert('Could not submit decision: ' + err.message);
             }
@@ -4110,8 +4176,12 @@
             const travelAllowance = parseFloat(document.getElementById('offer-travel-allowance').value || 0);
             const projectAllowance = parseFloat(document.getElementById('offer-project-allowance').value || 0);
             const groceryFuel = parseFloat(document.getElementById('offer-grocery-fuel').value || 0);
-            const providentFund = parseFloat(document.getElementById('offer-provident-fund').value || 0);
             const grossSalary = basicSalary + travelAllowance + projectAllowance;
+
+            const benefits = [];
+            if (document.getElementById('offer-benefit-pf').checked) benefits.push('Provident Fund');
+            if (document.getElementById('offer-benefit-health').checked) benefits.push('Health Insurance');
+            if (document.getElementById('offer-benefit-life').checked) benefits.push('Life Insurance');
 
             const offer = {
                 candidateName: document.getElementById('offer-candidate-name').value,
@@ -4123,7 +4193,7 @@
                 startDate: document.getElementById('offer-start-date').value,
                 jobStation: document.getElementById('offer-job-station').value,
                 remunerationPackage: grossSalary,
-                remunerationBreakdown: JSON.stringify({ basicSalary, travelAllowance, projectAllowance, grossSalary, groceryFuel, providentFund }),
+                remunerationBreakdown: JSON.stringify({ basicSalary, travelAllowance, projectAllowance, grossSalary, groceryFuel, benefits }),
                 linkedHiringRequestId: document.getElementById('offer-linked-request').value || ''
             };
             const token = getSessionToken();
@@ -4189,7 +4259,7 @@
                 <div class="permission-row"><span style="flex:1;">Project Allowance</span><strong>${fmt(b.projectAllowance)}</strong></div>
                 <div class="permission-row"><span style="flex:1;">Gross Salary</span><strong>${fmt(b.grossSalary !== undefined ? b.grossSalary : o.RemunerationPackage)}</strong></div>`;
             if (b.groceryFuel) rows += `<div class="permission-row"><span style="flex:1;">Grocery / Fuel Benefit</span><strong>${fmt(b.groceryFuel)}</strong></div>`;
-            if (b.providentFund) rows += `<div class="permission-row"><span style="flex:1;">Provident Fund</span><strong>${fmt(b.providentFund)}</strong></div>`;
+            if (b.benefits && b.benefits.length > 0) rows += `<div class="permission-row"><span style="flex:1;">Benefits</span><strong>${b.benefits.join(', ')}</strong></div>`;
             return rows;
         }
 
@@ -4228,6 +4298,7 @@
                 closeOfferReviewModal();
                 alert(decision === 'Approved' ? 'Offer letter approved and e-signed ✅' : 'Offer letter rejected.');
                 loadOfferLetters();
+                checkPendingApprovals();
             } catch (err) {
                 alert('Could not submit decision: ' + err.message);
             }
@@ -4245,29 +4316,43 @@
             try { b = JSON.parse(o.RemunerationBreakdown || '{}'); } catch (e) { b = {}; }
             const fmt = (v) => `PKR ${parseFloat(v || 0).toLocaleString()}`;
             const grossSalary = b.grossSalary !== undefined ? b.grossSalary : o.RemunerationPackage;
+            const totalPackage = parseFloat(grossSalary || 0) + parseFloat(b.groceryFuel || 0);
+
+            const benefits = b.benefits || [];
+            let benefitsSentence = '';
+            if (benefits.length === 1) {
+                benefitsSentence = ` You are also eligible for ${benefits[0]} as per the company's policies.`;
+            } else if (benefits.length > 1) {
+                const listStr = benefits.slice(0, -1).join(', ') + ' and ' + benefits[benefits.length - 1];
+                benefitsSentence = ` You are also eligible for ${listStr} as per the company's policies.`;
+            }
 
             const html = `<!DOCTYPE html><html><head><title>Offer Letter — ${o.CandidateName}</title>
             <style>
                 @page { size: A4; margin: 0.65in; }
                 * { box-sizing: border-box; }
                 body { font-family: 'Georgia', 'Times New Roman', serif; color: #222; line-height: 1.32; font-size: 10pt; }
-                .letterhead { display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 2.5px solid ${BRAND.primaryColorHex}; padding-bottom: 6pt; margin-bottom: 12pt; }
-                .letterhead .brand-block { display:flex; align-items:center; gap: 8pt; }
-                .letterhead .brand-block img { height: 36pt; width: auto; }
+                .letterhead { display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 2.5px solid ${BRAND.primaryColorHex}; padding-bottom: 6pt; margin-bottom: 32pt; }
+                .letterhead .brand-block { display:flex; align-items:center; gap: 10pt; }
+                .letterhead .brand-block img { height: 90pt; width: auto; }
                 .letterhead h1 { color: ${BRAND.primaryColorHex}; font-size: 14pt; margin: 0; letter-spacing: 0.3px; }
                 .letterhead .tagline { margin: 2pt 0 0; color: #777; font-size: 7.5pt; letter-spacing: 0.5px; text-transform: uppercase; }
                 .letterhead .meta-right { text-align: right; font-size: 8pt; color: #666; }
-                .subject-line { font-size: 10.5pt; font-weight: bold; color: ${BRAND.primaryColorHex}; margin: 8pt 0 6pt; }
+                .subject-line { font-size: 10.5pt; font-weight: bold; color: ${BRAND.primaryColorHex}; margin: 0 0 12pt; }
                 p { margin: 0 0 6pt; }
+                p.spaced-para { margin: 0 0 14pt; }
+                p.closing-para { margin: 0 0 26pt; }
                 h2 { color: ${BRAND.primaryColorHex}; font-size: 9pt; margin: 8pt 0 3pt; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid #EAEAEA; padding-bottom: 2pt; }
-                table { width: 100%; max-width: 420pt; border-collapse: collapse; margin: 2pt 0 6pt; font-size: 8.8pt; }
+                table { width: 100%; max-width: 420pt; border-collapse: collapse; margin: 2pt 0 14pt; font-size: 8.8pt; }
                 td { padding: 2pt 6pt; border-bottom: 0.5pt solid #EEE; }
                 td.label { color: #888; width: 40%; font-size: 7.8pt; text-transform: uppercase; letter-spacing: 0.2px; }
                 tr:nth-child(even) { background: #FBF8F8; }
                 tr.total-row td { font-weight: 700; border-top: 1px solid ${BRAND.primaryColorHex}; border-bottom: 1px solid ${BRAND.primaryColorHex}; }
-                .signature-block { margin-top: 16pt; display: flex; justify-content: space-between; }
+                tr.grand-total-row td { font-weight: 700; color: ${BRAND.primaryColorHex}; border-top: 1.5px solid ${BRAND.primaryColorHex}; border-bottom: 1.5px solid ${BRAND.primaryColorHex}; font-size: 9.5pt; }
+                .signature-block { margin-top: 34pt; display: flex; justify-content: space-between; }
                 .signature { width: 46%; }
-                .signature .sig-img { height: 30pt; display: block; margin-bottom: 2pt; }
+                .signature .sig-img { height: 30pt; display: flex; align-items: flex-end; margin-bottom: 2pt; }
+                .signature .sig-img img { height: 30pt; width: auto; }
                 .signature .name { font-size: 10.5pt; font-weight: 600; color: #222; border-bottom: 1px solid #333; padding-bottom: 2pt; margin-bottom: 3pt; min-height: 13pt; }
                 .signature .meta { font-size: 7.5pt; color: #666; line-height: 1.3; }
                 .esign-note { font-size: 7pt; color: #999; margin-top: 3pt; }
@@ -4285,7 +4370,7 @@
                 <div class="subject-line">Subject: Offer of Employment — ${o.Designation}</div>
 
                 <p>Dear ${o.CandidateName},</p>
-                <p>Welcome to ${BRAND.companyName}! We are delighted to offer you the position of <strong>${o.Designation}</strong>${o.Department ? ' in the ' + o.Department + ' department' : ''}${o.Project ? ', on the ' + o.Project + ' project' : ''}. Please find the details of this offer set out below.</p>
+                <p class="spaced-para">Welcome to ${BRAND.companyName}! We are delighted to offer you the position of <strong>${o.Designation}</strong>${o.Department ? ' in the ' + o.Department + ' department' : ''}${o.Project ? ', on the ' + o.Project + ' project' : ''}. Please find the details of this offer set out below.</p>
 
                 <h2>Terms of Offer</h2>
                 <table>
@@ -4304,20 +4389,21 @@
                     <tr><td class="label">Travel Allowance</td><td>${fmt(b.travelAllowance)}</td></tr>
                     <tr><td class="label">Project Allowance</td><td>${fmt(b.projectAllowance)}</td></tr>
                     <tr class="total-row"><td class="label">Gross Salary</td><td>${fmt(grossSalary)}</td></tr>
-                    ${b.groceryFuel ? `<tr><td class="label">Grocery / Fuel Benefit</td><td>${fmt(b.groceryFuel)}</td></tr>` : ''}
-                    ${b.providentFund ? `<tr><td class="label">Provident Fund</td><td>${fmt(b.providentFund)}</td></tr>` : ''}
+                    <tr><td class="label">Grocery / Fuel Benefit</td><td>${b.groceryFuel ? fmt(b.groceryFuel) : '—'}</td></tr>
+                    <tr class="grand-total-row"><td class="label">Total Package</td><td>${fmt(totalPackage)}</td></tr>
                 </table>
 
-                <p>This offer is contingent upon the terms and conditions of employment as per ${BRAND.companyShortName} policy. Please confirm your acceptance of this offer at your earliest convenience. We look forward to welcoming you to the team.</p>
+                <p class="closing-para">This offer is contingent upon the terms and conditions of employment as per ${BRAND.companyShortName} policy.${benefitsSentence} Please confirm your acceptance of this offer at your earliest convenience. We look forward to welcoming you to the team.</p>
 
                 <div class="signature-block">
                     <div class="signature">
-                        <img class="sig-img" src="${CEO_SIGNATURE_DATA_URI}" alt="Signature">
+                        <div class="sig-img"><img src="${CEO_SIGNATURE_DATA_URI}" alt="Signature"></div>
                         <div class="name">${o.CEOName || ''}</div>
                         <div class="meta">Chief Executive Officer<br>${BRAND.companyName}</div>
                         <div class="esign-note">Approved &amp; e-signed on ${o.DecidedAt ? new Date(o.DecidedAt).toLocaleDateString() : ''}</div>
                     </div>
                     <div class="signature">
+                        <div class="sig-img"></div>
                         <div class="name">&nbsp;</div>
                         <div class="meta">${o.CandidateName}<br>Candidate Signature &amp; Date</div>
                     </div>
@@ -4350,12 +4436,14 @@
                 @page { size: A4; margin: 0.65in; }
                 * { box-sizing: border-box; }
                 body { font-family: 'Segoe UI', Arial, sans-serif; color: #333; font-size: 10pt; line-height: 1.35; }
-                .letterhead { display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 2.5px solid ${BRAND.primaryColorHex}; padding-bottom: 8pt; margin-bottom: 10pt; }
+                .letterhead { display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 2.5px solid ${BRAND.primaryColorHex}; padding-bottom: 8pt; margin-bottom: 24pt; }
+                .letterhead .brand-block { display:flex; align-items:center; gap: 10pt; }
+                .letterhead .brand-block img { height: 70pt; width: auto; }
                 .letterhead h1 { color: ${BRAND.primaryColorHex}; font-size: 14pt; margin: 0; }
                 .letterhead .tagline { margin: 2pt 0 0; color: #777; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; }
                 .letterhead .meta-right { text-align: right; font-size: 8.3pt; color: #666; }
-                .status-banner { text-align: center; padding: 6pt; border-radius: 5pt; font-size: 11pt; font-weight: 700; letter-spacing: 1px; color: #fff; background: ${decisionColor}; margin-bottom: 10pt; }
-                h2 { color: ${BRAND.primaryColorHex}; font-size: 9.5pt; margin: 10pt 0 4pt; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1px solid #EAEAEA; padding-bottom: 3pt; }
+                .status-banner { text-align: center; padding: 6pt; border-radius: 5pt; font-size: 11pt; font-weight: 700; letter-spacing: 1px; color: #fff; background: ${decisionColor}; margin-bottom: 14pt; }
+                h2 { color: ${BRAND.primaryColorHex}; font-size: 9.5pt; margin: 14pt 0 4pt; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1px solid #EAEAEA; padding-bottom: 3pt; }
                 table { width: 100%; border-collapse: collapse; margin-bottom: 2pt; font-size: 9.3pt; }
                 td { padding: 3pt 8pt; border-bottom: 0.5pt solid #EEE; }
                 td.label { color: #888; width: 32%; font-size: 8.4pt; text-transform: uppercase; letter-spacing: 0.2px; }
@@ -4363,17 +4451,21 @@
                 .narrative { font-size: 9.3pt; line-height: 1.35; margin-bottom: 4pt; }
                 .stage-block { padding: 5pt 10pt; background: #F9F9F9; border-radius: 4pt; margin-bottom: 4pt; font-size: 8.8pt; }
                 .stage-block strong { color: ${BRAND.primaryColorHex}; }
-                .signature-block { margin-top: 16pt; }
+                .signature-block { margin-top: 30pt; }
                 .signature { width: 46%; }
-                .signature .name { font-size: 12pt; font-style: italic; color: ${BRAND.primaryColorHex}; border-bottom: 1px solid #333; padding-bottom: 3pt; margin-bottom: 3pt; min-height: 14pt; }
+                .signature .sig-img { height: 30pt; display: flex; align-items: flex-end; margin-bottom: 2pt; }
+                .signature .sig-img img { height: 30pt; width: auto; }
+                .signature .name { font-size: 10.5pt; font-weight: 600; color: #222; border-bottom: 1px solid #333; padding-bottom: 2pt; margin-bottom: 3pt; min-height: 13pt; }
                 .signature .meta { font-size: 7.8pt; color: #666; line-height: 1.3; }
                 .esign-note { font-size: 7.2pt; color: #999; margin-top: 3pt; }
-                .disclaimer-note { margin-top: 10pt; padding: 5pt 10pt; background: #F9F9F9; border-left: 2.5px solid ${BRAND.primaryColorHex}; font-size: 9pt; color: #666; line-height: 1.3; }
-                .footer { margin-top: 8pt; font-size: 7.8pt; color: #999; text-align: center; }
+                .footer { margin-top: 14pt; padding-top: 6pt; border-top: 0.5pt solid #EEE; font-size: 7.8pt; color: #999; text-align: center; }
             </style></head>
             <body>
                 <div class="letterhead">
-                    <div><h1>${BRAND.companyName}</h1><p class="tagline">Hiring Request</p></div>
+                    <div class="brand-block">
+                        <img src="${BRAND.logoDataUri}" alt="${BRAND.companyShortName} logo">
+                        <div><h1>${BRAND.companyName}</h1><p class="tagline">Hiring Request</p></div>
+                    </div>
                     <div class="meta-right">Ref: ${String(r.RequestID || '')}<br>Generated: ${formatDateOnly(new Date())}</div>
                 </div>
 
@@ -4405,15 +4497,14 @@
 
                 <div class="signature-block">
                     <div class="signature">
+                        <div class="sig-img"><img src="${CEO_SIGNATURE_DATA_URI}" alt="Signature"></div>
                         <div class="name">${r.CEOName || ''}</div>
                         <div class="meta">Chief Executive Officer<br>${BRAND.companyName}</div>
-                        <div class="esign-note">${r.Status} &amp; e-signed on ${decidedDate} via ${BRAND.companyShortName} HR Dashboard</div>
+                        <div class="esign-note">${r.Status} &amp; e-signed on ${decidedDate}</div>
                     </div>
                 </div>
 
-                <div class="disclaimer-note">System-generated document — approved &amp; processed electronically; no hard/wet signature required. An original signed &amp; stamped copy may be obtained from HR for verification.</div>
-
-                <div class="footer">${BRAND.companyName} — Confidential Hiring Request Record</div>
+                <div class="footer">This is a system-generated document and has been approved electronically.</div>
             </body></html>`;
 
             const printWindow = window.open('', '_blank');
