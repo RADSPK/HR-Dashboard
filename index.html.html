@@ -204,12 +204,18 @@
             padding: 48px 24px;
         }
         body.employee-mode .header {
+            display: flex;
             flex-direction: column;
             align-items: center;
             gap: 4px;
-            position: relative;
-            padding-top: 8px;
-            margin-bottom: 40px;
+            position: static;
+            padding-top: 0;
+            margin-bottom: 32px;
+        }
+        body.employee-mode .header .controls {
+            order: -1;
+            align-self: flex-end;
+            margin-bottom: 24px;
         }
         body.employee-mode #employee-portal-brand {
             display: block !important;
@@ -224,19 +230,12 @@
             font-size: 1.6rem;
             text-align: center;
         }
-        body.employee-mode .header .controls {
-            position: absolute;
-            top: 8px;
-            right: 0;
-            gap: 12px;
-        }
         body.employee-mode .user-badge {
             display: none !important;
         }
         @media (max-width: 700px) {
             body.employee-mode .header .controls {
-                position: static;
-                margin-top: 14px;
+                align-self: center;
                 justify-content: center;
             }
         }
@@ -2416,7 +2415,14 @@
                 method: 'POST',
                 body: JSON.stringify({ action, ...payload })
             });
-            const data = await response.json();
+            const rawText = await response.text();
+            let data;
+            try {
+                data = JSON.parse(rawText);
+            } catch (parseErr) {
+                console.error(`callAppsScript("${action}") got a non-JSON response:`, rawText.slice(0, 500));
+                throw new Error(`The server didn't return valid data for "${action}". This usually means the Apps Script deployment needs a fresh "New version" deploy, or the deployment's access settings changed. Check the browser console for the raw response.`);
+            }
             if (!data.success) throw new Error(data.error || 'Request failed');
             return data;
         }
