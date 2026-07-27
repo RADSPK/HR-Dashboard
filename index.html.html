@@ -194,6 +194,29 @@
             transition: margin-left var(--transition-speed);
         }
 
+        body.employee-mode .sidebar {
+            display: none;
+        }
+        body.employee-mode .main-content {
+            margin-left: 0;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+        body.employee-mode .header {
+            justify-content: center;
+            position: relative;
+        }
+        body.employee-mode .header h1 {
+            text-align: center;
+            width: 100%;
+        }
+        body.employee-mode .header .controls {
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+
         .header {
             display: flex;
             justify-content: space-between;
@@ -1347,13 +1370,9 @@
             </section>
 
             <section id="selfAssessment" class="page">
-                <div class="section-header">
-                    <h2>My Self-Assessment</h2>
-                </div>
-
                 <!-- Welcome / status view -->
                 <div id="sa-welcome-view">
-                    <div id="sa-welcome-content" style="max-width: 440px;">
+                    <div id="sa-welcome-content" style="max-width: 440px; margin: 0 auto;">
                         <p style="color: var(--secondary-color);">Loading…</p>
                     </div>
                 </div>
@@ -2529,6 +2548,7 @@
             updateApprovalTabVisibility();
             updatePayrollTabVisibility();
             updateSelfAssessmentNavVisibility();
+            applyEmployeeModeUI();
 
             // Edit-gated buttons
             const addEmployeeBtn = document.getElementById('add-employee-btn');
@@ -3367,10 +3387,23 @@
                 </div>
 
                 <h2>Performance Ratings</h2>
-                <table><thead><tr><th>Criteria</th><th>Rating</th></tr></thead><tbody>${scoreRows}</tbody></table>
-                <div class="overall"><strong>Overall Rating: ${ev.OverallRating || '—'} / 5</strong></div>
+                ${ev.SelfSubmittedAt ? `<table><thead><tr><th>Criteria</th><th>Self-Rating</th><th>Manager Rating</th></tr></thead><tbody>${(function() {
+                    let selfScores = {};
+                    try { selfScores = JSON.parse(ev.SelfScores || '{}'); } catch (e) { selfScores = {}; }
+                    return Object.keys(scoreLabels).map(k => `<tr><td>${scoreLabels[k]}</td><td>${selfScores[k] || '—'} / 5</td><td>${scores[k] || '—'} / 5</td></tr>`).join('');
+                })()}</tbody></table>
+                <div class="overall"><strong>Overall — Self: ${ev.SelfOverallRating || '—'} / 5 &nbsp;|&nbsp; Manager: ${ev.OverallRating || '—'} / 5</strong></div>
 
-                <h2>Assessment</h2>
+                <h2>Employee Self-Assessment</h2>
+                <div class="narrative"><strong>Achievements:</strong> ${ev.SelfAchievements || '—'}</div>
+                <div class="narrative"><strong>Challenges:</strong> ${ev.SelfChallenges || '—'}</div>
+                <div class="narrative"><strong>Wants to Improve:</strong> ${ev.SelfImprovementAreas || '—'}</div>
+                <div class="narrative"><strong>Support Needed:</strong> ${ev.SelfSupportNeeded || '—'}</div>
+                ${ev.SelfCareerGoals ? `<div class="narrative"><strong>Career Goals:</strong> ${ev.SelfCareerGoals}</div>` : ''}` :
+                `<table><thead><tr><th>Criteria</th><th>Rating</th></tr></thead><tbody>${scoreRows}</tbody></table>
+                <div class="overall"><strong>Overall Rating: ${ev.OverallRating || '—'} / 5</strong></div>`}
+
+                <h2>${ev.SelfSubmittedAt ? "Manager's Assessment" : 'Assessment'}</h2>
                 <div class="narrative"><strong>Strengths:</strong> ${ev.Strengths || '—'}</div>
                 <div class="narrative"><strong>Areas for Improvement:</strong> ${ev.AreasForImprovement || '—'}</div>
                 <div class="narrative"><strong>Recommendation:</strong> ${ev.Recommendation || '—'}${ev.Recommendation === 'Extend' && ev.ExtensionMonths ? ' (' + ev.ExtensionMonths + ' months)' : ''}</div>
@@ -3883,6 +3916,21 @@
             if (link) link.style.display = (currentUser && currentUser.employeeId) ? '' : 'none';
         }
 
+        // An account whose only real access is self-assessment gets a
+        // stripped-down, centered, sidebar-free layout instead of the full
+        // dashboard chrome — see body.employee-mode CSS.
+        function isPureEmployeeAccount() {
+            if (!currentUser || !currentUser.employeeId) return false;
+            if (isAdmin()) return false;
+            return !canView('dashboard') && !canView('employees') && !canView('payroll') &&
+                !canView('departments') && !canView('reports') && !canView('payrollHandoff') &&
+                !canAccessApprovalsHub();
+        }
+
+        function applyEmployeeModeUI() {
+            document.body.classList.toggle('employee-mode', isPureEmployeeAccount());
+        }
+
         async function loadSelfAssessmentStatus() {
             const content = document.getElementById('sa-welcome-content');
             document.getElementById('sa-form-view').style.display = 'none';
@@ -3908,7 +3956,8 @@
                     callAppsScript('listEvaluations', { token }),
                     callAppsScript('listReviewWindows', { token })
                 ]);
-                myEvaluations = (evalResult.evaluations || []).filter(ev => String(ev.EmployeeID) === String(emp.ID));
+                cachedEvaluations = evalResult.evaluations || [];
+                myEvaluations = cachedEvaluations.filter(ev => String(ev.EmployeeID) === String(emp.ID));
                 openWindows = (windowResult.windows || []).filter(w => w.status === 'Open');
             } catch (err) {
                 content.innerHTML = `<p style="color: var(--secondary-color);">Could not load your assessment status: ${err.message}</p>`;
