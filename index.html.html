@@ -610,6 +610,116 @@
         .approval-tab-content.active {
             display: block;
         }
+        .approvals-landing {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+        }
+        .approval-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 28px 22px;
+            box-shadow: var(--box-shadow);
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            position: relative;
+        }
+        .approval-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            border-color: var(--primary-color);
+        }
+        .approval-card-icon {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+        }
+        .approval-card h3 {
+            margin: 0 0 6px;
+            font-size: 1.1rem;
+        }
+        .approval-card p {
+            margin: 0;
+            font-size: 0.82rem;
+            color: var(--secondary-color);
+            line-height: 1.4;
+        }
+        .approval-card-count {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: #C0392B;
+            color: #fff;
+            border-radius: 9999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 9px;
+        }
+        .approval-back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--secondary-color);
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color var(--transition-speed);
+        }
+        .approval-back-btn:hover {
+            color: var(--primary-color);
+        }
+        .decision-btn {
+            flex: 1;
+            padding: 14px 18px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+        }
+        .decision-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 16px rgba(0,0,0,0.25);
+        }
+        .decision-btn.approve { background: linear-gradient(135deg, #2e7d32, #1b5e20); }
+        .decision-btn.reject { background: linear-gradient(135deg, #c0392b, #922b21); }
+        .decision-btn.changes { background: linear-gradient(135deg, #b7791f, #8a5a17); }
+        .btn-submit-prominent {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border-radius: 10px;
+            margin-top: 14px;
+            border: none;
+            cursor: pointer;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary-color), #8B4545);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.18);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-submit-prominent:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 18px rgba(0,0,0,0.25);
+        }
         .payroll-tab-button {
             padding: 10px 18px;
             cursor: pointer;
@@ -1179,14 +1289,31 @@
                     <h2>Approvals</h2>
                 </div>
 
-                <div class="approval-tabs">
-                    <button type="button" class="approval-tab-button active" data-approvaltab="performance" onclick="switchApprovalCategory('performance')"><i class="fas fa-clipboard-check"></i> Performance Evaluations</button>
-                    <button type="button" class="approval-tab-button" data-approvaltab="hiring" onclick="switchApprovalCategory('hiring')"><i class="fas fa-user-plus"></i> Hiring Requests</button>
-                    <button type="button" class="approval-tab-button" data-approvaltab="offers" onclick="switchApprovalCategory('offers')"><i class="fas fa-file-signature"></i> Offer Letters</button>
+                <!-- Landing: pick a category, nothing else shown until you do -->
+                <div id="approvals-landing" class="approvals-landing">
+                    <div class="approval-card" data-approvalcard="performance" onclick="switchApprovalCategory('performance')">
+                        <div class="approval-card-icon"><i class="fas fa-clipboard-check"></i></div>
+                        <h3>Performance Evaluations</h3>
+                        <p>Probation, quarterly, 6-monthly, and annual reviews.</p>
+                        <div class="approval-card-count" id="approval-card-count-performance" style="display:none;"></div>
+                    </div>
+                    <div class="approval-card" data-approvalcard="hiring" onclick="switchApprovalCategory('hiring')">
+                        <div class="approval-card-icon"><i class="fas fa-user-plus"></i></div>
+                        <h3>Hiring Requests</h3>
+                        <p>Department head → HR → Finance → CEO.</p>
+                        <div class="approval-card-count" id="approval-card-count-hiring" style="display:none;"></div>
+                    </div>
+                    <div class="approval-card" data-approvalcard="offers" onclick="switchApprovalCategory('offers')">
+                        <div class="approval-card-icon"><i class="fas fa-file-signature"></i></div>
+                        <h3>Offer Letters</h3>
+                        <p>HR drafts, CEO approves &amp; e-signs.</p>
+                        <div class="approval-card-count" id="approval-card-count-offers" style="display:none;"></div>
+                    </div>
                 </div>
 
                 <!-- Performance Evaluations -->
-                <div id="approval-cat-performance" class="approval-tab-content active">
+                <div id="approval-cat-performance" class="approval-tab-content">
+                    <button type="button" class="approval-back-btn" onclick="showApprovalsLanding()"><i class="fas fa-arrow-left"></i> Back to Approvals</button>
                     <div class="section-header" style="margin-top:0;">
                         <h3 style="margin:0;">Performance Evaluations</h3>
                         <button id="open-review-window-btn" onclick="openReviewWindowModal()" class="action-buttons primary" style="display:none; padding: 8px 16px; white-space: nowrap;">
@@ -1214,6 +1341,7 @@
 
                 <!-- Hiring Requests -->
                 <div id="approval-cat-hiring" class="approval-tab-content">
+                    <button type="button" class="approval-back-btn" onclick="showApprovalsLanding()"><i class="fas fa-arrow-left"></i> Back to Approvals</button>
                     <div class="section-header" style="margin-top:0;">
                         <h3 style="margin:0;">Hiring Requests</h3>
                         <button id="new-hiring-request-btn" onclick="openHiringRequestModal()" class="action-buttons primary" style="display:none; padding: 8px 16px; white-space: nowrap;">
@@ -1233,6 +1361,7 @@
 
                 <!-- Offer Letters -->
                 <div id="approval-cat-offers" class="approval-tab-content">
+                    <button type="button" class="approval-back-btn" onclick="showApprovalsLanding()"><i class="fas fa-arrow-left"></i> Back to Approvals</button>
                     <div class="section-header" style="margin-top:0;">
                         <h3 style="margin:0;">Offer Letters</h3>
                         <button id="new-offer-letter-btn" onclick="openOfferLetterModal()" class="action-buttons primary" style="display:none; padding: 8px 16px; white-space: nowrap;">
@@ -1633,7 +1762,7 @@
                     <textarea id="eval-comments" rows="2"></textarea>
                 </div>
 
-                <button type="submit" style="width: 100%; margin-top: 10px;">Submit for CEO Review</button>
+                <button type="submit" class="btn-submit-prominent"><i class="fas fa-paper-plane"></i> Submit for CEO Review</button>
             </form>
         </div>
     </div>
@@ -1648,10 +1777,10 @@
                 <label for="review-comments">Your Comments</label>
                 <textarea id="review-comments" rows="3"></textarea>
             </div>
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button type="button" style="flex:1; background-color: #2e7d32;" onclick="submitReviewDecision('Approved')">Approve</button>
-                <button type="button" style="flex:1; background-color: #b7791f;" onclick="submitReviewDecision('Changes Requested')">Request Changes</button>
-                <button type="button" style="flex:1; background-color: #c0392b;" onclick="submitReviewDecision('Rejected')">Reject</button>
+            <div style="display: flex; gap: 10px; margin-top: 16px;">
+                <button type="button" class="decision-btn approve" onclick="submitReviewDecision('Approved')"><i class="fas fa-check"></i> Approve</button>
+                <button type="button" class="decision-btn changes" onclick="submitReviewDecision('Changes Requested')"><i class="fas fa-rotate-left"></i> Request Changes</button>
+                <button type="button" class="decision-btn reject" onclick="submitReviewDecision('Rejected')"><i class="fas fa-xmark"></i> Reject</button>
             </div>
         </div>
     </div>
@@ -1869,7 +1998,7 @@
                 </div>
                 <div class="form-group"><label>Job Description</label><textarea id="hr-job-description" rows="3"></textarea></div>
                 <div class="form-group"><label>Assets / Tools Required</label><textarea id="hr-assets-required" rows="2" placeholder="e.g. Laptop, mobile SIM, vehicle"></textarea></div>
-                <button type="submit" style="width: 100%; margin-top: 10px;" id="hiring-request-submit-btn">Submit Hiring Request</button>
+                <button type="submit" class="btn-submit-prominent" id="hiring-request-submit-btn"><i class="fas fa-paper-plane"></i> Submit Hiring Request</button>
             </form>
         </div>
     </div>
@@ -1888,9 +2017,9 @@
                 <label>Comments</label>
                 <textarea id="hiring-review-comments" rows="3"></textarea>
             </div>
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button type="button" style="flex:1; background-color: #2e7d32;" onclick="submitHiringReviewDecision('Approved')">Approve</button>
-                <button type="button" style="flex:1; background-color: #c0392b;" onclick="submitHiringReviewDecision('Rejected')">Reject</button>
+            <div style="display: flex; gap: 10px; margin-top: 16px;">
+                <button type="button" class="decision-btn approve" onclick="submitHiringReviewDecision('Approved')"><i class="fas fa-check"></i> Approve</button>
+                <button type="button" class="decision-btn reject" onclick="submitHiringReviewDecision('Rejected')"><i class="fas fa-xmark"></i> Reject</button>
             </div>
         </div>
     </div>
@@ -1950,7 +2079,7 @@
                     <div class="permission-row"><input type="checkbox" id="offer-benefit-life"><label for="offer-benefit-life" style="margin:0;">Life Insurance</label></div>
                 </div>
 
-                <button type="submit" style="width: 100%; margin-top: 10px;">Submit for CEO Approval</button>
+                <button type="submit" class="btn-submit-prominent"><i class="fas fa-paper-plane"></i> Submit for CEO Approval</button>
             </form>
         </div>
     </div>
@@ -1965,9 +2094,9 @@
                 <label>Comments</label>
                 <textarea id="offer-review-comments" rows="3"></textarea>
             </div>
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button type="button" style="flex:1; background-color: #2e7d32;" onclick="submitOfferReviewDecision('Approved')">Approve &amp; E-Sign</button>
-                <button type="button" style="flex:1; background-color: #c0392b;" onclick="submitOfferReviewDecision('Rejected')">Reject</button>
+            <div style="display: flex; gap: 10px; margin-top: 16px;">
+                <button type="button" class="decision-btn approve" onclick="submitOfferReviewDecision('Approved')"><i class="fas fa-signature"></i> Approve &amp; E-Sign</button>
+                <button type="button" class="decision-btn reject" onclick="submitOfferReviewDecision('Rejected')"><i class="fas fa-xmark"></i> Reject</button>
             </div>
         </div>
     </div>
@@ -2331,29 +2460,52 @@
             return canView('approvals') || canAccessHiring() || canAccessOfferLetters();
         }
 
+        function showApprovalsLanding() {
+            document.querySelectorAll('.approval-tab-content').forEach(tc => tc.classList.remove('active'));
+            const landing = document.getElementById('approvals-landing');
+            if (landing) landing.style.display = 'grid';
+            updateApprovalCardCounts();
+        }
+
         function switchApprovalCategory(category) {
-            document.querySelectorAll('.approval-tab-button').forEach(btn => btn.classList.toggle('active', btn.dataset.approvaltab === category));
+            const landing = document.getElementById('approvals-landing');
+            if (landing) landing.style.display = 'none';
             document.querySelectorAll('.approval-tab-content').forEach(tc => tc.classList.remove('active'));
             const target = document.getElementById('approval-cat-' + category);
             if (target) target.classList.add('active');
         }
 
+        function updateApprovalCardCounts() {
+            const setCount = (category, count) => {
+                const el = document.getElementById('approval-card-count-' + category);
+                if (!el) return;
+                if (count > 0) { el.textContent = count; el.style.display = ''; }
+                else { el.style.display = 'none'; }
+            };
+            const pendingEvals = canReviewApprovals() ? (cachedEvaluations || []).filter(ev => ev.Status === 'Submitted').length : 0;
+            setCount('performance', pendingEvals);
+
+            let hiringCount = 0;
+            const requests = cachedHiringRequests || [];
+            if (canHrReviewHiring()) hiringCount += requests.filter(r => r.Status === 'Pending HR Review').length;
+            if (canFinanceReviewHiring()) hiringCount += requests.filter(r => r.Status === 'Pending Finance Review').length;
+            if (canCeoApproveHiring()) hiringCount += requests.filter(r => r.Status === 'Pending CEO Approval').length;
+            setCount('hiring', hiringCount);
+
+            const pendingOffers = canApproveOffers() ? (cachedOfferLetters || []).filter(o => o.Status === 'Pending CEO Approval').length : 0;
+            setCount('offers', pendingOffers);
+        }
+
         function updateApprovalTabVisibility() {
-            const perfTab = document.querySelector('.approval-tab-button[data-approvaltab="performance"]');
-            const hiringTab = document.querySelector('.approval-tab-button[data-approvaltab="hiring"]');
-            const offersTab = document.querySelector('.approval-tab-button[data-approvaltab="offers"]');
-            if (!perfTab || !hiringTab || !offersTab) return;
+            const perfCard = document.querySelector('.approval-card[data-approvalcard="performance"]');
+            const hiringCard = document.querySelector('.approval-card[data-approvalcard="hiring"]');
+            const offersCard = document.querySelector('.approval-card[data-approvalcard="offers"]');
+            if (!perfCard || !hiringCard || !offersCard) return;
 
-            perfTab.style.display = canView('approvals') ? '' : 'none';
-            hiringTab.style.display = canAccessHiring() ? '' : 'none';
-            offersTab.style.display = canAccessOfferLetters() ? '' : 'none';
-
-            // If the currently active sub-tab just became hidden, switch to the first visible one
-            const activeBtn = document.querySelector('.approval-tab-button.active');
-            if (!activeBtn || activeBtn.style.display === 'none') {
-                const firstVisible = [perfTab, hiringTab, offersTab].find(btn => btn.style.display !== 'none');
-                if (firstVisible) switchApprovalCategory(firstVisible.dataset.approvaltab);
-            }
+            perfCard.style.display = canView('approvals') ? '' : 'none';
+            hiringCard.style.display = canAccessHiring() ? '' : 'none';
+            offersCard.style.display = canAccessOfferLetters() ? '' : 'none';
+            updateApprovalCardCounts();
         }
 
         // Order matters: if Dashboard isn't permitted, land on Approvals next (most
@@ -3049,6 +3201,7 @@
             } else {
                 dueWrapper.style.display = 'none';
             }
+            updateApprovalCardCounts();
         }
 
         // ---------------------------------------------------------------
@@ -4062,7 +4215,7 @@
             editingHiringRequestId = null;
             document.getElementById('hiring-request-form').reset();
             document.getElementById('hiring-request-modal-title').textContent = 'New Hiring Request';
-            document.getElementById('hiring-request-submit-btn').textContent = 'Submit Hiring Request';
+            document.getElementById('hiring-request-submit-btn').innerHTML = '<i class="fas fa-paper-plane"></i> Submit Hiring Request';
             document.getElementById('hiring-request-modal').style.display = 'flex';
         }
 
@@ -4083,7 +4236,7 @@
             document.getElementById('hr-job-station').value = r.JobStation || '';
             document.getElementById('hr-project').value = r.Project || '';
             document.getElementById('hiring-request-modal-title').textContent = 'Edit Hiring Request';
-            document.getElementById('hiring-request-submit-btn').textContent = 'Save Changes';
+            document.getElementById('hiring-request-submit-btn').innerHTML = '<i class="fas fa-floppy-disk"></i> Save Changes';
             document.getElementById('hiring-request-modal').style.display = 'flex';
         }
 
@@ -4195,6 +4348,7 @@
                     ` : '—'}</td>
                 </tr>`;
                 }).join('');
+            updateApprovalCardCounts();
         }
 
         async function cancelHiringRequestAction(requestId) {
@@ -4416,6 +4570,7 @@
                     <td>${o.PreparedAt ? new Date(o.PreparedAt).toLocaleDateString() : ''}</td>
                     <td>${o.Status === 'Approved' ? `<button onclick="printOfferLetterPDF('${String(o.OfferID).replace(/'/g, "\\'")}')" title="Download PDF"><i class="fas fa-file-pdf"></i></button>` : '—'}</td>
                 </tr>`).join('');
+            updateApprovalCardCounts();
         }
 
         let currentOfferReviewId = null;
@@ -5391,6 +5546,7 @@
             if (pageId === 'users') {
                 loadUsers();
             } else if (pageId === 'approvals') {
+                showApprovalsLanding();
                 updateApprovalTabVisibility();
                 loadEvaluations();
                 loadHiringRequests();
