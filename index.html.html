@@ -225,6 +225,37 @@
             color: var(--primary-color);
         }
 
+        .notif-bell-wrapper {
+            position: relative;
+        }
+        .notif-badge {
+            position: absolute;
+            top: -2px;
+            right: -4px;
+            background: #C0392B;
+            color: #fff;
+            border-radius: 9999px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 1px 5px;
+            min-width: 16px;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .notif-dropdown {
+            position: absolute;
+            top: 130%;
+            right: 0;
+            width: 300px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 16px;
+            z-index: 900;
+            text-align: left;
+        }
+
         .refresh-btn {
             background: none;
             border: 1px solid var(--primary-color);
@@ -931,6 +962,15 @@
             <header class="header">
                 <h1 id="page-title">Dashboard</h1>
                 <div class="controls">
+                    <div class="notif-bell-wrapper">
+                        <button class="toggle-button" onclick="toggleNotificationDropdown()" title="Pending Approvals">
+                            <i class="fas fa-bell"></i>
+                            <span id="notif-badge" class="notif-badge" style="display:none;">0</span>
+                        </button>
+                        <div id="notif-dropdown" class="notif-dropdown" style="display:none;">
+                            <div id="notif-dropdown-content"></div>
+                        </div>
+                    </div>
                     <div class="user-badge" id="user-badge" style="display:none;">
                         <span class="u-name" id="user-badge-name"></span>
                         <span class="u-role" id="user-badge-role"></span>
@@ -950,7 +990,6 @@
             </header>
 
             <!-- Page Sections -->
-            <div id="pending-approvals-banner" style="display:none;"></div>
             <div id="probation-due-banner" style="display:none;"></div>
             <div id="no-access-message" style="display:none; text-align:center; padding: 60px 20px; color: var(--secondary-color);">
                 <i class="fas fa-lock" style="font-size: 2.5rem; margin-bottom: 16px; display:block;"></i>
@@ -1189,7 +1228,7 @@
                     </div>
 
                     <h4 style="margin: 20px 0 10px; color: var(--secondary-color);">All Hiring Requests</h4>
-                    <div class="scrollable-table-wrapper"><table class="data-table" id="hiring-history-table"><thead><tr><th>Position</th><th>Department</th><th>Requested By</th><th>Status</th><th>Submitted</th><th>Details</th><th>PDF</th></tr></thead><tbody></tbody></table></div>
+                    <div class="scrollable-table-wrapper"><table class="data-table" id="hiring-history-table"><thead><tr><th>Position</th><th>Department</th><th>Requested By</th><th>Status</th><th>Submitted</th><th>Details</th><th>PDF</th><th>My Actions</th></tr></thead><tbody></tbody></table></div>
                 </div>
 
                 <!-- Offer Letters -->
@@ -1384,6 +1423,17 @@
 
     <!-- HR Transaction Modal -->
     <div id="transaction-modal" class="modal"><div class="modal-content" style="max-width: 600px;"><span class="close-button" onclick="closeTransactionModal()">&times;</span><h3>Record HR Transaction</h3><form id="transaction-form"><div class="form-grid"><div class="form-group"><label for="transaction-type">Transaction Type</label><select id="transaction-type" name="type" required onchange="updateTransactionForm(this.value)"><option value="">Select Action...</option><option value="promotion">Salary/Position Change</option><option value="lwp">Leave Without Pay (LWP)</option><option value="termination">Termination / Leaver</option></select></div><div class="form-group"><label for="transaction-employee-id">Employee</label><select id="transaction-employee-id" name="employee_id" required><option value="">Select Employee...</option></select></div></div><div id="dynamic-transaction-fields" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;"></div><div class="form-grid"><div class="form-group"><label for="transaction-date">Effective Date</label><input type="date" id="transaction-date" name="effective_date" required></div></div><div class="form-group"><label for="transaction-notes">Detailed Notes</label><textarea id="transaction-notes" name="notes" rows="3" placeholder="Enter full details and rationale..."></textarea></div><button type="submit" id="transaction-submit-btn" style="width: 100%;">Log Transaction</button></form></div></div>
+
+    <!-- Pending Approvals Popup (shown once after login if anything is waiting) -->
+    <div id="pending-approvals-modal" class="modal">
+        <div class="modal-content" style="max-width: 420px; text-align:center;">
+            <span class="close-button" onclick="closePendingApprovalsModal()">&times;</span>
+            <i class="fas fa-bell" style="font-size:2rem; color: var(--primary-color); margin-bottom:10px; display:block;"></i>
+            <h3 style="margin-bottom: 8px;">You have pending approvals</h3>
+            <p id="pending-approvals-modal-text" style="color: var(--secondary-color); margin-bottom: 16px;"></p>
+            <button type="button" style="width:100%;" onclick="goToApprovalsFromModal()">View Pending Approvals</button>
+        </div>
+    </div>
 
     <!-- Change Password Modal -->
     <div id="change-password-modal" class="modal">
@@ -1797,7 +1847,7 @@
     <div id="hiring-request-modal" class="modal">
         <div class="modal-content" style="max-width: 700px;">
             <span class="close-button" onclick="closeHiringRequestModal()">&times;</span>
-            <h3 style="margin-bottom: 16px;">New Hiring Request</h3>
+            <h3 style="margin-bottom: 16px;" id="hiring-request-modal-title">New Hiring Request</h3>
             <form id="hiring-request-form">
                 <div class="form-grid">
                     <div class="form-group"><label>Position Title</label><input type="text" id="hr-position-title" required></div>
@@ -1819,7 +1869,7 @@
                 </div>
                 <div class="form-group"><label>Job Description</label><textarea id="hr-job-description" rows="3"></textarea></div>
                 <div class="form-group"><label>Assets / Tools Required</label><textarea id="hr-assets-required" rows="2" placeholder="e.g. Laptop, mobile SIM, vehicle"></textarea></div>
-                <button type="submit" style="width: 100%; margin-top: 10px;">Submit Hiring Request</button>
+                <button type="submit" style="width: 100%; margin-top: 10px;" id="hiring-request-submit-btn">Submit Hiring Request</button>
             </form>
         </div>
     </div>
@@ -3248,10 +3298,11 @@
             `;
         }
 
-        async function checkPendingApprovals() {
-            const banner = document.getElementById('pending-approvals-banner');
-            if (!banner) return;
+        let pendingApprovalsCount = 0;
+        let pendingApprovalsBreakdown = [];
+        let loginPopupShown = false;
 
+        async function checkPendingApprovals() {
             let total = 0;
             const breakdown = [];
             const token = getSessionToken();
@@ -3279,24 +3330,83 @@
                     if (count > 0) { total += count; breakdown.push(`${count} offer letter${count > 1 ? 's' : ''}`); }
                 }
             } catch (err) {
-                banner.style.display = 'none';
                 return;
             }
 
-            if (total === 0) {
-                banner.style.display = 'none';
-                banner.innerHTML = '';
-                return;
-            }
+            pendingApprovalsCount = total;
+            pendingApprovalsBreakdown = breakdown;
+            updateNotifBadge();
 
-            banner.style.display = 'flex';
-            banner.className = 'info-banner probation';
-            banner.innerHTML = `
-                <i class="fas fa-bell" style="font-size:1.4rem;"></i>
-                <div style="flex:1;"><strong>You have ${total} pending approval${total > 1 ? 's' : ''}</strong> — ${breakdown.join(', ')}</div>
-                <div class="banner-actions"><button type="button" onclick="showPage('approvals')">View Pending Approvals</button></div>
-            `;
+            // Pop up automatically the first time we find something pending after login —
+            // subsequent rechecks (e.g. after approving something) just update the badge quietly.
+            if (total > 0 && !loginPopupShown) {
+                loginPopupShown = true;
+                showPendingApprovalsPopup();
+            }
         }
+
+        function updateNotifBadge() {
+            const badge = document.getElementById('notif-badge');
+            if (!badge) return;
+            if (pendingApprovalsCount > 0) {
+                badge.textContent = pendingApprovalsCount > 99 ? '99+' : pendingApprovalsCount;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function showPendingApprovalsPopup() {
+            document.getElementById('pending-approvals-modal-text').textContent =
+                `${pendingApprovalsCount} pending approval${pendingApprovalsCount > 1 ? 's' : ''} — ${pendingApprovalsBreakdown.join(', ')}.`;
+            document.getElementById('pending-approvals-modal').style.display = 'flex';
+        }
+
+        function closePendingApprovalsModal() {
+            document.getElementById('pending-approvals-modal').style.display = 'none';
+        }
+
+        function goToApprovalsFromModal() {
+            closePendingApprovalsModal();
+            showPage('approvals');
+        }
+
+        function toggleNotificationDropdown() {
+            const dropdown = document.getElementById('notif-dropdown');
+            if (!dropdown) return;
+            const isOpen = dropdown.style.display === 'block';
+            if (isOpen) { dropdown.style.display = 'none'; return; }
+            renderNotifDropdown();
+            dropdown.style.display = 'block';
+        }
+
+        function renderNotifDropdown() {
+            const content = document.getElementById('notif-dropdown-content');
+            if (!content) return;
+            if (pendingApprovalsCount === 0) {
+                content.innerHTML = `<p style="margin:0; color: var(--secondary-color); font-size:0.85rem;">No pending approvals right now.</p>`;
+            } else {
+                content.innerHTML = `
+                    <p style="margin:0 0 6px; font-weight:600;">${pendingApprovalsCount} pending approval${pendingApprovalsCount > 1 ? 's' : ''}</p>
+                    <p style="margin:0 0 12px; font-size:0.85rem; color: var(--secondary-color);">${pendingApprovalsBreakdown.join(', ')}</p>
+                    <button type="button" style="width:100%;" onclick="closeNotifDropdownAndGoToApprovals()">View Pending Approvals</button>
+                `;
+            }
+        }
+
+        function closeNotifDropdownAndGoToApprovals() {
+            document.getElementById('notif-dropdown').style.display = 'none';
+            showPage('approvals');
+        }
+
+        document.addEventListener('click', function(e) {
+            const wrapper = document.querySelector('.notif-bell-wrapper');
+            const dropdown = document.getElementById('notif-dropdown');
+            if (wrapper && dropdown && dropdown.style.display === 'block' && !wrapper.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+
 
         // ---------------------------------------------------------------
         // MONTHLY PAYROLL SUBMISSION — fully manual entry, independent of
@@ -3946,9 +4056,34 @@
         // HIRING REQUESTS — Dept Head -> HR -> Finance -> CEO
         // ===================================================
         let cachedHiringRequests = [];
+        let editingHiringRequestId = null;
 
         function openHiringRequestModal() {
+            editingHiringRequestId = null;
             document.getElementById('hiring-request-form').reset();
+            document.getElementById('hiring-request-modal-title').textContent = 'New Hiring Request';
+            document.getElementById('hiring-request-submit-btn').textContent = 'Submit Hiring Request';
+            document.getElementById('hiring-request-modal').style.display = 'flex';
+        }
+
+        function openEditHiringRequestModal(requestId) {
+            const r = cachedHiringRequests.find(x => String(x.RequestID) === String(requestId));
+            if (!r) return;
+            editingHiringRequestId = requestId;
+            document.getElementById('hiring-request-form').reset();
+            document.getElementById('hr-position-title').value = r.PositionTitle || '';
+            document.getElementById('hr-department').value = r.Department || '';
+            document.getElementById('hr-employment-type').value = r.EmploymentType || 'Core';
+            document.getElementById('hr-duration').value = r.Duration || '';
+            document.getElementById('hr-monthly-salary').value = r.MonthlySalary || '';
+            document.getElementById('hr-supervisor').value = r.Supervisor || '';
+            document.getElementById('hr-job-description').value = r.JobDescription || '';
+            document.getElementById('hr-date-required').value = r.DateRequired ? new Date(r.DateRequired).toISOString().split('T')[0] : '';
+            document.getElementById('hr-assets-required').value = r.AssetsRequired || '';
+            document.getElementById('hr-job-station').value = r.JobStation || '';
+            document.getElementById('hr-project').value = r.Project || '';
+            document.getElementById('hiring-request-modal-title').textContent = 'Edit Hiring Request';
+            document.getElementById('hiring-request-submit-btn').textContent = 'Save Changes';
             document.getElementById('hiring-request-modal').style.display = 'flex';
         }
 
@@ -3972,6 +4107,21 @@
                 project: document.getElementById('hr-project').value
             };
             const token = getSessionToken();
+
+            if (editingHiringRequestId) {
+                try {
+                    await callAppsScript('editHiringRequest', { token, requestId: editingHiringRequestId, request });
+                    closeHiringRequestModal();
+                    alert('Hiring request updated ✅');
+                    loadHiringRequests();
+                } catch (err) {
+                    alert('Could not update hiring request: ' + err.message);
+                }
+                return;
+            }
+
+            if (!confirm('Are you sure you want to submit this hiring request?\n\nPlease double-check every field once more — including spelling — before submitting.')) return;
+
             try {
                 await callAppsScript('submitHiringRequest', { token, request });
                 closeHiringRequestModal();
@@ -3992,6 +4142,7 @@
         function hiringStatusBadgeClass(status) {
             if (status === 'Approved') return 'status-approved';
             if (status === 'Rejected') return 'status-rejected';
+            if (status === 'Cancelled') return 'status-exempted';
             return 'status-submitted';
         }
 
@@ -4028,14 +4179,33 @@
 
             const sorted = [...cachedHiringRequests].sort((a, b) => new Date(b.SubmittedAt) - new Date(a.SubmittedAt));
             historyBody.innerHTML = sorted.length === 0
-                ? `<tr><td colspan="7" style="color: var(--secondary-color);">No hiring requests yet.</td></tr>`
-                : sorted.map(r => `<tr>
+                ? `<tr><td colspan="8" style="color: var(--secondary-color);">No hiring requests yet.</td></tr>`
+                : sorted.map(r => {
+                    const isOwnRequest = String(r.RequestedByUsername).toLowerCase() === String(currentUser.username).toLowerCase();
+                    const stillEditable = isOwnRequest && r.Status === 'Pending HR Review';
+                    return `<tr>
                     <td>${r.PositionTitle}</td><td>${r.Department}</td><td>${r.RequestedByName}</td>
                     <td><span class="${hiringStatusBadgeClass(r.Status)}">${r.Status}</span></td>
                     <td>${r.SubmittedAt ? new Date(r.SubmittedAt).toLocaleDateString() : ''}</td>
                     <td><button onclick="viewHiringDetails('${String(r.RequestID).replace(/'/g, "\\'")}')">Details</button></td>
                     <td>${r.CEODecision ? `<button onclick="printHiringRequestPDF('${String(r.RequestID).replace(/'/g, "\\'")}')" title="Print / Download PDF"><i class="fas fa-file-pdf"></i></button>` : '—'}</td>
-                </tr>`).join('');
+                    <td>${stillEditable ? `
+                        <button onclick="openEditHiringRequestModal('${String(r.RequestID).replace(/'/g, "\\'")}')" title="Edit"><i class="fas fa-edit"></i></button>
+                        <button onclick="cancelHiringRequestAction('${String(r.RequestID).replace(/'/g, "\\'")}')" title="Cancel"><i class="fas fa-ban"></i></button>
+                    ` : '—'}</td>
+                </tr>`;
+                }).join('');
+        }
+
+        async function cancelHiringRequestAction(requestId) {
+            if (!confirm('Cancel this hiring request? This cannot be undone.')) return;
+            const token = getSessionToken();
+            try {
+                await callAppsScript('cancelHiringRequest', { token, requestId });
+                loadHiringRequests();
+            } catch (err) {
+                alert('Could not cancel hiring request: ' + err.message);
+            }
         }
 
         let currentHiringReviewId = null;
