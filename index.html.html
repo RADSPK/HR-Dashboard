@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6094,12 +6091,12 @@
                         const mappedEmp = mapColumnNames(emp);
                         
                         // Then calculate salary fields
-                        const baseSalary = parseMoney(mappedEmp['Base Salary']);
-                        const travelAllowance = parseMoney(mappedEmp['Travel Allowance']);
-                        const fuelAllowance = parseMoney(mappedEmp['Fuel/Grocery Allowance']);
-                        const otherAllowance = parseMoney(mappedEmp['Other Allowance']);
-                        const providentFund = parseMoney(mappedEmp['Provident Fund']);
-                        const eobi = parseMoney(mappedEmp['EOBI']);
+                        const baseSalary = parseFloat(mappedEmp['Base Salary'] || 0);
+                        const travelAllowance = parseFloat(mappedEmp['Travel Allowance'] || 0);
+                        const fuelAllowance = parseFloat(mappedEmp['Fuel/Grocery Allowance'] || 0);
+                        const otherAllowance = parseFloat(mappedEmp['Other Allowance'] || 0);
+                        const providentFund = parseFloat(mappedEmp['Provident Fund'] || 0);
+                        const eobi = parseFloat(mappedEmp['EOBI'] || 0);
                         
                         // Salary = Base Salary + All Allowances (what employee takes home)
                         const salary = baseSalary + travelAllowance + fuelAllowance + otherAllowance;
@@ -6293,8 +6290,8 @@
                 <h3 style="font-size: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 10px;">Compensation</h3>
                 <div class="details-grid">
                     <div class="details-item"><h4>Base Salary</h4><p>${formatCurrency(employee['Base Salary'])}</p></div>
-                    <div class="details-item"><h4>Allowances</h4><p>${formatCurrency((parseMoney(employee['Travel Allowance']) + parseMoney(employee['Fuel/Grocery Allowance']) + parseMoney(employee['Other Allowance'])))}</p></div>
-                    <div class="details-item"><h4>Deductions (PF+EOBI)</h4><p>${formatCurrency(parseMoney(employee['Provident Fund']) + parseMoney(employee['EOBI']))}</p></div>
+                    <div class="details-item"><h4>Allowances</h4><p>${formatCurrency((parseFloat(employee['Travel Allowance'] || 0) + parseFloat(employee['Fuel/Grocery Allowance'] || 0) + parseFloat(employee['Other Allowance'] || 0)))}</p></div>
+                    <div class="details-item"><h4>Deductions (PF+EOBI)</h4><p>${formatCurrency(parseFloat(employee['Provident Fund'] || 0) + parseFloat(employee['EOBI'] || 0))}</p></div>
                     <div class="details-item"><h4>Total Cost</h4><p><strong>${formatCurrency(employee['Total Cost to Company'])}</strong></p></div>
                 </div>
                 
@@ -6446,7 +6443,7 @@
                     const payrollByDept = {};
                     activeEmps.forEach(emp => {
                         const dept = emp.Department || 'Unassigned';
-                        payrollByDept[dept] = (payrollByDept[dept] || 0) + parseMoney(emp['Total Cost to Company']);
+                        payrollByDept[dept] = (payrollByDept[dept] || 0) + parseFloat(emp['Total Cost to Company'] || 0);
                     });
                     const totalPayroll = Object.values(payrollByDept).reduce((sum, val) => sum + val, 0);
                     content = `<div class="table-responsive"><table class="data-table"><thead><tr><th>Department</th><th>Total Cost</th><th>% of Total</th></tr></thead><tbody>` +
@@ -6711,7 +6708,7 @@
             
             // Financial metrics
             const totalPayroll = activeEmployees.reduce((sum, e) => sum + parseFloat(e['Salary'] || 0), 0);
-            const totalCTC = activeEmployees.reduce((sum, e) => sum + parseMoney(e['Total Cost to Company']), 0);
+            const totalCTC = activeEmployees.reduce((sum, e) => sum + parseFloat(e['Total Cost to Company'] || 0), 0);
             // Show Total Cost to Company (includes: Base Salary + Travel + Fuel/Grocery + Other Allowance + Provident Fund + EOBI)
             document.getElementById('total-payroll').textContent = 'PKR ' + totalCTC.toLocaleString(undefined, {maximumFractionDigits: 0});
             
@@ -6911,13 +6908,13 @@
             // Calculate totals for active employees
             const activeEmps = employees.filter(e => e.Status !== 'Inactive');
             
-            const totalBaseSalary = activeEmps.reduce((sum, e) => sum + parseMoney(e['Base Salary']), 0);
-            const totalTravel = activeEmps.reduce((sum, e) => sum + parseMoney(e['Travel Allowance']), 0);
-            const totalFuel = activeEmps.reduce((sum, e) => sum + parseMoney(e['Fuel/Grocery Allowance']), 0);
-            const totalOther = activeEmps.reduce((sum, e) => sum + parseMoney(e['Other Allowance']), 0);
-            const totalPF = activeEmps.reduce((sum, e) => sum + parseMoney(e['Provident Fund']), 0);
-            const totalEOBI = activeEmps.reduce((sum, e) => sum + parseMoney(e['EOBI']), 0);
-            const totalCTC = activeEmps.reduce((sum, e) => sum + parseMoney(e['Total Cost to Company']), 0);
+            const totalBaseSalary = activeEmps.reduce((sum, e) => sum + parseFloat(e['Base Salary'] || 0), 0);
+            const totalTravel = activeEmps.reduce((sum, e) => sum + parseFloat(e['Travel Allowance'] || 0), 0);
+            const totalFuel = activeEmps.reduce((sum, e) => sum + parseFloat(e['Fuel/Grocery Allowance'] || 0), 0);
+            const totalOther = activeEmps.reduce((sum, e) => sum + parseFloat(e['Other Allowance'] || 0), 0);
+            const totalPF = activeEmps.reduce((sum, e) => sum + parseFloat(e['Provident Fund'] || 0), 0);
+            const totalEOBI = activeEmps.reduce((sum, e) => sum + parseFloat(e['EOBI'] || 0), 0);
+            const totalCTC = activeEmps.reduce((sum, e) => sum + parseFloat(e['Total Cost to Company'] || 0), 0);
             
             const totalAllowances = totalTravel + totalFuel + totalOther;
             const totalBenefits = totalPF + totalEOBI;
@@ -6957,7 +6954,7 @@
                 
                 acc[deptName].employees.push(emp);
                 acc[deptName].employeeCount++;
-                acc[deptName].totalCTC += parseMoney(emp['Total Cost to Company']);
+                acc[deptName].totalCTC += parseFloat(emp['Total Cost to Company'] || 0);
                 
                 if (emp.Gender === 'Male') acc[deptName].maleCount++;
                 else if (emp.Gender === 'Female') acc[deptName].femaleCount++;
@@ -7045,7 +7042,7 @@
                     }
                     else if (col === 'PayrollActions') cell.innerHTML = canEditSection('payroll') ? `<div class="table-actions"><button onclick="openPayrollModal(employees[${originalIndex}], ${originalIndex})" title="Edit Payroll"><i class="fas fa-pencil-alt"></i></button></div>` : '';
                     else if (['Date of Joining', 'Date of Birth', 'Date of Leaving'].includes(col)) cell.textContent = employee[col] ? formatDateOnly(employee[col]) : 'N/A';
-                    else if (['Base Salary', 'Total Cost to Company'].includes(col)) cell.textContent = `PKR ${parseMoney(employee[col]).toLocaleString()}`;
+                    else if (['Base Salary', 'Total Cost to Company'].includes(col)) cell.textContent = `PKR ${parseFloat(employee[col] || 0).toLocaleString()}`;
                     else cell.textContent = employee[col] || 'N/A';
                     row.appendChild(cell);
                 });
@@ -7087,18 +7084,6 @@
             return { salary, totalCost };
         };
         const parseDate = dateStr => dateStr ? new Date(dateStr) : null;
-
-        // The published Google Sheets CSV can export currency figures with
-        // thousands-separator commas (e.g. "505,000"). JavaScript's parseFloat
-        // stops at the first non-numeric character, so parseFloat("505,000")
-        // silently returns 505 instead of 505000 — this is what was truncating
-        // every salary figure. Strip commas before parsing anywhere money is read.
-        function parseMoney(value) {
-            if (value === undefined || value === null || value === '') return 0;
-            const cleaned = String(value).replace(/,/g, '').trim();
-            const n = parseFloat(cleaned);
-            return isNaN(n) ? 0 : n;
-        }
 
         // Google Sheets sometimes silently turns a plain date string into a full
         // datetime value internally, which then comes back from Apps Script as an
@@ -7302,7 +7287,7 @@
                 columns = ['ID', 'Name', 'Department', 'Position', 'Base Salary', 'Travel Allowance', 'Fuel/Grocery Allowance', 'Other Allowance', 'Provident Fund', 'EOBI', 'Total Cost to Company'];
                 
                 // Analytics
-                const totalPayroll = filteredData.reduce((sum, emp) => sum + parseMoney(emp['Total Cost to Company']), 0);
+                const totalPayroll = filteredData.reduce((sum, emp) => sum + parseFloat(emp['Total Cost to Company'] || 0), 0);
                 const avgSalary = totalPayroll / filteredData.length;
                 analyticsHtml = `<div style="background: var(--background-color); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
                     <h4 style="margin-bottom: 12px; color: var(--primary-color);">Payroll Summary</h4>
@@ -7314,7 +7299,7 @@
                             const deptTotals = {};
                             filteredData.forEach(e => {
                                 const d = e.Department || 'Unassigned';
-                                deptTotals[d] = (deptTotals[d] || 0) + parseMoney(e['Total Cost to Company']);
+                                deptTotals[d] = (deptTotals[d] || 0) + parseFloat(e['Total Cost to Company'] || 0);
                             });
                             return Object.entries(deptTotals).sort((a,b) => b[1] - a[1])[0]?.[0] || 'N/A';
                         })()}</div>
@@ -7375,19 +7360,19 @@
                 
             } else if (reportType === 'department-salary') {
                 filteredData = filteredData.filter(emp => emp.Status === 'Active');
-                const totalOrgCost = filteredData.reduce((sum, emp) => sum + parseMoney(emp['Total Cost to Company']), 0);
+                const totalOrgCost = filteredData.reduce((sum, emp) => sum + parseFloat(emp['Total Cost to Company'] || 0), 0);
                 
                 const deptTotals = {};
                 filteredData.forEach(emp => {
                     const dept = emp.Department || 'Unassigned';
                     if (!deptTotals[dept]) deptTotals[dept] = 0;
-                    deptTotals[dept] += parseMoney(emp['Total Cost to Company']);
+                    deptTotals[dept] += parseFloat(emp['Total Cost to Company'] || 0);
                 });
                 
                 filteredData = filteredData.map(emp => {
                     const deptTotal = deptTotals[emp.Department || 'Unassigned'];
-                    const deptPercent = deptTotal > 0 ? ((parseMoney(emp['Total Cost to Company']) / deptTotal) * 100).toFixed(2) : '0.00';
-                    const orgPercent = totalOrgCost > 0 ? ((parseMoney(emp['Total Cost to Company']) / totalOrgCost) * 100).toFixed(2) : '0.00';
+                    const deptPercent = deptTotal > 0 ? ((parseFloat(emp['Total Cost to Company'] || 0) / deptTotal) * 100).toFixed(2) : '0.00';
+                    const orgPercent = totalOrgCost > 0 ? ((parseFloat(emp['Total Cost to Company'] || 0) / totalOrgCost) * 100).toFixed(2) : '0.00';
                     return {
                         ...emp,
                         '% of Dept Cost': deptPercent + '%',
@@ -7397,7 +7382,7 @@
                 
                 filteredData.sort((a, b) => {
                     if (a.Department !== b.Department) return (a.Department || 'Unassigned').localeCompare(b.Department || 'Unassigned');
-                    return parseMoney(b['Total Cost to Company']) - parseMoney(a['Total Cost to Company']);
+                    return parseFloat(b['Total Cost to Company'] || 0) - parseFloat(a['Total Cost to Company'] || 0);
                 });
                 
                 columns = ['Department', 'Name', 'Position', 'Base Salary', 'Travel Allowance', 'Fuel/Grocery Allowance', 'Other Allowance', 'Provident Fund', 'EOBI', 'Total Cost to Company', '% of Dept Cost', '% of Total Cost'];
@@ -7425,7 +7410,7 @@
                 };
                 
                 filteredData.forEach(emp => {
-                    const cost = parseMoney(emp['Total Cost to Company']);
+                    const cost = parseFloat(emp['Total Cost to Company'] || 0);
                     Object.values(ranges).forEach(range => {
                         if (cost >= range.min && cost < range.max) {
                             range.count++;
@@ -7447,10 +7432,10 @@
                 columns = ['ID', 'Name', 'Department', 'Base Salary', 'Travel Allowance', 'Fuel/Grocery Allowance', 'Other Allowance', 'Total Allowances', '% of Base'];
                 
                 filteredData = filteredData.map(emp => {
-                    const base = parseMoney(emp['Base Salary']);
-                    const travel = parseMoney(emp['Travel Allowance']);
-                    const fuel = parseMoney(emp['Fuel/Grocery Allowance']);
-                    const other = parseMoney(emp['Other Allowance']);
+                    const base = parseFloat(emp['Base Salary'] || 0);
+                    const travel = parseFloat(emp['Travel Allowance'] || 0);
+                    const fuel = parseFloat(emp['Fuel/Grocery Allowance'] || 0);
+                    const other = parseFloat(emp['Other Allowance'] || 0);
                     const totalAllowances = travel + fuel + other;
                     const percent = base > 0 ? ((totalAllowances / base) * 100).toFixed(1) : '0.0';
                     return { ...emp, 'Total Allowances': totalAllowances, '% of Base': percent + '%' };
@@ -7549,7 +7534,7 @@
                 columns = ['ID', 'Name', 'Department', 'Base Salary', 'PF Contribution', 'Monthly PF'];
                 
                 filteredData = filteredData.map(emp => {
-                    const baseSalary = parseMoney(emp['Base Salary']);
+                    const baseSalary = parseFloat(emp['Base Salary'] || 0);
                     const pfRate = 10; // 10% of base salary
                     const monthlyPF = (baseSalary * pfRate / 100);
                     return {
@@ -7682,12 +7667,12 @@
         function openPayrollModal(employee, index) {
             document.getElementById('payroll-employee-index').value = index;
             document.getElementById('payroll-name').value = employee.Name;
-            document.getElementById('payroll-salary').value = parseMoney(employee['Base Salary']);
-            document.getElementById('payroll-travel').value = parseMoney(employee['Travel Allowance']);
-            document.getElementById('payroll-fuel').value = parseMoney(employee['Fuel/Grocery Allowance']);
-            document.getElementById('payroll-other').value = parseMoney(employee['Other Allowance']);
-            document.getElementById('payroll-pf').value = parseMoney(employee['Provident Fund']);
-            document.getElementById('payroll-eobi').value = parseMoney(employee['EOBI']);
+            document.getElementById('payroll-salary').value = parseFloat(employee['Base Salary'] || 0);
+            document.getElementById('payroll-travel').value = parseFloat(employee['Travel Allowance'] || 0);
+            document.getElementById('payroll-fuel').value = parseFloat(employee['Fuel/Grocery Allowance'] || 0);
+            document.getElementById('payroll-other').value = parseFloat(employee['Other Allowance'] || 0);
+            document.getElementById('payroll-pf').value = parseFloat(employee['Provident Fund'] || 0);
+            document.getElementById('payroll-eobi').value = parseFloat(employee['EOBI'] || 0);
             
             // Calculate and display CTC preview
             updatePayrollCTCPreview();
