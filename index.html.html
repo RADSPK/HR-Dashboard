@@ -2559,7 +2559,7 @@
             if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
                 throw new Error('Apps Script URL is not configured yet.');
             }
-            const MAX_ATTEMPTS = 3;
+            const MAX_ATTEMPTS = 2;
             let rawText;
             try {
                 const response = await fetch(APPS_SCRIPT_URL, {
@@ -2571,7 +2571,7 @@
                 // The request itself didn't complete (not even a bad response) —
                 // also worth a retry, same as a non-JSON response below.
                 if (attempt < MAX_ATTEMPTS) {
-                    await new Promise(r => setTimeout(r, 700 * attempt));
+                    await new Promise(r => setTimeout(r, 300));
                     return callAppsScript(action, payload, attempt + 1);
                 }
                 throw networkErr;
@@ -2582,12 +2582,11 @@
                 data = JSON.parse(rawText);
             } catch (parseErr) {
                 // Apps Script Web Apps occasionally deliver a response through an
-                // internal redirect that can fail transiently — retrying after a
-                // short pause resolves this in most cases without the person
-                // needing to notice or do anything.
+                // internal redirect that can fail transiently — one quick retry
+                // resolves this in most cases without the person needing to notice.
                 if (attempt < MAX_ATTEMPTS) {
                     console.warn(`callAppsScript("${action}") got a non-JSON response on attempt ${attempt}, retrying…`);
-                    await new Promise(r => setTimeout(r, 700 * attempt));
+                    await new Promise(r => setTimeout(r, 300));
                     return callAppsScript(action, payload, attempt + 1);
                 }
                 console.error(`callAppsScript("${action}") got a non-JSON response after ${MAX_ATTEMPTS} attempts:`, rawText.slice(0, 500));
@@ -3845,8 +3844,10 @@
 
             try {
                 const token = getSessionToken();
-                const windowsResult = await callAppsScript('listReviewWindows', { token });
-                const evalsResult = await callAppsScript('listEvaluations', { token });
+                const [windowsResult, evalsResult] = await Promise.all([
+                    callAppsScript('listReviewWindows', { token }),
+                    callAppsScript('listEvaluations', { token })
+                ]);
                 cachedReviewWindows = windowsResult.windows || [];
                 cachedEvaluations = evalsResult.evaluations || [];
             } catch (err) {
@@ -4014,16 +4015,24 @@
             const token = getSessionToken();
 
             try {
-                if (canReviewApprovals() || currentUser) {
-                    const evalResult = await callAppsScript('listEvaluations', { token });
+                const needsEvals = canReviewApprovals() || currentUser;
+                const needsHiring = canHrReviewHiring() || canFinanceReviewHiring() || canCeoApproveHiring();
+                const needsOffers = canApproveOffers();
+
+                const [evalResult, hiringResult, offerResult] = await Promise.all([
+                    needsEvals ? callAppsScript('listEvaluations', { token }) : Promise.resolve(null),
+                    needsHiring ? callAppsScript('listHiringRequests', { token }) : Promise.resolve(null),
+                    needsOffers ? callAppsScript('listOfferLetters', { token }) : Promise.resolve(null)
+                ]);
+
+                if (needsEvals) {
                     const evals = evalResult.evaluations || [];
                     let count = canReviewApprovals() ? evals.filter(ev => ev.Status === 'Submitted').length : 0;
                     if (currentUser) count += evals.filter(ev => ev.Status === 'Pending Manager Review' && String(ev.EvaluatorUsername).toLowerCase() === String(currentUser.username).toLowerCase()).length;
                     if (count > 0) { total += count; breakdown.push(`${count} evaluation${count > 1 ? 's' : ''}`); }
                 }
 
-                if (canHrReviewHiring() || canFinanceReviewHiring() || canCeoApproveHiring()) {
-                    const hiringResult = await callAppsScript('listHiringRequests', { token });
+                if (needsHiring) {
                     const requests = hiringResult.requests || [];
                     let count = 0;
                     if (canHrReviewHiring()) count += requests.filter(r => r.Status === 'Pending HR Review').length;
@@ -4032,8 +4041,7 @@
                     if (count > 0) { total += count; breakdown.push(`${count} hiring request${count > 1 ? 's' : ''}`); }
                 }
 
-                if (canApproveOffers()) {
-                    const offerResult = await callAppsScript('listOfferLetters', { token });
+                if (needsOffers) {
                     const count = (offerResult.offers || []).filter(o => o.Status === 'Pending CEO Approval').length;
                     if (count > 0) { total += count; breakdown.push(`${count} offer letter${count > 1 ? 's' : ''}`); }
                 }
@@ -4184,8 +4192,10 @@
             let myEvaluations = [];
             let openWindows = [];
             try {
-                const evalResult = await callAppsScript('listEvaluations', { token });
-                const windowResult = await callAppsScript('listReviewWindows', { token });
+                const [evalResult, windowResult] = await Promise.all([
+                    callAppsScript('listEvaluations', { token }),
+                    callAppsScript('listReviewWindows', { token })
+                ]);
                 cachedEvaluations = evalResult.evaluations || [];
                 myEvaluations = cachedEvaluations.filter(ev => String(ev.EmployeeID) === String(emp.ID));
                 openWindows = (windowResult.windows || []).filter(w => w.status === 'Open');
