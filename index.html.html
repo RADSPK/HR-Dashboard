@@ -271,6 +271,21 @@
             color: var(--primary-color);
         }
 
+        .btn-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: btn-spin 0.7s linear infinite;
+            vertical-align: -2px;
+            margin-right: 8px;
+        }
+        @keyframes btn-spin {
+            to { transform: rotate(360deg); }
+        }
+
         .notif-bell-wrapper {
             position: relative;
         }
@@ -1213,7 +1228,7 @@
             
             <!-- Footer in Sidebar -->
             <div style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color); text-align: center; color: var(--secondary-color); font-size: 0.75rem; line-height: 1.4;">
-                Designed and Developed by<br>DETAILS - Finance Department @ RADS
+                Designed and Developed by<br>Finance Department - RADS
             </div>
         </aside>
 
@@ -2017,9 +2032,9 @@
                 <textarea id="review-comments" rows="3"></textarea>
             </div>
             <div style="display: flex; gap: 10px; margin-top: 16px;">
-                <button type="button" class="decision-btn approve" onclick="submitReviewDecision('Approved')"><i class="fas fa-check"></i> Approve</button>
-                <button type="button" class="decision-btn changes" onclick="submitReviewDecision('Changes Requested')"><i class="fas fa-rotate-left"></i> Request Changes</button>
-                <button type="button" class="decision-btn reject" onclick="submitReviewDecision('Rejected')"><i class="fas fa-xmark"></i> Reject</button>
+                <button type="button" class="decision-btn approve" onclick="submitReviewDecision('Approved', this)"><i class="fas fa-check"></i> Approve</button>
+                <button type="button" class="decision-btn changes" onclick="submitReviewDecision('Changes Requested', this)"><i class="fas fa-rotate-left"></i> Request Changes</button>
+                <button type="button" class="decision-btn reject" onclick="submitReviewDecision('Rejected', this)"><i class="fas fa-xmark"></i> Reject</button>
             </div>
         </div>
     </div>
@@ -2257,8 +2272,8 @@
                 <textarea id="hiring-review-comments" rows="3"></textarea>
             </div>
             <div style="display: flex; gap: 10px; margin-top: 16px;">
-                <button type="button" class="decision-btn approve" onclick="submitHiringReviewDecision('Approved')"><i class="fas fa-check"></i> Approve</button>
-                <button type="button" class="decision-btn reject" onclick="submitHiringReviewDecision('Rejected')"><i class="fas fa-xmark"></i> Reject</button>
+                <button type="button" class="decision-btn approve" onclick="submitHiringReviewDecision('Approved', this)"><i class="fas fa-check"></i> Approve</button>
+                <button type="button" class="decision-btn reject" onclick="submitHiringReviewDecision('Rejected', this)"><i class="fas fa-xmark"></i> Reject</button>
             </div>
         </div>
     </div>
@@ -2334,8 +2349,8 @@
                 <textarea id="offer-review-comments" rows="3"></textarea>
             </div>
             <div style="display: flex; gap: 10px; margin-top: 16px;">
-                <button type="button" class="decision-btn approve" onclick="submitOfferReviewDecision('Approved')"><i class="fas fa-signature"></i> Approve &amp; E-Sign</button>
-                <button type="button" class="decision-btn reject" onclick="submitOfferReviewDecision('Rejected')"><i class="fas fa-xmark"></i> Reject</button>
+                <button type="button" class="decision-btn approve" onclick="submitOfferReviewDecision('Approved', this)"><i class="fas fa-signature"></i> Approve &amp; E-Sign</button>
+                <button type="button" class="decision-btn reject" onclick="submitOfferReviewDecision('Rejected', this)"><i class="fas fa-xmark"></i> Reject</button>
             </div>
         </div>
     </div>
@@ -2431,6 +2446,8 @@
             const username = document.getElementById('fp-username').value.trim();
             const msgDiv = document.getElementById('fp-message');
             msgDiv.style.display = 'none';
+            const btn = e.target.querySelector('button[type="submit"]');
+            setButtonLoading(btn, true, 'Sending…');
             try {
                 const result = await callAppsScript('forgotPassword', { username });
                 msgDiv.textContent = result.message || 'If that account exists, a temporary password has been sent.';
@@ -2443,6 +2460,8 @@
                 msgDiv.style.background = 'rgba(192,57,43,0.12)';
                 msgDiv.style.color = '#c0392b';
                 msgDiv.style.display = 'block';
+            } finally {
+                setButtonLoading(btn, false);
             }
         }
 
@@ -2461,6 +2480,8 @@
             e.preventDefault();
             const email = document.getElementById('missing-email-input').value.trim();
             const token = getSessionToken();
+            const btn = e.target.querySelector('button[type="submit"]');
+            setButtonLoading(btn, true, 'Saving…');
             try {
                 await callAppsScript('updateMyEmail', { token, email });
                 currentUser.email = email;
@@ -2473,6 +2494,8 @@
                 document.getElementById('missing-email-modal').style.display = 'none';
             } catch (err) {
                 alert('Could not save your email: ' + err.message);
+            } finally {
+                setButtonLoading(btn, false);
             }
         }
 
@@ -2496,6 +2519,8 @@
                 return;
             }
 
+            const btn = e.target.querySelector('button[type="submit"]');
+            setButtonLoading(btn, true, 'Updating…');
             try {
                 const oldPasswordHash = await hashPassword(currentPassword);
                 const newPasswordHash = await hashPassword(newPassword);
@@ -2506,6 +2531,27 @@
             } catch (err) {
                 errorDiv.textContent = err.message || 'Could not change password.';
                 errorDiv.style.display = 'block';
+            } finally {
+                setButtonLoading(btn, false);
+            }
+        }
+
+        // Shows a spinner + text on a button and disables it while an action is
+        // in progress, then restores exactly what was there before. Use around
+        // any await callAppsScript(...) call: setButtonLoading(btn, true, 'Saving…')
+        // ... await ... setButtonLoading(btn, false).
+        function setButtonLoading(button, isLoading, loadingText) {
+            if (!button) return;
+            if (isLoading) {
+                if (button.dataset.originalHtml === undefined) button.dataset.originalHtml = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = `<span class="btn-spinner"></span>${loadingText || 'Please wait…'}`;
+            } else {
+                button.disabled = false;
+                if (button.dataset.originalHtml !== undefined) {
+                    button.innerHTML = button.dataset.originalHtml;
+                    delete button.dataset.originalHtml;
+                }
             }
         }
 
@@ -2600,6 +2646,8 @@
 
                 const username = usernameInput.value.trim();
                 const enteredPassword = passwordInput.value;
+                const loginBtn = loginForm.querySelector('.login-button');
+                setButtonLoading(loginBtn, true, 'Logging in…');
 
                 try {
                     const passwordHash = await hashPassword(enteredPassword);
@@ -2624,6 +2672,8 @@
                     const loginBox = document.querySelector('.login-box');
                     loginBox.style.animation = 'shake 0.5s';
                     setTimeout(() => { loginBox.style.animation = ''; }, 500);
+                } finally {
+                    setButtonLoading(loginBtn, false);
                 }
             });
         });
@@ -3102,13 +3152,15 @@
                 if (!confirm(`Link this account to ${empName}'s employee record?\n\nThey'll be able to log in and submit their own self-assessment as ${empName}. Make sure this is the right person before confirming.`)) return;
             }
 
+            const btn = e.target.querySelector('button[type="submit"]');
+            setButtonLoading(btn, true, 'Saving…');
             try {
                 if (editingUsername) {
                     const payload = { token, user: { username: editingUsername, fullName, email, employeeId, role, permissions, active: document.getElementById('user-active').value === 'TRUE' } };
                     if (password) payload.user.passwordHash = await hashPassword(password);
                     await callAppsScript('updateUser', payload);
                 } else {
-                    if (!password) { alert('Password is required for new users.'); return; }
+                    if (!password) { alert('Password is required for new users.'); setButtonLoading(btn, false); return; }
                     const passwordHash = await hashPassword(password);
                     await callAppsScript('createUser', { token, user: { username, fullName, email, employeeId, role, permissions, passwordHash } });
                 }
@@ -3123,6 +3175,8 @@
                 loadUsers();
             } catch (err) {
                 alert('Could not save user: ' + err.message);
+            } finally {
+                setButtonLoading(btn, false);
             }
         }
 
@@ -3476,6 +3530,8 @@
             };
 
             const token = getSessionToken();
+            const btn = e.target.querySelector('button[type="submit"]');
+            setButtonLoading(btn, true, 'Submitting…');
             try {
                 await callAppsScript('submitEvaluation', { token, evaluation });
                 closeEvaluationModal();
@@ -3485,6 +3541,8 @@
                 if (approvalsPage && approvalsPage.classList.contains('active')) loadEvaluations();
             } catch (err) {
                 alert('Could not submit evaluation: ' + err.message);
+            } finally {
+                setButtonLoading(btn, false);
             }
         }
 
@@ -3886,10 +3944,11 @@
             currentReviewEvalId = null;
         }
 
-        async function submitReviewDecision(decision) {
+        async function submitReviewDecision(decision, btn) {
             if (!currentReviewEvalId) return;
             const ceoComments = document.getElementById('review-comments').value;
             const token = getSessionToken();
+            setButtonLoading(btn, true, 'Submitting…');
             try {
                 await callAppsScript('reviewEvaluation', { token, evalId: currentReviewEvalId, decision, ceoComments });
                 closeReviewModal();
@@ -3897,6 +3956,8 @@
                 checkPendingApprovals();
             } catch (err) {
                 alert('Could not submit decision: ' + err.message);
+            } finally {
+                setButtonLoading(btn, false);
             }
         }
 
@@ -5042,8 +5103,10 @@
                 project: document.getElementById('hr-project').value
             };
             const token = getSessionToken();
+            const btn = e.target.querySelector('button[type="submit"]');
 
             if (editingHiringRequestId) {
+                setButtonLoading(btn, true, 'Saving…');
                 try {
                     await callAppsScript('editHiringRequest', { token, requestId: editingHiringRequestId, request });
                     closeHiringRequestModal();
@@ -5051,12 +5114,15 @@
                     loadHiringRequests();
                 } catch (err) {
                     alert('Could not update hiring request: ' + err.message);
+                } finally {
+                    setButtonLoading(btn, false);
                 }
                 return;
             }
 
             if (!confirm('Are you sure you want to submit this hiring request?\n\nPlease double-check every field once more — including spelling — before submitting.')) return;
 
+            setButtonLoading(btn, true, 'Submitting…');
             try {
                 await callAppsScript('submitHiringRequest', { token, request });
                 closeHiringRequestModal();
@@ -5064,6 +5130,8 @@
                 loadHiringRequests();
             } catch (err) {
                 alert('Could not submit hiring request: ' + err.message);
+            } finally {
+                setButtonLoading(btn, false);
             }
         }
 
@@ -5186,10 +5254,11 @@
             currentHiringReviewStage = null;
         }
 
-        async function submitHiringReviewDecision(decision) {
+        async function submitHiringReviewDecision(decision, btn) {
             if (!currentHiringReviewId) return;
             const comments = document.getElementById('hiring-review-comments').value;
             const token = getSessionToken();
+            setButtonLoading(btn, true, 'Submitting…');
             try {
                 if (currentHiringReviewStage === 'Pending HR Review') {
                     await callAppsScript('hrReviewHiringRequest', { token, requestId: currentHiringReviewId, decision, comments });
@@ -5204,6 +5273,8 @@
                 checkPendingApprovals();
             } catch (err) {
                 alert('Could not submit decision: ' + err.message);
+            } finally {
+                setButtonLoading(btn, false);
             }
         }
 
@@ -5303,6 +5374,8 @@
                 linkedHiringRequestId: document.getElementById('offer-linked-request').value || ''
             };
             const token = getSessionToken();
+            const btn = e.target.querySelector('button[type="submit"]');
+            setButtonLoading(btn, true, 'Submitting…');
             try {
                 await callAppsScript('createOfferLetter', { token, offer });
                 closeOfferLetterModal();
@@ -5310,6 +5383,8 @@
                 loadOfferLetters();
             } catch (err) {
                 alert('Could not submit offer letter: ' + err.message);
+            } finally {
+                setButtonLoading(btn, false);
             }
         }
 
@@ -5396,10 +5471,11 @@
             currentOfferReviewId = null;
         }
 
-        async function submitOfferReviewDecision(decision) {
+        async function submitOfferReviewDecision(decision, btn) {
             if (!currentOfferReviewId) return;
             const comments = document.getElementById('offer-review-comments').value;
             const token = getSessionToken();
+            setButtonLoading(btn, true, decision === 'Approved' ? 'Signing…' : 'Submitting…');
             try {
                 await callAppsScript('ceoDecideOfferLetter', { token, offerId: currentOfferReviewId, decision, comments });
                 closeOfferReviewModal();
@@ -5408,6 +5484,8 @@
                 checkPendingApprovals();
             } catch (err) {
                 alert('Could not submit decision: ' + err.message);
+            } finally {
+                setButtonLoading(btn, false);
             }
         }
 
