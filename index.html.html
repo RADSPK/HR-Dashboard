@@ -2502,21 +2502,43 @@
             }
         }
 
-        async function callAppsScript(action, payload) {
+        async function callAppsScript(action, payload, attempt = 1) {
             if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
                 throw new Error('Apps Script URL is not configured yet.');
             }
-            const response = await fetch(APPS_SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action, ...payload })
-            });
-            const rawText = await response.text();
+            const MAX_ATTEMPTS = 3;
+            let rawText;
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action, ...payload })
+                });
+                rawText = await response.text();
+            } catch (networkErr) {
+                // The request itself didn't complete (not even a bad response) —
+                // also worth a retry, same as a non-JSON response below.
+                if (attempt < MAX_ATTEMPTS) {
+                    await new Promise(r => setTimeout(r, 700 * attempt));
+                    return callAppsScript(action, payload, attempt + 1);
+                }
+                throw networkErr;
+            }
+
             let data;
             try {
                 data = JSON.parse(rawText);
             } catch (parseErr) {
-                console.error(`callAppsScript("${action}") got a non-JSON response:`, rawText.slice(0, 500));
-                throw new Error(`The server didn't return valid data for "${action}". This usually means the Apps Script deployment needs a fresh "New version" deploy, or the deployment's access settings changed. Check the browser console for the raw response.`);
+                // Apps Script Web Apps occasionally deliver a response through an
+                // internal redirect that can fail transiently — retrying after a
+                // short pause resolves this in most cases without the person
+                // needing to notice or do anything.
+                if (attempt < MAX_ATTEMPTS) {
+                    console.warn(`callAppsScript("${action}") got a non-JSON response on attempt ${attempt}, retrying…`);
+                    await new Promise(r => setTimeout(r, 700 * attempt));
+                    return callAppsScript(action, payload, attempt + 1);
+                }
+                console.error(`callAppsScript("${action}") got a non-JSON response after ${MAX_ATTEMPTS} attempts:`, rawText.slice(0, 500));
+                throw new Error(`The server didn't return valid data for "${action}" after ${MAX_ATTEMPTS} attempts. This usually means the Apps Script deployment needs a fresh "New version" deploy, or the deployment's access settings changed. Check the browser console for the raw response.`);
             }
             if (!data.success) throw new Error(data.error || 'Request failed');
             return data;
@@ -3758,10 +3780,8 @@
 
             try {
                 const token = getSessionToken();
-                const [windowsResult, evalsResult] = await Promise.all([
-                    callAppsScript('listReviewWindows', { token }),
-                    callAppsScript('listEvaluations', { token })
-                ]);
+                const windowsResult = await callAppsScript('listReviewWindows', { token });
+                const evalsResult = await callAppsScript('listEvaluations', { token });
                 cachedReviewWindows = windowsResult.windows || [];
                 cachedEvaluations = evalsResult.evaluations || [];
             } catch (err) {
@@ -4096,10 +4116,8 @@
             let myEvaluations = [];
             let openWindows = [];
             try {
-                const [evalResult, windowResult] = await Promise.all([
-                    callAppsScript('listEvaluations', { token }),
-                    callAppsScript('listReviewWindows', { token })
-                ]);
+                const evalResult = await callAppsScript('listEvaluations', { token });
+                const windowResult = await callAppsScript('listReviewWindows', { token });
                 cachedEvaluations = evalResult.evaluations || [];
                 myEvaluations = cachedEvaluations.filter(ev => String(ev.EmployeeID) === String(emp.ID));
                 openWindows = (windowResult.windows || []).filter(w => w.status === 'Open');
