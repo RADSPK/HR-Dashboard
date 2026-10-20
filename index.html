@@ -197,6 +197,57 @@
         body.employee-mode .sidebar {
             display: none;
         }
+        /* ---- Leave page ---- */
+        .lv-tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:8px; }
+        .lv-tile { border:1px solid var(--border-color); border-radius:10px; padding:10px 6px; text-align:center; cursor:pointer; font-size:0.8rem; color:var(--secondary-color); background:var(--card-bg); }
+        .lv-tile i { display:block; font-size:1.15rem; margin-bottom:4px; color:var(--c); }
+        .lv-tile.on { border:2px solid var(--c); padding:9px 5px; background:color-mix(in srgb, var(--c) 12%, transparent); color:var(--text-color); font-weight:600; }
+        .lv-summary { background:color-mix(in srgb, var(--primary-color) 12%, transparent); border-radius:8px; padding:10px 12px; margin:10px 0; font-size:0.85rem; line-height:1.5; min-height:1.2em; }
+        .lv-summary.bad { background:rgba(176,0,32,0.10); color:#b00020; }
+        .lv-hero { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; padding:20px 22px; margin-bottom:22px; border-radius:14px; border:1px solid var(--border-color); background: linear-gradient(135deg, rgba(139,38,53,0.10), rgba(139,38,53,0.02)), var(--card-bg); }
+        .lv-hello { font-size:1.35rem; font-weight:700; }
+        .lv-sub { color:var(--secondary-color); font-size:0.9rem; margin-top:4px; }
+        .lv-hero-actions { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+        .lv-apply { width:auto !important; padding:10px 20px !important; }
+        .lv-ghost { background:transparent; border:1px solid var(--border-color); color:var(--text-color); padding:8px 14px; border-radius:8px; cursor:pointer; font-size:0.85rem; font-weight:600; }
+        .lv-ghost:hover { border-color:var(--primary-color); color:var(--primary-color); }
+        .lv-section-title { font-weight:700; font-size:1rem; margin:0 0 10px; }
+        .lv-section-title span { color:var(--secondary-color); font-weight:500; margin-left:6px; }
+        .lv-balances { display:grid; grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:12px; margin-bottom:26px; }
+        .lv-bal { background:var(--card-bg); border:1px solid var(--border-color); border-top:3px solid var(--c); border-radius:12px; padding:14px; }
+        .lv-bal-top { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+        .lv-bal-name { font-size:0.82rem; font-weight:600; color:var(--secondary-color); }
+        .lv-ico { width:32px; height:32px; flex:0 0 32px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:var(--c); background:color-mix(in srgb, var(--c) 16%, transparent); font-size:0.85rem; }
+        .lv-bal-num { font-size:1.9rem; font-weight:800; line-height:1; color:var(--text-color); }
+        .lv-bal-num small { font-size:0.72rem; font-weight:500; color:var(--secondary-color); margin-left:6px; }
+        .lv-bar { height:6px; border-radius:6px; background:color-mix(in srgb, var(--c) 14%, transparent); margin:10px 0 8px; display:flex; overflow:hidden; }
+        .lv-bar i { display:block; background:var(--c); }
+        .lv-bar i.p { background:repeating-linear-gradient(45deg, var(--c), var(--c) 3px, transparent 3px, transparent 6px); opacity:0.55; }
+        .lv-bal-foot { font-size:0.72rem; color:var(--secondary-color); margin-top:6px; }
+        .lv-tabs { display:flex; gap:6px; border-bottom:1px solid var(--border-color); margin-bottom:14px; flex-wrap:wrap; }
+        .lv-tabs button { background:none; border:none; border-bottom:3px solid transparent; padding:10px 14px; cursor:pointer; color:var(--secondary-color); font-weight:600; font-size:0.88rem; }
+        .lv-tabs button.on { color:var(--primary-color); border-bottom-color:var(--primary-color); }
+        .lv-tabs button b { background:var(--primary-color); color:#fff; border-radius:10px; font-size:0.7rem; padding:1px 7px; margin-left:6px; }
+        .lv-filter { display:flex; align-items:center; gap:8px; justify-content:flex-end; margin-bottom:10px; font-size:0.82rem; color:var(--secondary-color); }
+        .lv-filter select { padding:5px 8px; border-radius:6px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-color); }
+        .lv-list { display:flex; flex-direction:column; gap:10px; }
+        .lv-card { display:flex; gap:14px; align-items:flex-start; background:var(--card-bg); border:1px solid var(--border-color); border-left:4px solid var(--c); border-radius:12px; padding:14px 16px; }
+        .lv-card.st-cancelled, .lv-card.st-rejected { opacity:0.72; }
+        .lv-main { flex:1; min-width:0; }
+        .lv-who { font-weight:700; margin-bottom:2px; }
+        .lv-who span { font-weight:400; font-size:0.75rem; color:var(--secondary-color); }
+        .lv-title { font-weight:700; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .lv-days { font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:10px; color:var(--c); background:color-mix(in srgb, var(--c) 14%, transparent); }
+        .lv-dates { font-size:0.85rem; color:var(--secondary-color); margin-top:3px; }
+        .lv-reason { font-size:0.88rem; margin-top:6px; }
+        .lv-note { font-size:0.76rem; color:var(--secondary-color); margin-top:6px; font-style:italic; }
+        .lv-side { display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+        .lv-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+        .lv-cancel { padding:5px 12px; font-size:0.78rem; }
+        .lv-empty { text-align:center; padding:44px 16px; color:var(--secondary-color); border:1px dashed var(--border-color); border-radius:12px; }
+        .lv-empty i { font-size:2.2rem; color:var(--primary-color); opacity:0.6; display:block; margin-bottom:10px; }
+        .lv-empty .lv-apply { margin-top:14px; }
+        @media (max-width:600px) { .lv-card { flex-wrap:wrap; } .lv-side { flex-direction:row; align-items:center; width:100%; justify-content:space-between; } }
         .emp-switch { display: none; }
         body.employee-mode .emp-switch { display: flex; gap: 8px; justify-content: center; margin-bottom: 22px; }
         .emp-switch button { background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 7px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; }
@@ -1187,16 +1238,16 @@
             <span class="close-button" onclick="closeLeaveModal()">&times;</span>
             <h3 style="margin-bottom: 14px;">Apply for Leave</h3>
             <div class="form-group" id="lv-behalf-group" style="display:none;"><label for="lv-employee">Employee</label><select id="lv-employee"></select></div>
-            <div class="form-group"><label for="lv-type">Leave type</label><select id="lv-type"></select></div>
+            <div class="form-group"><label>Leave type</label><input type="hidden" id="lv-type"><div id="lv-type-tiles" class="lv-tiles"></div></div>
             <div class="form-grid">
                 <div class="form-group"><label for="lv-start">From</label><input type="date" id="lv-start" onchange="if(!document.getElementById('lv-end').value||document.getElementById('lv-end').value<this.value)document.getElementById('lv-end').value=this.value;updateLeavePreview()"></div>
                 <div class="form-group"><label for="lv-end">To</label><input type="date" id="lv-end" onchange="updateLeavePreview()"></div>
             </div>
             <div class="permission-row"><input type="checkbox" id="lv-half" onchange="updateLeavePreview()"><label for="lv-half" style="margin:0;">Half day (single date only)</label></div>
-            <div id="lv-preview" style="font-size:0.85rem;color:var(--primary-color);margin:8px 0;min-height:1.1em;"></div>
+            <div id="lv-preview" class="lv-summary"></div>
             <div class="form-group"><label for="lv-reason">Reason</label><textarea id="lv-reason" rows="3"></textarea></div>
             <div id="lv-error" style="display:none;color:#b00020;font-size:0.85rem;margin-bottom:10px;"></div>
-            <button class="btn-submit-prominent" onclick="submitLeave(this)"><i class="fas fa-paper-plane"></i> Submit Request</button>
+            <button class="btn-submit-prominent" onclick="submitLeave(this)"><i class="fas fa-paper-plane"></i> Submit request</button>
         </div>
     </div>
 
@@ -6499,64 +6550,99 @@
             }
         }
 
+        let leaveTab = null, leaveStatusFilter = 'all';
+        const LEAVE_META = {
+            'Annual':    { icon: 'fa-umbrella-beach', color: '#b5485d' },
+            'Sick':      { icon: 'fa-notes-medical',  color: '#3b82a0' },
+            'Casual':    { icon: 'fa-mug-hot',        color: '#c58b2a' },
+            'Maternity': { icon: 'fa-baby',           color: '#8e5ea2' },
+            'Paternity': { icon: 'fa-baby-carriage',  color: '#3f8f7a' },
+            'Unpaid':    { icon: 'fa-hourglass-half', color: '#7a7a7a' }
+        };
+        function leaveMeta(t) { return LEAVE_META[t] || { icon: 'fa-calendar', color: '#7a7a7a' }; }
+        function setLeaveTab(t) { leaveTab = t; leaveStatusFilter = 'all'; renderLeave(); }
+        function setLeaveFilter(v) { leaveStatusFilter = v; renderLeave(); }
+
         function renderLeave() {
             const d = leaveData; if (!d) return;
             const body = document.getElementById('leave-body');
-            let html = '';
+            const first = ((currentUser && currentUser.fullName) || '').split(' ')[0] || 'there';
+            const today = new Date().toISOString().slice(0, 10);
+            const upcoming = d.hasEmployee ? d.myRequests.filter(r => r.status === 'Approved' && r.endDate >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] : null;
+            const pendingMine = d.hasEmployee ? d.myRequests.filter(r => r.status === 'Pending').length : 0;
+
+            // tabs available
+            const tabs = [];
+            if (d.hasEmployee) tabs.push({ id: 'mine', label: 'My Requests', icon: 'fa-user', rows: d.myRequests });
+            if (d.toDecide.length || d.canManage || isTeamLead()) tabs.push({ id: 'decide', label: 'Awaiting My Decision', icon: 'fa-inbox', rows: d.toDecide, badge: d.toDecide.length });
+            if (d.canViewAll) tabs.push({ id: 'all', label: 'All Employees', icon: 'fa-users', rows: d.allRequests });
+            if (!tabs.find(t => t.id === leaveTab)) leaveTab = (tabs.find(t => t.id === 'decide' && t.badge) || tabs[0] || {}).id;
+            const cur = tabs.find(t => t.id === leaveTab);
+
+            let html = `<div class="lv-hero">
+                <div><div class="lv-hello">Leave</div>
+                <div class="lv-sub">${leaveEsc((currentUser && currentUser.fullName) || '')} · ${upcoming ? `Your next leave: <strong>${leaveEsc(leaveData.policy[upcoming.leaveType] ? leaveData.policy[upcoming.leaveType].label : upcoming.leaveType)}</strong>, ${leaveRange(upcoming)}` : (pendingMine ? `You have ${pendingMine} request${pendingMine > 1 ? 's' : ''} awaiting approval.` : 'Plan your time off and track approvals in one place.')}</div></div>
+                <div class="lv-hero-actions">
+                    ${d.hasEmployee ? `<button class="btn-submit-prominent lv-apply" onclick="openLeaveModal()"><i class="fas fa-plus"></i> Apply for Leave</button>` : ''}
+                    ${d.canManage ? `<button class="lv-ghost" onclick="openLeaveModal(true)"><i class="fas fa-user-plus"></i> On behalf of employee</button>` : ''}
+                </div></div>`;
 
             if (d.hasEmployee) {
-                html += `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-                    <h3 style="margin:0;">My Leave Balance (${d.year})</h3>
-                    <button class="btn-submit-prominent" style="width:auto;padding:8px 16px;" onclick="openLeaveModal()"><i class="fas fa-plus"></i> Apply for Leave</button></div>
-                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:22px;">` +
-                    Object.keys(d.policy).map(t => {
-                        const b = d.myBalances[t], cap = b.entitled;
-                        const left = cap === null ? '∞' : (cap - b.used - b.pending);
-                        return `<div class="card" style="flex-direction:column;align-items:flex-start;padding:12px;">
-                            <div style="font-size:0.78rem;color:var(--secondary-color);">${leaveEsc(d.policy[t].label)}</div>
-                            <div style="font-size:1.5rem;font-weight:700;color:var(--primary-color);">${left}<span style="font-size:0.8rem;font-weight:500;color:var(--secondary-color);"> left</span></div>
-                            <div style="font-size:0.75rem;color:var(--secondary-color);">${b.used} used${b.pending ? ' · ' + b.pending + ' pending' : ''}${cap !== null ? ' · of ' + cap : ''}</div></div>`;
+                html += `<div class="lv-section-title">Leave balance <span>${d.year}</span></div><div class="lv-balances">` +
+                    Object.keys(d.policy).filter(t => ['Annual','Sick','Casual'].indexOf(t) !== -1 || d.myBalances[t].used + d.myBalances[t].pending > 0).map(t => {
+                        const b = d.myBalances[t], cap = b.entitled, m = leaveMeta(t);
+                        const unlimited = cap === null;
+                        const left = unlimited ? '∞' : (cap - b.used - b.pending);
+                        const usedPct = unlimited ? 0 : Math.min(100, b.used / cap * 100);
+                        const pendPct = unlimited ? 0 : Math.min(100 - usedPct, b.pending / cap * 100);
+                        return `<div class="lv-bal" style="--c:${m.color}">
+                            <div class="lv-bal-top"><span class="lv-ico"><i class="fas ${m.icon}"></i></span><span class="lv-bal-name">${leaveEsc(d.policy[t].label.replace(' Leave', ''))}</span></div>
+                            <div class="lv-bal-num">${left}<small>${unlimited ? 'no limit' : 'days left'}</small></div>
+                            ${unlimited ? '' : `<div class="lv-bar"><i style="width:${usedPct}%"></i><i class="p" style="width:${pendPct}%"></i></div>`}
+                            <div class="lv-bal-foot">${b.used} used${b.pending ? ` · ${b.pending} pending` : ''}${unlimited ? '' : ` · ${cap} total`}</div></div>`;
                     }).join('') + `</div>`;
-            } else if (canManageLeave()) {
-                html += `<div style="display:flex;justify-content:flex-end;margin-bottom:12px;"><button class="btn-submit-prominent" style="width:auto;padding:8px 16px;" onclick="openLeaveModal(true)"><i class="fas fa-plus"></i> Apply on Behalf of Employee</button></div>`;
             }
 
-            if (d.toDecide.length) {
-                html += `<h3 style="margin:6px 0 8px;">Awaiting your decision (${d.toDecide.length})</h3>` + leaveTable(d.toDecide, 'decide');
+            if (!cur) { body.innerHTML = html; return; }
+
+            html += `<div class="lv-tabs">` + tabs.map(t => `<button class="${t.id === leaveTab ? 'on' : ''}" onclick="setLeaveTab('${t.id}')"><i class="fas ${t.icon}"></i> ${t.label}${t.badge ? `<b>${t.badge}</b>` : ''}</button>`).join('') + `</div>`;
+
+            let rows = cur.rows;
+            if (cur.id !== 'decide') {
+                html += `<div class="lv-filter"><label>Show</label><select onchange="setLeaveFilter(this.value)">` +
+                    ['all', 'Pending', 'Approved', 'Rejected', 'Cancelled'].map(s => `<option value="${s}" ${leaveStatusFilter === s ? 'selected' : ''}>${s === 'all' ? 'All statuses' : s}</option>`).join('') + `</select></div>`;
+                if (leaveStatusFilter !== 'all') rows = rows.filter(r => r.status === leaveStatusFilter);
             }
-            if (d.hasEmployee) {
-                html += `<h3 style="margin:18px 0 8px;">My Requests</h3>` + (d.myRequests.length ? leaveTable(d.myRequests, 'mine') : '<p style="color:var(--secondary-color);">No leave requests yet.</p>');
-            }
-            if (d.canViewAll) {
-                html += `<h3 style="margin:18px 0 8px;">All Leave Requests</h3>` + (d.allRequests.length ? leaveTable(d.allRequests, 'all') : '<p style="color:var(--secondary-color);">Nothing here yet.</p>');
-            }
-            if (d.canManage && d.hasEmployee) {
-                html += `<div style="margin-top:14px;"><button class="action-buttons" onclick="openLeaveModal(true)"><i class="fas fa-user-plus"></i> Apply on behalf of an employee</button></div>`;
-            }
+            html += rows.length ? `<div class="lv-list">` + rows.map(r => leaveCard(r, cur.id)).join('') + `</div>` : `
+                <div class="lv-empty"><i class="fas ${cur.id === 'decide' ? 'fa-circle-check' : 'fa-calendar-days'}"></i>
+                <div>${cur.id === 'decide' ? "You're all caught up — nothing needs your decision." : 'No leave requests to show.'}</div>
+                ${cur.id === 'mine' && d.hasEmployee ? `<button class="btn-submit-prominent lv-apply" onclick="openLeaveModal()"><i class="fas fa-plus"></i> Apply for Leave</button>` : ''}</div>`;
             body.innerHTML = html;
         }
 
-        function leaveTable(rows, mode) {
-            const showEmp = mode !== 'mine';
-            return `<div style="overflow-x:auto;"><table class="data-table" style="width:100%;"><thead><tr>
-                ${showEmp ? '<th>Employee</th>' : ''}<th>Type</th><th>Dates</th><th>Days</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody>` +
-                rows.map(r => {
-                    const id = leaveEsc(r.leaveId);
-                    let actions = '';
-                    if (mode === 'decide' || (r.status === 'Pending' && leaveData.toDecide.some(x => x.leaveId === r.leaveId))) {
-                        actions += `<button class="decision-btn approve" onclick="openLeaveDecision('${id}','Approved')">Approve</button> <button class="decision-btn reject" onclick="openLeaveDecision('${id}','Rejected')">Reject</button> `;
-                    }
-                    const mineRow = leaveData.hasEmployee && leaveData.myRequests.some(x => x.leaveId === r.leaveId);
-                    if ((r.status === 'Pending' || r.status === 'Approved') && (mineRow || leaveData.canManage)) {
-                        actions += `<button class="action-buttons" style="padding:4px 10px;" onclick="cancelLeaveAction('${id}', this)">Cancel</button>`;
-                    }
-                    return `<tr>${showEmp ? `<td>${leaveEsc(r.employeeName)}${r.appliedOnBehalfBy ? `<div style="font-size:0.7rem;color:var(--secondary-color);">by ${leaveEsc(r.appliedOnBehalfBy)}</div>` : ''}</td>` : ''}
-                        <td>${leaveEsc(leaveData.policy[r.leaveType] ? leaveData.policy[r.leaveType].label : r.leaveType)}</td>
-                        <td>${leaveRange(r)}${r.halfDay ? ' (half day)' : ''}</td><td>${r.days}</td>
-                        <td style="max-width:220px;">${leaveEsc(r.reason)}${r.decisionComments ? `<div style="font-size:0.75rem;color:var(--secondary-color);">${leaveEsc(r.decidedByName)}: ${leaveEsc(r.decisionComments)}</div>` : ''}</td>
-                        <td>${leaveStatusBadge(r.status)}${r.status === 'Pending' ? `<div style="font-size:0.7rem;color:var(--secondary-color);">with ${leaveEsc(r.routedToName || 'HR')}</div>` : ''}</td>
-                        <td style="white-space:nowrap;">${actions}</td></tr>`;
-                }).join('') + `</tbody></table></div>`;
+        function leaveCard(r, tabId) {
+            const m = leaveMeta(r.leaveType), id = leaveEsc(r.leaveId);
+            const label = leaveData.policy[r.leaveType] ? leaveData.policy[r.leaveType].label : r.leaveType;
+            const canDecide = r.status === 'Pending' && leaveData.toDecide.some(x => x.leaveId === r.leaveId);
+            const mineRow = leaveData.hasEmployee && leaveData.myRequests.some(x => x.leaveId === r.leaveId);
+            const canCancel = (r.status === 'Pending' || r.status === 'Approved') && (mineRow || leaveData.canManage);
+            const sc = r.status.toLowerCase();
+            let actions = '';
+            if (canDecide) actions += `<button class="decision-btn approve" onclick="openLeaveDecision('${id}','Approved')"><i class="fas fa-check"></i> Approve</button><button class="decision-btn reject" onclick="openLeaveDecision('${id}','Rejected')"><i class="fas fa-xmark"></i> Reject</button>`;
+            if (canCancel) actions += `<button class="lv-ghost lv-cancel" onclick="cancelLeaveAction('${id}', this)">Cancel</button>`;
+            const who = tabId !== 'mine' ? `<div class="lv-who">${leaveEsc(r.employeeName)}${r.appliedOnBehalfBy ? ` <span>· applied by ${leaveEsc(r.appliedOnBehalfBy)}</span>` : ''}</div>` : '';
+            const note = r.status === 'Pending' ? `Waiting for ${leaveEsc(r.routedToName || 'HR')}` :
+                (r.decidedByName ? `${r.status} by ${leaveEsc(r.decidedByName)}${r.decisionComments ? ` — “${leaveEsc(r.decisionComments)}”` : ''}` : '');
+            return `<div class="lv-card st-${sc}" style="--c:${m.color}">
+                <span class="lv-ico"><i class="fas ${m.icon}"></i></span>
+                <div class="lv-main">
+                    ${who}
+                    <div class="lv-title">${leaveEsc(label)}<span class="lv-days">${r.days} day${r.days === 1 ? '' : 's'}${r.halfDay ? ' · half' : ''}</span></div>
+                    <div class="lv-dates"><i class="far fa-calendar"></i> ${leaveRange(r)}</div>
+                    ${r.reason ? `<div class="lv-reason">${leaveEsc(r.reason)}</div>` : ''}
+                    ${note ? `<div class="lv-note">${note}</div>` : ''}
+                </div>
+                <div class="lv-side">${leaveStatusBadge(r.status)}<div class="lv-actions">${actions}</div></div></div>`;
         }
 
         // Mirrors the server's counting (Mon–Fri minus holidays) for the live preview only —
@@ -6574,26 +6660,46 @@
             return half ? ((start === end && n === 1) ? 0.5 : -1) : n;
         }
 
+        function pickLeaveType(t) {
+            document.getElementById('lv-type').value = t;
+            document.querySelectorAll('#lv-type-tiles .lv-tile').forEach(el => el.classList.toggle('on', el.dataset.t === t));
+            updateLeavePreview();
+        }
+
         function updateLeavePreview() {
             const s = document.getElementById('lv-start').value;
             let e = document.getElementById('lv-end').value;
             const half = document.getElementById('lv-half').checked;
             if (half) { document.getElementById('lv-end').value = s; e = s; }
             document.getElementById('lv-end').disabled = half;
-            const n = previewLeaveDays(s, e || s, half);
             const el = document.getElementById('lv-preview');
-            if (!s) { el.textContent = ''; return; }
-            el.textContent = n < 0 ? 'Check your dates (half-day must be one working day).' : n === 0 ? 'No working days in this range (weekends/holidays).' : `${n} working day${n === 1 ? '' : 's'} (weekends & public holidays excluded)`;
+            el.className = 'lv-summary';
+            if (!s) { el.textContent = 'Pick your dates to see how many working days this uses.'; return; }
+            const n = previewLeaveDays(s, e || s, half);
+            if (n < 0) { el.classList.add('bad'); el.textContent = 'Check your dates. A half day must be a single working day.'; return; }
+            if (n === 0) { el.classList.add('bad'); el.textContent = 'No working days in this range (weekends and holidays are skipped).'; return; }
+            const t = document.getElementById('lv-type').value;
+            const onBehalf = document.getElementById('lv-behalf-group').dataset.on === '1';
+            let line = `<strong>${n} working day${n === 1 ? '' : 's'}</strong> · weekends and public holidays skipped`;
+            if (!onBehalf && leaveData.myBalances && leaveData.myBalances[t] && leaveData.policy[t].days !== null) {
+                const b = leaveData.myBalances[t], cap = leaveData.policy[t].days, after = cap - b.used - b.pending - n;
+                if (after < 0) { el.classList.add('bad'); el.textContent = `Not enough balance: ${cap - b.used - b.pending} day(s) left, ${n} requested.`; return; }
+                line += `<br>Balance after approval: ${after} of ${cap} days`;
+            }
+            if (!onBehalf) line += `<br>Goes to ${leaveEsc(leaveData.myManager ? leaveData.myManager.fullName : 'HR')}`;
+            el.innerHTML = line;
         }
 
         function openLeaveModal(onBehalf) {
             if (!leaveData) return;
-            const sel = document.getElementById('lv-type');
-            sel.innerHTML = Object.keys(leaveData.policy).map(t => `<option value="${t}">${leaveEsc(leaveData.policy[t].label)}</option>`).join('');
+            const tiles = document.getElementById('lv-type-tiles');
+            tiles.innerHTML = Object.keys(leaveData.policy).map(t => {
+                const m = leaveMeta(t);
+                return `<div class="lv-tile" data-t="${t}" style="--c:${m.color}" onclick="pickLeaveType('${t}')"><i class="fas ${m.icon}"></i>${leaveEsc(leaveData.policy[t].label.replace(' Leave', ''))}</div>`;
+            }).join('');
             ['lv-start', 'lv-end', 'lv-reason'].forEach(i => document.getElementById(i).value = '');
             document.getElementById('lv-half').checked = false;
             document.getElementById('lv-end').disabled = false;
-            document.getElementById('lv-start').min = '';
             const behalf = document.getElementById('lv-behalf-group'), bsel = document.getElementById('lv-employee');
             behalf.style.display = onBehalf ? '' : 'none';
             if (onBehalf) {
@@ -6602,7 +6708,7 @@
             }
             behalf.dataset.on = onBehalf ? '1' : '';
             document.getElementById('lv-error').style.display = 'none';
-            document.getElementById('lv-preview').textContent = '';
+            pickLeaveType('Annual');
             document.getElementById('leave-modal').style.display = 'flex';
         }
         function closeLeaveModal() { document.getElementById('leave-modal').style.display = 'none'; }
