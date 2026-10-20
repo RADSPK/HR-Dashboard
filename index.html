@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RADS HR Dashboard</title>
+    <title>HR Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
@@ -197,6 +197,10 @@
         body.employee-mode .sidebar {
             display: none;
         }
+        .emp-switch { display: none; }
+        body.employee-mode .emp-switch { display: flex; gap: 8px; justify-content: center; margin-bottom: 22px; }
+        .emp-switch button { background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 7px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; }
+        .emp-switch button.on { background: var(--primary-color); color: #fff; }
         body.employee-mode .main-content {
             margin-left: 0;
             max-width: 760px;
@@ -1178,6 +1182,35 @@
     </div>
 
     <!-- Forgot Password Modal -->
+    <div id="leave-modal" class="modal">
+        <div class="modal-content" style="max-width: 460px;">
+            <span class="close-button" onclick="closeLeaveModal()">&times;</span>
+            <h3 style="margin-bottom: 14px;">Apply for Leave</h3>
+            <div class="form-group" id="lv-behalf-group" style="display:none;"><label for="lv-employee">Employee</label><select id="lv-employee"></select></div>
+            <div class="form-group"><label for="lv-type">Leave type</label><select id="lv-type"></select></div>
+            <div class="form-grid">
+                <div class="form-group"><label for="lv-start">From</label><input type="date" id="lv-start" onchange="if(!document.getElementById('lv-end').value||document.getElementById('lv-end').value<this.value)document.getElementById('lv-end').value=this.value;updateLeavePreview()"></div>
+                <div class="form-group"><label for="lv-end">To</label><input type="date" id="lv-end" onchange="updateLeavePreview()"></div>
+            </div>
+            <div class="permission-row"><input type="checkbox" id="lv-half" onchange="updateLeavePreview()"><label for="lv-half" style="margin:0;">Half day (single date only)</label></div>
+            <div id="lv-preview" style="font-size:0.85rem;color:var(--primary-color);margin:8px 0;min-height:1.1em;"></div>
+            <div class="form-group"><label for="lv-reason">Reason</label><textarea id="lv-reason" rows="3"></textarea></div>
+            <div id="lv-error" style="display:none;color:#b00020;font-size:0.85rem;margin-bottom:10px;"></div>
+            <button class="btn-submit-prominent" onclick="submitLeave(this)"><i class="fas fa-paper-plane"></i> Submit Request</button>
+        </div>
+    </div>
+
+    <div id="leave-decision-modal" class="modal">
+        <div class="modal-content" style="max-width: 420px;">
+            <span class="close-button" onclick="closeLeaveDecision()">&times;</span>
+            <h3 id="lvd-title" style="margin-bottom: 10px;">Leave decision</h3>
+            <div id="lvd-summary" style="font-size:0.9rem;margin-bottom:12px;"></div>
+            <div class="form-group"><label for="lvd-comments">Comments</label><textarea id="lvd-comments" rows="3"></textarea></div>
+            <div id="lvd-error" style="display:none;color:#b00020;font-size:0.85rem;margin-bottom:10px;"></div>
+            <button class="btn-submit-prominent" id="lvd-confirm" onclick="confirmLeaveDecision(this)">Confirm</button>
+        </div>
+    </div>
+
     <div id="forgot-password-modal" class="modal">
         <div class="modal-content" style="max-width: 400px;">
             <span class="close-button" onclick="closeForgotPasswordModal()">&times;</span>
@@ -1217,6 +1250,7 @@
             <nav>
                 <a href="#dashboard" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i><span>Dashboard</span></a>
                 <a href="#selfAssessment" class="nav-link" data-page="selfAssessment" id="nav-selfassessment-link" style="display:none;"><i class="fas fa-user-check"></i><span>My Self-Assessment</span></a>
+                <a href="#leave" class="nav-link" data-page="leave" id="nav-leave-link" style="display:none;"><i class="fas fa-calendar-check"></i><span>Leave</span></a>
                 <a href="#employees" class="nav-link" data-page="employees"><i class="fas fa-users"></i><span>Employees</span></a>
                 <a href="#payroll" class="nav-link" data-page="payroll"><i class="fas fa-money-check-alt"></i><span>Payroll & Log</span></a>
                 <a href="#departments" class="nav-link" data-page="departments"><i class="fas fa-sitemap"></i><span>Departments</span></a>
@@ -1450,7 +1484,13 @@
                 <div class="card" style="margin-top: 20px; flex-direction: column; align-items: flex-start;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px;"><h3>Report Output & Analytics</h3><button class="action-buttons primary" id="download-report-btn" style="display: none; padding: 6px 12px;" onclick="downloadReport()"><i class="fas fa-download"></i> Download CSV</button></div><div id="report-output-content" style="width: 100%; min-height: 100px;"><p style="color: var(--secondary-color);">Select a report type and click "Generate Report" to view detailed analytics.</p></div></div>
             </section>
 
+            <section id="leave" class="page">
+                <div class="emp-switch" id="emp-switch-lv"><button class="" onclick="showPage('selfAssessment')">Performance</button><button class="on" onclick="showPage('leave')">Leave</button></div>
+                <div id="leave-body"></div>
+            </section>
+
             <section id="selfAssessment" class="page">
+                <div class="emp-switch" id="emp-switch-sa"><button class="on" onclick="showPage('selfAssessment')">Performance</button><button class="" onclick="showPage('leave')">Leave</button></div>
                 <!-- Welcome / status view -->
                 <div id="sa-welcome-view">
                     <div id="sa-welcome-content" style="max-width: 440px; margin: 0 auto;">
@@ -1934,6 +1974,13 @@
                     <div class="permission-block">
                         <h4>Payroll Handoff (Finance)</h4>
                         <div class="permission-row"><input type="checkbox" id="perm-payrollhandoff-view"><label for="perm-payrollhandoff-view" style="margin:0;">Can view monthly payroll shared with Finance</label></div>
+                    </div>
+
+                    <div class="permission-block">
+                        <h4>Leave Management</h4>
+                        <div class="permission-row"><input type="checkbox" id="perm-leave-view"><label for="perm-leave-view" style="margin:0;">Can view everyone's leave records</label></div>
+                        <div class="permission-row"><input type="checkbox" id="perm-leave-manage" onchange="if(this.checked)document.getElementById('perm-leave-view').checked=true"><label for="perm-leave-manage" style="margin:0;">Can approve any leave &amp; apply on behalf (HR)</label></div>
+                        <p style="font-size:0.75rem;color:var(--secondary-color);margin:4px 0 0;">Every linked employee can apply for their own leave. Department heads automatically approve their assigned team's leave.</p>
                     </div>
 
                     <div class="permission-block">
@@ -2752,6 +2799,7 @@
             updateApprovalTabVisibility();
             updatePayrollTabVisibility();
             updateSelfAssessmentNavVisibility();
+            updateLeaveNavVisibility();
             applyEmployeeModeUI();
             checkMissingEmail();
 
@@ -2777,6 +2825,7 @@
                 activePageId === 'users' ? isAdmin() :
                 activePageId === 'approvals' ? canAccessApprovalsHub() :
                 activePageId === 'selfAssessment' ? !!(currentUser && currentUser.employeeId) :
+                activePageId === 'leave' ? canAccessLeave() :
                 canView(activePageId);
 
             if (activePageId && !activePageIsPermitted) {
@@ -2893,10 +2942,11 @@
         // Order matters: if Dashboard isn't permitted, land on Approvals next (most
         // relevant for department heads / evaluators / reviewers), then the rest.
         function getFirstAccessiblePage() {
-            const priority = ['dashboard', 'approvals', 'employees', 'payroll', 'departments', 'reports', 'payrollHandoff', 'selfAssessment'];
+            const priority = ['dashboard', 'approvals', 'employees', 'payroll', 'departments', 'reports', 'payrollHandoff', 'selfAssessment', 'leave'];
             for (const p of priority) {
                 if (p === 'approvals') { if (canAccessApprovalsHub()) return p; continue; }
                 if (p === 'selfAssessment') { if (currentUser && currentUser.employeeId) return p; continue; }
+                if (p === 'leave') { if (canAccessLeave()) return p; continue; }
                 if (canView(p)) return p;
             }
             return null;
@@ -2999,6 +3049,10 @@
                     payrollHandoff: {
                         view: document.getElementById('perm-payrollhandoff-view').checked
                     },
+                    leave: {
+                        view: document.getElementById('perm-leave-view').checked || document.getElementById('perm-leave-manage').checked,
+                        manage: document.getElementById('perm-leave-manage').checked
+                    },
                     hiring: {
                         submit: document.getElementById('perm-hiring-submit').checked,
                         hrReview: document.getElementById('perm-hiring-hrreview').checked,
@@ -3031,6 +3085,8 @@
             document.getElementById('perm-approvals-review').checked = !!(s.approvals && s.approvals.canReview);
             document.getElementById('perm-approvals-teamlead').checked = !!(s.approvals && s.approvals.teamLead);
             document.getElementById('perm-payrollhandoff-view').checked = !!(s.payrollHandoff && s.payrollHandoff.view);
+            document.getElementById('perm-leave-view').checked = !!(s.leave && s.leave.view);
+            document.getElementById('perm-leave-manage').checked = !!(s.leave && s.leave.manage);
             document.getElementById('perm-hiring-submit').checked = !!(s.hiring && s.hiring.submit);
             document.getElementById('perm-hiring-hrreview').checked = !!(s.hiring && s.hiring.hrReview);
             document.getElementById('perm-hiring-financereview').checked = !!(s.hiring && s.hiring.financeReview);
@@ -4019,10 +4075,12 @@
                 const needsHiring = canHrReviewHiring() || canFinanceReviewHiring() || canCeoApproveHiring();
                 const needsOffers = canApproveOffers();
 
-                const [evalResult, hiringResult, offerResult] = await Promise.all([
+                const needsLeave = isAdmin() || isTeamLead() || canManageLeave();
+                const [evalResult, hiringResult, offerResult, leaveResult] = await Promise.all([
                     needsEvals ? callAppsScript('listEvaluations', { token }) : Promise.resolve(null),
                     needsHiring ? callAppsScript('listHiringRequests', { token }) : Promise.resolve(null),
-                    needsOffers ? callAppsScript('listOfferLetters', { token }) : Promise.resolve(null)
+                    needsOffers ? callAppsScript('listOfferLetters', { token }) : Promise.resolve(null),
+                    needsLeave ? callAppsScript('getLeaveOverview', { token }).catch(() => null) : Promise.resolve(null)
                 ]);
 
                 if (needsEvals) {
@@ -4039,6 +4097,11 @@
                     if (canFinanceReviewHiring()) count += requests.filter(r => r.Status === 'Pending Finance Review').length;
                     if (canCeoApproveHiring()) count += requests.filter(r => r.Status === 'Pending CEO Approval').length;
                     if (count > 0) { total += count; breakdown.push(`${count} hiring request${count > 1 ? 's' : ''}`); }
+                }
+
+                if (leaveResult && leaveResult.toDecide && leaveResult.toDecide.length) {
+                    const count = leaveResult.toDecide.length;
+                    total += count; breakdown.push(`${count} leave request${count > 1 ? 's' : ''}`);
                 }
 
                 if (needsOffers) {
@@ -4158,7 +4221,7 @@
             if (!currentUser || !currentUser.employeeId) return false;
             if (isAdmin()) return false;
             return !canView('dashboard') && !canView('employees') && !canView('payroll') &&
-                !canView('departments') && !canView('reports') && !canView('payrollHandoff') &&
+                !canView('departments') && !canView('reports') && !canView('payrollHandoff') && !canView('leave') && !isTeamLead() &&
                 !canAccessApprovalsHub();
         }
 
@@ -6402,6 +6465,216 @@
             return mapped;
         }
 
+        // =====================================================================
+        // LEAVE MANAGEMENT
+        // =====================================================================
+        let leaveData = null;
+        let leaveDecideCtx = null;
+
+        function canManageLeave() { return isAdmin() || !!(getPerms().leave && getPerms().leave.manage); }
+        function canAccessLeave() { return !!(currentUser && (currentUser.employeeId || isAdmin() || canView('leave') || isTeamLead())); }
+
+        function updateLeaveNavVisibility() {
+            const link = document.getElementById('nav-leave-link');
+            if (link) link.style.display = canAccessLeave() ? '' : 'none';
+        }
+
+        function leaveStatusBadge(status) {
+            const cls = status === 'Approved' ? 'status-approved' : status === 'Rejected' ? 'status-rejected' : status === 'Cancelled' ? 'status-exempted' : 'status-submitted';
+            return `<span class="${cls}">${status}</span>`;
+        }
+        function leaveEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+        function leaveRange(r) { return r.startDate === r.endDate ? formatDateOnly(r.startDate) : formatDateOnly(r.startDate) + ' → ' + formatDateOnly(r.endDate); }
+
+        async function loadLeave() {
+            const body = document.getElementById('leave-body');
+            if (!body) return;
+            body.innerHTML = '<p style="color: var(--secondary-color);">Loading…</p>';
+            try {
+                const res = await callAppsScript('getLeaveOverview', { token: getSessionToken() });
+                leaveData = res;
+                renderLeave();
+            } catch (err) {
+                body.innerHTML = `<p style="color:#b00020;">Could not load leave: ${leaveEsc(err.message)}</p>`;
+            }
+        }
+
+        function renderLeave() {
+            const d = leaveData; if (!d) return;
+            const body = document.getElementById('leave-body');
+            let html = '';
+
+            if (d.hasEmployee) {
+                html += `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+                    <h3 style="margin:0;">My Leave Balance (${d.year})</h3>
+                    <button class="btn-submit-prominent" style="width:auto;padding:8px 16px;" onclick="openLeaveModal()"><i class="fas fa-plus"></i> Apply for Leave</button></div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:22px;">` +
+                    Object.keys(d.policy).map(t => {
+                        const b = d.myBalances[t], cap = b.entitled;
+                        const left = cap === null ? '∞' : (cap - b.used - b.pending);
+                        return `<div class="card" style="flex-direction:column;align-items:flex-start;padding:12px;">
+                            <div style="font-size:0.78rem;color:var(--secondary-color);">${leaveEsc(d.policy[t].label)}</div>
+                            <div style="font-size:1.5rem;font-weight:700;color:var(--primary-color);">${left}<span style="font-size:0.8rem;font-weight:500;color:var(--secondary-color);"> left</span></div>
+                            <div style="font-size:0.75rem;color:var(--secondary-color);">${b.used} used${b.pending ? ' · ' + b.pending + ' pending' : ''}${cap !== null ? ' · of ' + cap : ''}</div></div>`;
+                    }).join('') + `</div>`;
+            } else if (canManageLeave()) {
+                html += `<div style="display:flex;justify-content:flex-end;margin-bottom:12px;"><button class="btn-submit-prominent" style="width:auto;padding:8px 16px;" onclick="openLeaveModal(true)"><i class="fas fa-plus"></i> Apply on Behalf of Employee</button></div>`;
+            }
+
+            if (d.toDecide.length) {
+                html += `<h3 style="margin:6px 0 8px;">Awaiting your decision (${d.toDecide.length})</h3>` + leaveTable(d.toDecide, 'decide');
+            }
+            if (d.hasEmployee) {
+                html += `<h3 style="margin:18px 0 8px;">My Requests</h3>` + (d.myRequests.length ? leaveTable(d.myRequests, 'mine') : '<p style="color:var(--secondary-color);">No leave requests yet.</p>');
+            }
+            if (d.canViewAll) {
+                html += `<h3 style="margin:18px 0 8px;">All Leave Requests</h3>` + (d.allRequests.length ? leaveTable(d.allRequests, 'all') : '<p style="color:var(--secondary-color);">Nothing here yet.</p>');
+            }
+            if (d.canManage && d.hasEmployee) {
+                html += `<div style="margin-top:14px;"><button class="action-buttons" onclick="openLeaveModal(true)"><i class="fas fa-user-plus"></i> Apply on behalf of an employee</button></div>`;
+            }
+            body.innerHTML = html;
+        }
+
+        function leaveTable(rows, mode) {
+            const showEmp = mode !== 'mine';
+            return `<div style="overflow-x:auto;"><table class="data-table" style="width:100%;"><thead><tr>
+                ${showEmp ? '<th>Employee</th>' : ''}<th>Type</th><th>Dates</th><th>Days</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody>` +
+                rows.map(r => {
+                    const id = leaveEsc(r.leaveId);
+                    let actions = '';
+                    if (mode === 'decide' || (r.status === 'Pending' && leaveData.toDecide.some(x => x.leaveId === r.leaveId))) {
+                        actions += `<button class="decision-btn approve" onclick="openLeaveDecision('${id}','Approved')">Approve</button> <button class="decision-btn reject" onclick="openLeaveDecision('${id}','Rejected')">Reject</button> `;
+                    }
+                    const mineRow = leaveData.hasEmployee && leaveData.myRequests.some(x => x.leaveId === r.leaveId);
+                    if ((r.status === 'Pending' || r.status === 'Approved') && (mineRow || leaveData.canManage)) {
+                        actions += `<button class="action-buttons" style="padding:4px 10px;" onclick="cancelLeaveAction('${id}', this)">Cancel</button>`;
+                    }
+                    return `<tr>${showEmp ? `<td>${leaveEsc(r.employeeName)}${r.appliedOnBehalfBy ? `<div style="font-size:0.7rem;color:var(--secondary-color);">by ${leaveEsc(r.appliedOnBehalfBy)}</div>` : ''}</td>` : ''}
+                        <td>${leaveEsc(leaveData.policy[r.leaveType] ? leaveData.policy[r.leaveType].label : r.leaveType)}</td>
+                        <td>${leaveRange(r)}${r.halfDay ? ' (half day)' : ''}</td><td>${r.days}</td>
+                        <td style="max-width:220px;">${leaveEsc(r.reason)}${r.decisionComments ? `<div style="font-size:0.75rem;color:var(--secondary-color);">${leaveEsc(r.decidedByName)}: ${leaveEsc(r.decisionComments)}</div>` : ''}</td>
+                        <td>${leaveStatusBadge(r.status)}${r.status === 'Pending' ? `<div style="font-size:0.7rem;color:var(--secondary-color);">with ${leaveEsc(r.routedToName || 'HR')}</div>` : ''}</td>
+                        <td style="white-space:nowrap;">${actions}</td></tr>`;
+                }).join('') + `</tbody></table></div>`;
+        }
+
+        // Mirrors the server's counting (Mon–Fri minus holidays) for the live preview only —
+        // the server recalculates and is authoritative.
+        function previewLeaveDays(start, end, half) {
+            if (!start || !end || end < start) return -1;
+            const p = s => { const a = s.split('-'); return Date.UTC(+a[0], +a[1] - 1, +a[2]); };
+            let n = 0;
+            for (let t = p(start); t <= p(end); t += 86400000) {
+                const d = new Date(t), dow = d.getUTCDay();
+                if (dow === 0 || dow === 6) continue;
+                if ((leaveData.holidays || []).indexOf(d.toISOString().slice(0, 10)) !== -1) continue;
+                n++;
+            }
+            return half ? ((start === end && n === 1) ? 0.5 : -1) : n;
+        }
+
+        function updateLeavePreview() {
+            const s = document.getElementById('lv-start').value;
+            let e = document.getElementById('lv-end').value;
+            const half = document.getElementById('lv-half').checked;
+            if (half) { document.getElementById('lv-end').value = s; e = s; }
+            document.getElementById('lv-end').disabled = half;
+            const n = previewLeaveDays(s, e || s, half);
+            const el = document.getElementById('lv-preview');
+            if (!s) { el.textContent = ''; return; }
+            el.textContent = n < 0 ? 'Check your dates (half-day must be one working day).' : n === 0 ? 'No working days in this range (weekends/holidays).' : `${n} working day${n === 1 ? '' : 's'} (weekends & public holidays excluded)`;
+        }
+
+        function openLeaveModal(onBehalf) {
+            if (!leaveData) return;
+            const sel = document.getElementById('lv-type');
+            sel.innerHTML = Object.keys(leaveData.policy).map(t => `<option value="${t}">${leaveEsc(leaveData.policy[t].label)}</option>`).join('');
+            ['lv-start', 'lv-end', 'lv-reason'].forEach(i => document.getElementById(i).value = '');
+            document.getElementById('lv-half').checked = false;
+            document.getElementById('lv-end').disabled = false;
+            document.getElementById('lv-start').min = '';
+            const behalf = document.getElementById('lv-behalf-group'), bsel = document.getElementById('lv-employee');
+            behalf.style.display = onBehalf ? '' : 'none';
+            if (onBehalf) {
+                bsel.innerHTML = '<option value="">Select employee…</option>' + employees.filter(e => (e['Status'] || '') !== 'Inactive')
+                    .map(e => `<option value="${leaveEsc(e['ID'])}">${leaveEsc(e['Name'])} (${leaveEsc(e['ID'])})</option>`).join('');
+            }
+            behalf.dataset.on = onBehalf ? '1' : '';
+            document.getElementById('lv-error').style.display = 'none';
+            document.getElementById('lv-preview').textContent = '';
+            document.getElementById('leave-modal').style.display = 'flex';
+        }
+        function closeLeaveModal() { document.getElementById('leave-modal').style.display = 'none'; }
+
+        async function submitLeave(btn) {
+            const err = document.getElementById('lv-error');
+            err.style.display = 'none';
+            const onBehalf = document.getElementById('lv-behalf-group').dataset.on === '1';
+            const leave = {
+                leaveType: document.getElementById('lv-type').value,
+                startDate: document.getElementById('lv-start').value,
+                endDate: document.getElementById('lv-end').value || document.getElementById('lv-start').value,
+                halfDay: document.getElementById('lv-half').checked,
+                reason: document.getElementById('lv-reason').value
+            };
+            if (onBehalf) {
+                const id = document.getElementById('lv-employee').value;
+                if (!id) { err.textContent = 'Select an employee.'; err.style.display = 'block'; return; }
+                const emp = employees.find(e => String(e['ID']) === String(id));
+                leave.employeeId = id; leave.employeeName = emp ? emp['Name'] : '';
+            }
+            if (!leave.startDate) { err.textContent = 'Choose a start date.'; err.style.display = 'block'; return; }
+            setButtonLoading(btn, true, 'Submitting…');
+            try {
+                const res = await callAppsScript('applyLeave', { token: getSessionToken(), leave });
+                closeLeaveModal();
+                await loadLeave();
+                checkPendingApprovals();
+                alert(`Leave request submitted (${res.days} day${res.days === 1 ? '' : 's'}). It has gone to ${res.routedTo}.`);
+            } catch (e) {
+                err.textContent = e.message; err.style.display = 'block';
+            } finally { setButtonLoading(btn, false); }
+        }
+
+        function openLeaveDecision(leaveId, decision) {
+            const r = leaveData.toDecide.find(x => x.leaveId === leaveId) || (leaveData.allRequests || []).find(x => x.leaveId === leaveId);
+            if (!r) return;
+            leaveDecideCtx = { leaveId, decision };
+            document.getElementById('lvd-title').textContent = (decision === 'Approved' ? 'Approve' : 'Reject') + ' leave';
+            document.getElementById('lvd-summary').innerHTML = `<strong>${leaveEsc(r.employeeName)}</strong> — ${leaveEsc(r.leaveType)}, ${leaveRange(r)} (${r.days} day${r.days === 1 ? '' : 's'})<br><span style="color:var(--secondary-color);">${leaveEsc(r.reason)}</span>`;
+            document.getElementById('lvd-comments').value = '';
+            document.getElementById('lvd-comments').placeholder = decision === 'Rejected' ? 'Reason for rejection (required)' : 'Optional comment';
+            document.getElementById('lvd-error').style.display = 'none';
+            document.getElementById('lvd-confirm').textContent = decision === 'Approved' ? 'Confirm Approval' : 'Confirm Rejection';
+            document.getElementById('leave-decision-modal').style.display = 'flex';
+        }
+        function closeLeaveDecision() { document.getElementById('leave-decision-modal').style.display = 'none'; }
+
+        async function confirmLeaveDecision(btn) {
+            const err = document.getElementById('lvd-error');
+            const comments = document.getElementById('lvd-comments').value;
+            if (leaveDecideCtx.decision === 'Rejected' && !comments.trim()) { err.textContent = 'Please give a reason.'; err.style.display = 'block'; return; }
+            setButtonLoading(btn, true, 'Saving…');
+            try {
+                await callAppsScript('decideLeave', { token: getSessionToken(), leaveId: leaveDecideCtx.leaveId, decision: leaveDecideCtx.decision, comments });
+                closeLeaveDecision();
+                await loadLeave();
+                checkPendingApprovals();
+            } catch (e) { err.textContent = e.message; err.style.display = 'block'; }
+            finally { setButtonLoading(btn, false); }
+        }
+
+        async function cancelLeaveAction(leaveId, btn) {
+            if (!confirm('Cancel this leave request?')) return;
+            setButtonLoading(btn, true, '…');
+            try {
+                await callAppsScript('cancelLeave', { token: getSessionToken(), leaveId });
+                await loadLeave();
+                checkPendingApprovals();
+            } catch (e) { alert('Could not cancel: ' + e.message); setButtonLoading(btn, false); }
+        }
+
         // --- Page Navigation ---
         function showPage(pageId) {
             // Permission guard: block navigation to sections the current user isn't allowed to see
@@ -6409,6 +6682,8 @@
                 if (!isAdmin()) return;
             } else if (pageId === 'approvals') {
                 if (!canAccessApprovalsHub()) return;
+            } else if (pageId === 'leave') {
+                if (!canAccessLeave()) return;
             } else if (pageId === 'selfAssessment') {
                 if (!currentUser || !currentUser.employeeId) return;
             } else if (!canView(pageId)) {
@@ -6416,11 +6691,13 @@
             }
             pages.forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            pageTitle.textContent = pageId === 'users' ? 'Manage Users' : (pageId === 'payrollHandoff' ? 'Payroll Handoff' : (pageId === 'selfAssessment' ? 'Employee Performance Evaluation Portal' : pageId.charAt(0).toUpperCase() + pageId.slice(1)));
+            pageTitle.textContent = pageId === 'users' ? 'Manage Users' : (pageId === 'payrollHandoff' ? 'Payroll Handoff' : (pageId === 'leave' ? 'Leave Management' : pageId === 'selfAssessment' ? 'Employee Performance Evaluation Portal' : pageId.charAt(0).toUpperCase() + pageId.slice(1)));
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             document.querySelector(`.nav-link[data-page="${pageId}"]`).classList.add('active');
             if (pageId === 'users') {
                 loadUsers();
+            } else if (pageId === 'leave') {
+                loadLeave();
             } else if (pageId === 'selfAssessment') {
                 loadSelfAssessmentStatus();
             } else if (pageId === 'approvals') {
