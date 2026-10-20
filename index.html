@@ -197,6 +197,53 @@
         body.employee-mode .sidebar {
             display: none;
         }
+
+        /* ---- Employee portal shell ---- */
+        #emp-topbar { display:none; }
+        body.employee-mode #emp-topbar { display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:900; background:var(--card-bg); border-bottom:1px solid var(--border-color); padding:10px 24px; flex-wrap:wrap; }
+        body.employee-mode .header { display:none !important; }
+        body.employee-mode .main-content { max-width:1000px; padding:28px 24px 48px; }
+        .ep-logo { width:34px; height:34px; border-radius:9px; background:var(--primary-color); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem; flex:none; }
+        .ep-brand b { display:block; line-height:1.2; font-size:0.95rem; }
+        .ep-brand span { display:block; line-height:1.2; font-size:0.7rem; color:var(--secondary-color); }
+        .ep-nav { display:flex; gap:4px; margin-left:10px; flex:1; flex-wrap:wrap; }
+        .ep-nav button { background:none; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; color:var(--secondary-color); font-weight:600; font-size:0.88rem; }
+        .ep-nav button:hover { background:color-mix(in srgb, var(--primary-color) 8%, transparent); }
+        .ep-nav button.on { background:color-mix(in srgb, var(--primary-color) 16%, transparent); color:var(--primary-color); }
+        .ep-nav button i { margin-right:6px; }
+        .ep-right { display:flex; align-items:center; gap:12px; position:relative; }
+        #emp-bell-slot .toggle-button { background:none; border:none; }
+        .ep-profile { display:flex; align-items:center; gap:9px; cursor:pointer; background:none; border:none; color:var(--text-color); padding:4px 6px; border-radius:10px; }
+        .ep-profile:hover { background:color-mix(in srgb, var(--primary-color) 8%, transparent); }
+        .ep-av { width:34px; height:34px; border-radius:50%; background:var(--primary-color); color:#fff; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; }
+        .ep-who { text-align:left; line-height:1.2; }
+        .ep-who b { display:block; font-size:0.85rem; }
+        .ep-who span { font-size:0.7rem; color:var(--secondary-color); }
+        .ep-menu { display:none; position:absolute; right:0; top:100%; margin-top:8px; min-width:200px; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; box-shadow:var(--box-shadow); padding:6px; z-index:950; }
+        .ep-menu.open { display:block; }
+        .ep-menu button { display:flex; align-items:center; gap:10px; width:100%; background:none; border:none; padding:9px 12px; border-radius:8px; cursor:pointer; color:var(--text-color); font-size:0.88rem; text-align:left; }
+        .ep-menu button:hover { background:color-mix(in srgb, var(--primary-color) 10%, transparent); }
+        .ep-menu button i { width:16px; color:var(--secondary-color); }
+        .ep-menu hr { border:none; border-top:1px solid var(--border-color); margin:4px 0; }
+        .ep-date { font-size:0.8rem; color:var(--secondary-color); }
+        .ep-greet { font-size:1.5rem; font-weight:700; margin:2px 0 18px; }
+        .ep-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px; margin-bottom:14px; }
+        .ep-card { background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:18px; display:flex; flex-direction:column; align-items:flex-start; }
+        .ep-card-h { display:flex; align-items:center; gap:10px; margin-bottom:12px; font-weight:700; }
+        .ep-ico { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:color-mix(in srgb, var(--primary-color) 16%, transparent); color:var(--primary-color); }
+        .ep-big { font-size:1.7rem; font-weight:800; line-height:1.1; }
+        .ep-big small { font-size:0.8rem; font-weight:500; color:var(--secondary-color); }
+        .ep-muted { font-size:0.8rem; color:var(--secondary-color); margin:6px 0 14px; line-height:1.4; }
+        .ep-card .btn-submit-prominent { width:auto; padding:9px 16px; font-size:0.85rem; margin-top:auto; }
+        .ep-kv { width:100%; font-size:0.85rem; }
+        .ep-kv div { display:flex; justify-content:space-between; gap:10px; padding:5px 0; border-bottom:1px solid var(--border-color); }
+        .ep-kv div:last-child { border-bottom:none; }
+        .ep-kv span { color:var(--secondary-color); }
+        .ep-act { width:100%; }
+        .ep-act-row { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--border-color); font-size:0.88rem; }
+        .ep-page-title { display:none; font-size:1.3rem; font-weight:700; margin:0 0 16px; }
+        body.employee-mode .ep-page-title { display:block; }
+        @media (max-width:640px) { .ep-who { display:none; } body.employee-mode #emp-topbar { padding:10px 14px; } }
         /* ---- Leave page ---- */
         .lv-tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:8px; }
         .lv-tile { border:1px solid var(--border-color); border-radius:10px; padding:10px 6px; text-align:center; cursor:pointer; font-size:0.8rem; color:var(--secondary-color); background:var(--card-bg); }
@@ -248,10 +295,6 @@
         .lv-empty i { font-size:2.2rem; color:var(--primary-color); opacity:0.6; display:block; margin-bottom:10px; }
         .lv-empty .lv-apply { margin-top:14px; }
         @media (max-width:600px) { .lv-card { flex-wrap:wrap; } .lv-side { flex-direction:row; align-items:center; width:100%; justify-content:space-between; } }
-        .emp-switch { display: none; }
-        body.employee-mode .emp-switch { display: flex; gap: 8px; justify-content: center; margin-bottom: 22px; }
-        .emp-switch button { background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 7px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; }
-        .emp-switch button.on { background: var(--primary-color); color: #fff; }
         body.employee-mode .main-content {
             margin-left: 0;
             max-width: 760px;
@@ -1293,6 +1336,31 @@
         </div>
     </div>
 
+    <div id="emp-topbar">
+        <div class="ep-logo">R</div>
+        <div class="ep-brand"><b id="ep-brand-name">RADS</b><span>Employee portal</span></div>
+        <nav class="ep-nav">
+            <button id="epn-empHome" onclick="showPage('empHome')"><i class="fas fa-house"></i>Home</button>
+            <button id="epn-selfAssessment" onclick="showPage('selfAssessment')"><i class="fas fa-chart-line"></i>Performance</button>
+            <button id="epn-leave" onclick="showPage('leave')"><i class="fas fa-calendar-check"></i>Leave</button>
+        </nav>
+        <div class="ep-right">
+            <span id="emp-bell-slot"></span>
+            <button class="ep-profile" onclick="toggleEpMenu(event)">
+                <span class="ep-av" id="ep-av">U</span>
+                <span class="ep-who"><b id="ep-name"></b><span id="ep-dept"></span></span>
+                <i class="fas fa-chevron-down" style="font-size:0.7rem;color:var(--secondary-color);"></i>
+            </button>
+            <div class="ep-menu" id="ep-menu">
+                <button onclick="closeEpMenu();loadDataFromGoogleSheets()"><i class="fas fa-rotate"></i>Refresh data</button>
+                <button onclick="closeEpMenu();openChangePasswordModal()"><i class="fas fa-key"></i>Change password</button>
+                <button onclick="closeEpMenu();document.getElementById('theme-toggle').click()"><i class="fas fa-moon"></i>Switch theme</button>
+                <hr>
+                <button onclick="closeEpMenu();logout()"><i class="fas fa-right-from-bracket"></i>Sign out</button>
+            </div>
+        </div>
+    </div>
+
     <div class="dashboard-container">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -1301,6 +1369,7 @@
             <nav>
                 <a href="#dashboard" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i><span>Dashboard</span></a>
                 <a href="#selfAssessment" class="nav-link" data-page="selfAssessment" id="nav-selfassessment-link" style="display:none;"><i class="fas fa-user-check"></i><span>My Self-Assessment</span></a>
+                <a href="#empHome" class="nav-link" data-page="empHome" style="display:none;"><i class="fas fa-house"></i><span>Home</span></a>
                 <a href="#leave" class="nav-link" data-page="leave" id="nav-leave-link" style="display:none;"><i class="fas fa-calendar-check"></i><span>Leave</span></a>
                 <a href="#employees" class="nav-link" data-page="employees"><i class="fas fa-users"></i><span>Employees</span></a>
                 <a href="#payroll" class="nav-link" data-page="payroll"><i class="fas fa-money-check-alt"></i><span>Payroll & Log</span></a>
@@ -1535,13 +1604,16 @@
                 <div class="card" style="margin-top: 20px; flex-direction: column; align-items: flex-start;"><div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px;"><h3>Report Output & Analytics</h3><button class="action-buttons primary" id="download-report-btn" style="display: none; padding: 6px 12px;" onclick="downloadReport()"><i class="fas fa-download"></i> Download CSV</button></div><div id="report-output-content" style="width: 100%; min-height: 100px;"><p style="color: var(--secondary-color);">Select a report type and click "Generate Report" to view detailed analytics.</p></div></div>
             </section>
 
+            <section id="empHome" class="page">
+                <div id="emp-home-body"></div>
+            </section>
+
             <section id="leave" class="page">
-                <div class="emp-switch" id="emp-switch-lv"><button class="" onclick="showPage('selfAssessment')">Performance</button><button class="on" onclick="showPage('leave')">Leave</button></div>
                 <div id="leave-body"></div>
             </section>
 
             <section id="selfAssessment" class="page">
-                <div class="emp-switch" id="emp-switch-sa"><button class="on" onclick="showPage('selfAssessment')">Performance</button><button class="" onclick="showPage('leave')">Leave</button></div>
+                <h2 class="ep-page-title">Performance</h2>
                 <!-- Welcome / status view -->
                 <div id="sa-welcome-view">
                     <div id="sa-welcome-content" style="max-width: 440px; margin: 0 auto;">
@@ -2876,6 +2948,7 @@
                 activePageId === 'users' ? isAdmin() :
                 activePageId === 'approvals' ? canAccessApprovalsHub() :
                 activePageId === 'selfAssessment' ? !!(currentUser && currentUser.employeeId) :
+                activePageId === 'empHome' ? isPureEmployeeAccount() :
                 activePageId === 'leave' ? canAccessLeave() :
                 canView(activePageId);
 
@@ -2993,6 +3066,7 @@
         // Order matters: if Dashboard isn't permitted, land on Approvals next (most
         // relevant for department heads / evaluators / reviewers), then the rest.
         function getFirstAccessiblePage() {
+            if (isPureEmployeeAccount()) return 'empHome';
             const priority = ['dashboard', 'approvals', 'employees', 'payroll', 'departments', 'reports', 'payrollHandoff', 'selfAssessment', 'leave'];
             for (const p of priority) {
                 if (p === 'approvals') { if (canAccessApprovalsHub()) return p; continue; }
@@ -4282,6 +4356,21 @@
             if (isEmployeeMode) {
                 const brandEl = document.getElementById('employee-portal-brand');
                 if (brandEl) brandEl.textContent = BRAND.companyName;
+            }
+            const bell = document.querySelector('.notif-bell-wrapper');
+            const slot = document.getElementById('emp-bell-slot');
+            const headerControls = document.querySelector('.header .controls');
+            if (bell && slot && headerControls) {
+                if (isEmployeeMode) slot.appendChild(bell);
+                else if (bell.parentElement === slot) headerControls.insertBefore(bell, headerControls.firstChild);
+            }
+            if (isEmployeeMode && currentUser) {
+                const emp = employees.find(e => String(e['ID']) === String(currentUser.employeeId));
+                const nm = (emp && emp['Name']) || currentUser.fullName || currentUser.username || '';
+                document.getElementById('ep-name').textContent = nm;
+                document.getElementById('ep-dept').textContent = (emp && emp['Department']) || '';
+                document.getElementById('ep-av').textContent = nm.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'U';
+                document.getElementById('ep-brand-name').textContent = (BRAND && BRAND.companyShortName) || 'RADS';
             }
         }
 
@@ -6781,6 +6870,83 @@
             } catch (e) { alert('Could not cancel: ' + e.message); setButtonLoading(btn, false); }
         }
 
+        // =====================================================================
+        // EMPLOYEE PORTAL HOME
+        // =====================================================================
+        function toggleEpMenu(ev) { ev.stopPropagation(); document.getElementById('ep-menu').classList.toggle('open'); }
+        function closeEpMenu() { const m = document.getElementById('ep-menu'); if (m) m.classList.remove('open'); }
+        document.addEventListener('click', closeEpMenu);
+
+        async function loadEmpHome() {
+            const body = document.getElementById('emp-home-body');
+            if (!body) return;
+            const emp = employees.find(e => String(e['ID']) === String(currentUser.employeeId));
+            const first = (((emp && emp['Name']) || currentUser.fullName || '').split(' ')[0]) || 'there';
+            const hr = new Date().getHours();
+            const greet = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+            const dateStr = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+            const token = getSessionToken();
+            body.innerHTML = `<div class="ep-date">${dateStr}</div><div class="ep-greet">${greet}, ${leaveEsc(first)}</div><p style="color:var(--secondary-color);">Loading your overview…</p>`;
+
+            const [lv, evs, wins] = await Promise.all([
+                callAppsScript('getLeaveOverview', { token }).catch(() => null),
+                callAppsScript('listEvaluations', { token }).catch(() => null),
+                callAppsScript('listReviewWindows', { token }).catch(() => null)
+            ]);
+            if (lv) leaveData = lv;
+
+            // Leave card
+            let leaveCard = `<p class="ep-muted">Leave information isn't available right now.</p>`;
+            if (lv && lv.myBalances) {
+                const a = lv.myBalances['Annual'], left = a.entitled === null ? '∞' : (a.entitled - a.used - a.pending);
+                const pend = lv.myRequests.filter(r => r.status === 'Pending').length;
+                leaveCard = `<div class="ep-big">${left} <small>annual days left</small></div>
+                    <div class="ep-muted">${pend ? pend + ' request' + (pend > 1 ? 's' : '') + ' pending' : 'No pending requests'}</div>
+                    <button class="btn-submit-prominent" onclick="showPage('leave');setTimeout(openLeaveModal,400)"><i class="fas fa-plus"></i> Apply for leave</button>`;
+            }
+
+            // Performance card
+            let perfCard = `<p class="ep-muted">Assessment status isn't available right now.</p>`, myEvals = [];
+            if (evs && wins && emp) {
+                myEvals = (evs.evaluations || []).filter(e => String(e.EmployeeID) === String(emp.ID) && e.Status !== 'Reopened');
+                let pendingLabel = null;
+                const doj = parseDate(emp['Date of Joining']);
+                if (doj && !isNaN(doj.getTime()) && (emp['Status'] || '').toLowerCase() !== 'inactive' && !emp['Date of Leaving']) {
+                    const pe = new Date(doj); pe.setMonth(pe.getMonth() + 3);
+                    if (!myEvals.some(e => e.EvaluationType === 'Probation') && pe <= new Date()) pendingLabel = 'Probation self-assessment';
+                }
+                if (!pendingLabel) {
+                    for (const w of (wins.windows || []).filter(w => w.status === 'Open')) {
+                        if ((w.employeeIds || []).map(String).indexOf(String(emp.ID)) === -1) continue;
+                        if (!myEvals.some(e => e.WindowID === w.windowId)) { pendingLabel = w.title; break; }
+                    }
+                }
+                perfCard = pendingLabel
+                    ? `<div style="font-weight:700;font-size:1.05rem;">${leaveEsc(pendingLabel)} is due</div><div class="ep-muted">It only takes a few minutes. Your manager reviews it next.</div><button class="btn-submit-prominent" onclick="showPage('selfAssessment')"><i class="fas fa-arrow-right"></i> Start now</button>`
+                    : `<div style="font-weight:700;font-size:1.05rem;">Nothing due right now</div><div class="ep-muted">We'll notify you when your next self-assessment opens.</div><button class="lv-ghost" onclick="showPage('selfAssessment')">View past submissions</button>`;
+            }
+
+            // Details card
+            const mgr = lv && lv.myManager ? lv.myManager.fullName : 'Not assigned yet';
+            const dojStr = emp && emp['Date of Joining'] ? formatDateOnly(emp['Date of Joining']) : '—';
+            const details = `<div class="ep-kv"><div><span>Position</span><b>${leaveEsc((emp && emp['Position']) || '—')}</b></div><div><span>Manager</span><b>${leaveEsc(mgr)}</b></div><div><span>Joined</span><b>${leaveEsc(dojStr)}</b></div><div><span>Employee ID</span><b>${leaveEsc(currentUser.employeeId)}</b></div></div>`;
+
+            // Recent activity
+            const act = [];
+            if (lv && lv.myRequests) lv.myRequests.slice(0, 4).forEach(r => act.push({ t: r.appliedAt, text: `${leaveEsc(lv.policy[r.leaveType] ? lv.policy[r.leaveType].label : r.leaveType)}, ${leaveRange(r)}`, badge: leaveStatusBadge(r.status) }));
+            myEvals.filter(e => e.SelfSubmittedAt).slice(0, 3).forEach(e => act.push({ t: new Date(e.SelfSubmittedAt).toISOString(), text: `${leaveEsc(evaluationTypeLabel(e.EvaluationType))} self-assessment`, badge: `<span class="${statusBadgeClass(e.Status)}">${leaveEsc(e.Status)}</span>` }));
+            act.sort((a, b) => String(b.t).localeCompare(String(a.t)));
+            const actHtml = act.length ? act.slice(0, 5).map(a => `<div class="ep-act-row"><span>${a.text}</span>${a.badge}</div>`).join('') : `<p class="ep-muted" style="margin:0;">Nothing yet. Your leave requests and assessments will show up here.</p>`;
+
+            body.innerHTML = `<div class="ep-date">${dateStr}</div><div class="ep-greet">${greet}, ${leaveEsc(first)}</div>
+                <div class="ep-grid">
+                    <div class="ep-card"><div class="ep-card-h"><span class="ep-ico"><i class="fas fa-calendar-check"></i></span>Leave</div>${leaveCard}</div>
+                    <div class="ep-card"><div class="ep-card-h"><span class="ep-ico"><i class="fas fa-chart-line"></i></span>Performance</div>${perfCard}</div>
+                    <div class="ep-card"><div class="ep-card-h"><span class="ep-ico"><i class="fas fa-id-badge"></i></span>My details</div>${details}</div>
+                </div>
+                <div class="ep-card"><div class="ep-card-h">Recent activity</div><div class="ep-act">${actHtml}</div></div>`;
+        }
+
         // --- Page Navigation ---
         function showPage(pageId) {
             // Permission guard: block navigation to sections the current user isn't allowed to see
@@ -6788,6 +6954,8 @@
                 if (!isAdmin()) return;
             } else if (pageId === 'approvals') {
                 if (!canAccessApprovalsHub()) return;
+            } else if (pageId === 'empHome') {
+                if (!isPureEmployeeAccount()) return;
             } else if (pageId === 'leave') {
                 if (!canAccessLeave()) return;
             } else if (pageId === 'selfAssessment') {
@@ -6797,11 +6965,14 @@
             }
             pages.forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            pageTitle.textContent = pageId === 'users' ? 'Manage Users' : (pageId === 'payrollHandoff' ? 'Payroll Handoff' : (pageId === 'leave' ? 'Leave Management' : pageId === 'selfAssessment' ? 'Employee Performance Evaluation Portal' : pageId.charAt(0).toUpperCase() + pageId.slice(1)));
+            pageTitle.textContent = pageId === 'users' ? 'Manage Users' : (pageId === 'payrollHandoff' ? 'Payroll Handoff' : (pageId === 'empHome' ? 'Home' : pageId === 'leave' ? 'Leave Management' : pageId === 'selfAssessment' ? 'Employee Performance Evaluation Portal' : pageId.charAt(0).toUpperCase() + pageId.slice(1)));
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             document.querySelector(`.nav-link[data-page="${pageId}"]`).classList.add('active');
+            ['empHome','selfAssessment','leave'].forEach(p => { const b = document.getElementById('epn-' + p); if (b) b.classList.toggle('on', p === pageId); });
             if (pageId === 'users') {
                 loadUsers();
+            } else if (pageId === 'empHome') {
+                loadEmpHome();
             } else if (pageId === 'leave') {
                 loadLeave();
             } else if (pageId === 'selfAssessment') {
