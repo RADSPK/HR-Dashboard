@@ -5181,7 +5181,7 @@
             document.getElementById('pf-employee-id').value = emp['ID'];
             document.getElementById('pf-employee-name').value = emp['Name'];
             document.getElementById('pf-employee-subtitle').textContent = `${emp['Name']} — ${emp['Position'] || ''}, ${emp['Department'] || ''}`;
-            document.getElementById('pf-increment-old').value = emp['Base Salary'] || '';
+            document.getElementById('pf-increment-old').value = emp['Base Salary'] ? parseMoney(emp['Base Salary']) : '';
 
             switchPersonalFileTab('leaves');
             document.getElementById('personal-file-modal').style.display = 'flex';
@@ -6725,7 +6725,8 @@
                     btn.classList.remove('loading');
                 }
                 if (employees.length === 0) {
-                    alert('Could not load employee data. Please check your internet connection and sign in again if your session expired.\n\nError: ' + error.message);
+                    const stale = /Unknown action/i.test(error.message || '') ? '\n\nThe backend (Code.gs) has not been updated yet: paste the new Code.gs and deploy a New version.' : '';
+                    alert('Could not load employee data. Please check your internet connection and sign in again if your session expired.\n\nError: ' + error.message + stale);
                 }
                 return false;
             }
@@ -7311,7 +7312,7 @@
             const pfBtn = document.getElementById('details-open-pf-btn');
             if (pfBtn) pfBtn.style.display = (canEditSection('employees') || isTeamLead()) ? '' : 'none';
             const detailsContent = document.getElementById('employee-details-content');
-            const formatCurrency = (value) => `PKR ${parseFloat(value || 0).toLocaleString()}`;
+            const formatCurrency = (value) => `PKR ${parseMoney(value).toLocaleString()}`;
             const N_A = '<span style="color: var(--secondary-color);">N/A</span>';
 
             detailsContent.innerHTML = `
