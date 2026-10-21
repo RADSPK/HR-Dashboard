@@ -245,6 +245,22 @@
         .ep-page-title { display:none; font-size:1.3rem; font-weight:700; margin:0 0 16px; }
         body.employee-mode .ep-page-title { display:block; }
         @media (max-width:640px) { .ep-who { display:none; } body.employee-mode #emp-topbar { padding:10px 14px; } }
+        /* ---- Team picker ---- */
+        .tm-chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+        .tm-chip { display:inline-flex; align-items:center; gap:6px; background:color-mix(in srgb, var(--primary-color) 14%, transparent); color:var(--text-color); border-radius:20px; padding:4px 6px 4px 12px; font-size:0.8rem; }
+        .tm-chip small { color:var(--secondary-color); }
+        .tm-chip button { background:none; border:none; cursor:pointer; color:var(--secondary-color); font-size:1rem; line-height:1; padding:0 6px; }
+        .tm-search { position:relative; }
+        .tm-search input { width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border-color); box-sizing:border-box; }
+        .tm-suggest { position:absolute; left:0; right:0; top:100%; margin-top:4px; background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; box-shadow:var(--box-shadow); max-height:220px; overflow-y:auto; z-index:20; }
+        .tm-suggest div { padding:9px 12px; cursor:pointer; font-size:0.88rem; display:flex; justify-content:space-between; gap:10px; }
+        .tm-suggest div:hover { background:color-mix(in srgb, var(--primary-color) 10%, transparent); }
+        .tm-suggest small { color:var(--secondary-color); }
+        .tm-browse { margin-top:8px; border:1px solid var(--border-color); border-radius:8px; padding:8px 10px; }
+        .tm-browse summary { cursor:pointer; font-size:0.85rem; color:var(--secondary-color); }
+        .tm-dept { margin-top:8px; }
+        .tm-dept-h { display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:0.82rem; margin-bottom:2px; }
+        .tm-dept-h button { background:none; border:none; color:var(--primary-color); cursor:pointer; font-size:0.75rem; font-weight:600; }
         /* ---- Leave page ---- */
         .lv-bal { cursor:pointer; transition:transform .12s ease, box-shadow .12s ease; }
         .lv-bal:hover { transform:translateY(-2px); box-shadow:var(--box-shadow); }
@@ -1401,6 +1417,7 @@
             <button id="epn-empHome" onclick="showPage('empHome')"><i class="fas fa-house"></i>Home</button>
             <button id="epn-selfAssessment" onclick="showPage('selfAssessment')"><i class="fas fa-chart-line"></i>Performance</button>
             <button id="epn-leave" onclick="showPage('leave')"><i class="fas fa-calendar-check"></i>Leave</button>
+            <button id="epn-approvals" onclick="showPage('approvals')" style="display:none;"><i class="fas fa-clipboard-check"></i>Approvals</button>
         </nav>
         <div class="ep-right">
             <span id="emp-bell-slot"></span>
@@ -2085,7 +2102,7 @@
                     </div>
                     <div class="form-group" id="user-employee-link-group">
                         <label for="user-employee-link">Linked Employee Record <span style="font-weight:400; color: var(--secondary-color);">(lets them log in and self-assess)</span></label>
-                        <select id="user-employee-link"><option value="">— Not linked —</option></select>
+                        <select id="user-employee-link" onchange="if(document.getElementById('user-is-manager').value==='yes'){selectedTeamEmployeeIds.delete(String(this.value));renderTeamAssignmentChecklist();}"><option value="">— Not linked —</option></select>
                     </div>
                     <div class="form-group">
                         <label for="user-password">Password <span id="user-password-hint" style="font-weight:400; color: var(--secondary-color);"></span></label>
@@ -2104,6 +2121,27 @@
                             <option value="TRUE">Active</option>
                             <option value="FALSE">Disabled</option>
                         </select>
+                    </div>
+                </div>
+
+                <div class="permission-block" id="user-manager-block" style="margin-top:16px;">
+                    <h4>Manager</h4>
+                    <div class="form-group" style="margin-bottom:8px;">
+                        <label for="user-is-manager">Is this person a manager?</label>
+                        <select id="user-is-manager" onchange="onIsManagerChange(this.value === 'yes')">
+                            <option value="no">No</option>
+                            <option value="yes">Yes — leave, WFH and evaluation requests from their team go to them</option>
+                        </select>
+                    </div>
+                    <div id="team-assignment-wrapper" style="display:none;">
+                        <label style="display:block; margin-bottom:6px; font-size:0.85rem; color:var(--secondary-color);">Team members <span id="team-count" style="font-weight:700;"></span></label>
+                        <div id="team-chips" class="tm-chips"></div>
+                        <div class="tm-search">
+                            <input type="text" id="team-assignment-search" placeholder="Type a name, ID or department…" autocomplete="off" oninput="renderTeamSuggest(this.value)" onfocus="renderTeamSuggest(this.value)">
+                            <div id="team-suggest" class="tm-suggest" style="display:none;"></div>
+                        </div>
+                        <details class="tm-browse"><summary>Or browse by department</summary><div id="team-assignment-checklist"></div></details>
+                        <p style="font-size:0.75rem; color:var(--secondary-color); margin:8px 0 0;">An employee can have only one manager. Adding someone here moves them from their previous manager.</p>
                     </div>
                 </div>
 
@@ -2149,12 +2187,7 @@
                         <h4>Probation Evaluations &amp; Approvals</h4>
                         <div class="permission-row"><input type="checkbox" id="perm-approvals-view"><label for="perm-approvals-view" style="margin:0;">Can view probation evaluations</label></div>
                         <div class="permission-row"><input type="checkbox" id="perm-approvals-review" onchange="onApprovalsReviewChange(this.checked)"><label for="perm-approvals-review" style="margin:0;">Can review &amp; approve/reject evaluations (CEO)</label></div>
-                        <div class="permission-row"><input type="checkbox" id="perm-approvals-teamlead" onchange="onTeamLeadChange(this.checked)"><label for="perm-approvals-teamlead" style="margin:0;">Is a Department Head — evaluates an assigned team</label></div>
-                        <div id="team-assignment-wrapper" style="display:none; margin-top: 12px;">
-                            <label style="display:block; margin-bottom: 6px; font-size: 0.85rem; color: var(--secondary-color);">Assigned Team Members</label>
-                            <input type="text" id="team-assignment-search" placeholder="Search employees..." style="width:100%; padding:8px 12px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:8px;" oninput="renderTeamAssignmentChecklist(this.value)">
-                            <div id="team-assignment-checklist" style="max-height:180px; overflow-y:auto; border:1px solid var(--border-color); border-radius:8px; padding:8px;"></div>
-                        </div>
+                        <input type="checkbox" id="perm-approvals-teamlead" style="display:none;">
                     </div>
 
                     <div class="permission-block">
@@ -3177,40 +3210,76 @@
         // ---------------------------------------------------------------
         let selectedTeamEmployeeIds = new Set();
 
+        function onIsManagerChange(isManager) {
+            document.getElementById('perm-approvals-teamlead').checked = isManager;
+            onTeamLeadChange(isManager);
+        }
+
         function onTeamLeadChange(checked) {
             const wrapper = document.getElementById('team-assignment-wrapper');
             wrapper.style.display = checked ? 'block' : 'none';
+            document.getElementById('user-is-manager').value = checked ? 'yes' : 'no';
             if (checked) {
+                const v = document.getElementById('perm-approvals-view');
+                if (v) v.checked = true;
                 renderTeamAssignmentChecklist('');
-                document.getElementById('perm-approvals-view').checked = true;
             }
         }
 
-        function renderTeamAssignmentChecklist(filterText) {
-            const container = document.getElementById('team-assignment-checklist');
-            if (!container) return;
-            const filter = (filterText || '').toLowerCase();
-            const list = (employees || []).filter(e =>
-                !filter || (e['Name'] || '').toLowerCase().includes(filter) || (e['Department'] || '').toLowerCase().includes(filter)
-            );
-            if (list.length === 0) {
-                container.innerHTML = `<p style="color: var(--secondary-color); font-size: 0.85rem; margin:0;">No employees found.</p>`;
-                return;
-            }
-            container.innerHTML = list.map(e => {
-                const id = String(e['ID']);
-                const checked = selectedTeamEmployeeIds.has(id) ? 'checked' : '';
-                const safeId = id.replace(/[^a-zA-Z0-9]/g, '');
-                return `<div class="permission-row">
-                    <input type="checkbox" id="team-emp-${safeId}" ${checked} onchange="toggleTeamEmployee('${id.replace(/'/g, "\\'")}', this.checked)">
-                    <label for="team-emp-${safeId}" style="margin:0;">${e['Name']} <span style="color: var(--secondary-color); font-size:0.8rem;">(${e['Department'] || '—'})</span></label>
-                </div>`;
-            }).join('');
+        function teamEligibleEmployees() {
+            const self = String(document.getElementById('user-employee-link').value || '');
+            return (employees || []).filter(e => String(e['ID']) !== self && (e['Status'] || '').toLowerCase() !== 'inactive');
         }
+
+        function renderTeamAssignmentChecklist() {
+            // chips
+            const chips = document.getElementById('team-chips');
+            const byId = {}; (employees || []).forEach(e => { byId[String(e['ID'])] = e; });
+            const ids = Array.from(selectedTeamEmployeeIds);
+            document.getElementById('team-count').textContent = ids.length ? '(' + ids.length + ' selected)' : '';
+            chips.innerHTML = ids.length ? ids.map(id => {
+                const e = byId[id];
+                return `<span class="tm-chip">${leaveEsc(e ? e['Name'] : id)} <small>${leaveEsc(e ? (e['Department'] || '') : '')}</small><button type="button" onclick="removeTeamEmployee('${leaveEsc(id)}')" aria-label="Remove">&times;</button></span>`;
+            }).join('') : '<span style="font-size:0.8rem;color:var(--secondary-color);">No one added yet.</span>';
+            // browse by department
+            const depts = {};
+            teamEligibleEmployees().forEach(e => { const d = e['Department'] || 'No department'; (depts[d] = depts[d] || []).push(e); });
+            document.getElementById('team-assignment-checklist').innerHTML = Object.keys(depts).sort().map(d => {
+                const list = depts[d].sort((a, b) => (a['Name'] || '').localeCompare(b['Name'] || ''));
+                const allOn = list.every(e => selectedTeamEmployeeIds.has(String(e['ID'])));
+                const dEsc = leaveEsc(d).replace(/'/g, '&#39;');
+                return `<div class="tm-dept"><div class="tm-dept-h"><span>${leaveEsc(d)}</span><button type="button" onclick="toggleTeamDepartment('${dEsc}', ${!allOn})">${allOn ? 'Clear all' : 'Select all'}</button></div>` +
+                    list.map(e => { const id = String(e['ID']); return `<div class="permission-row"><input type="checkbox" id="team-emp-${id.replace(/[^a-zA-Z0-9]/g, '')}" ${selectedTeamEmployeeIds.has(id) ? 'checked' : ''} onchange="toggleTeamEmployee('${leaveEsc(id)}', this.checked)"><label for="team-emp-${id.replace(/[^a-zA-Z0-9]/g, '')}" style="margin:0;">${leaveEsc(e['Name'])} <span style="color:var(--secondary-color);font-size:0.8rem;">(${leaveEsc(e['Position'] || '')})</span></label></div>`; }).join('') + `</div>`;
+            }).join('') || '<p style="color:var(--secondary-color);font-size:0.85rem;margin:6px 0 0;">No employees found.</p>';
+        }
+
+        function renderTeamSuggest(text) {
+            const box = document.getElementById('team-suggest');
+            const q = (text || '').trim().toLowerCase();
+            if (!q) { box.style.display = 'none'; return; }
+            const matches = teamEligibleEmployees().filter(e => !selectedTeamEmployeeIds.has(String(e['ID'])) &&
+                ((e['Name'] || '').toLowerCase().includes(q) || String(e['ID']).toLowerCase().includes(q) || (e['Department'] || '').toLowerCase().includes(q))).slice(0, 8);
+            box.innerHTML = matches.length ? matches.map(e => `<div onclick="addTeamEmployee('${leaveEsc(String(e['ID']))}')"><span>${leaveEsc(e['Name'])}</span><small>${leaveEsc(e['Department'] || '')}</small></div>`).join('') : '<div style="cursor:default;color:var(--secondary-color);">No match</div>';
+            box.style.display = 'block';
+        }
+
+        function addTeamEmployee(id) {
+            selectedTeamEmployeeIds.add(String(id));
+            const s = document.getElementById('team-assignment-search'); s.value = '';
+            document.getElementById('team-suggest').style.display = 'none';
+            renderTeamAssignmentChecklist(); s.focus();
+        }
+        function removeTeamEmployee(id) { selectedTeamEmployeeIds.delete(String(id)); renderTeamAssignmentChecklist(); }
+        function toggleTeamDepartment(dept, on) {
+            teamEligibleEmployees().filter(e => (e['Department'] || 'No department') === dept).forEach(e => { if (on) selectedTeamEmployeeIds.add(String(e['ID'])); else selectedTeamEmployeeIds.delete(String(e['ID'])); });
+            renderTeamAssignmentChecklist();
+        }
+        document.addEventListener('click', ev => { const b = document.getElementById('team-suggest'); if (b && !ev.target.closest('.tm-search')) b.style.display = 'none'; });
 
         function toggleTeamEmployee(employeeId, checked) {
-            if (checked) selectedTeamEmployeeIds.add(employeeId);
-            else selectedTeamEmployeeIds.delete(employeeId);
+            if (checked) selectedTeamEmployeeIds.add(String(employeeId));
+            else selectedTeamEmployeeIds.delete(String(employeeId));
+            renderTeamAssignmentChecklist();
         }
 
         function onApprovalsReviewChange(checked) {
@@ -3315,6 +3384,7 @@
             selectedTeamEmployeeIds = new Set();
             document.getElementById('team-assignment-wrapper').style.display = 'none';
             document.getElementById('team-assignment-search').value = '';
+            document.getElementById('user-is-manager').value = 'no';
 
             const linkSelect = document.getElementById('user-employee-link');
             const sortedEmployees = [...employees].sort((a, b) => (a.Name || '').localeCompare(b.Name || ''));
@@ -3352,6 +3422,7 @@
                 onUserRoleChange(user.role || 'user');
 
                 const isTeamLead = !!(perms && perms.sections && perms.sections.approvals && perms.sections.approvals.teamLead);
+                document.getElementById('perm-approvals-teamlead').checked = isTeamLead;
                 if (isTeamLead) {
                     onTeamLeadChange(true);
                     loadExistingTeamAssignment(user.username);
@@ -3396,7 +3467,9 @@
 
             if (currentUserModalType === 'employee') {
                 if (!employeeId) { alert('Select which employee this account belongs to.'); return; }
-                permissions = {}; // employee accounts get no dashboard permissions — self-assessment access comes from the employee link alone
+                // employee accounts get no dashboard permissions; the only exception is being a manager
+                permissions = document.getElementById('user-is-manager').value === 'yes'
+                    ? { sections: { approvals: { view: true, canReview: false, teamLead: true } } } : {};
             }
 
             if (employeeId) {
@@ -3419,9 +3492,12 @@
                 }
 
                 // Save the department head's team assignment, if applicable
-                if (permissions.sections && permissions.sections.approvals && permissions.sections.approvals.teamLead) {
-                    const targetUsername = editingUsername || username;
+                const isMgr = document.getElementById('user-is-manager').value === 'yes';
+                const targetUsername = editingUsername || username;
+                if (isMgr) {
                     await callAppsScript('setTeamAssignments', { token, username: targetUsername, employeeIds: Array.from(selectedTeamEmployeeIds) });
+                } else if (editingUsername) {
+                    await callAppsScript('setTeamAssignments', { token, username: targetUsername, employeeIds: [] });
                 }
 
                 closeUserModal();
@@ -4419,8 +4495,16 @@
             if (!currentUser || !currentUser.employeeId) return false;
             if (isAdmin()) return false;
             return !canView('dashboard') && !canView('employees') && !canView('payroll') &&
-                !canView('departments') && !canView('reports') && !canView('payrollHandoff') && !canView('leave') && !isTeamLead() &&
-                !canAccessApprovalsHub();
+                !canView('departments') && !canView('reports') && !canView('payrollHandoff') && !canView('leave') &&
+                !hasApprovalsBeyondTeamLead();
+        }
+
+        // A plain manager (team lead) stays in the simple employee portal; CEO / hiring / offer-letter
+        // approvers get the full dashboard layout instead.
+        function hasApprovalsBeyondTeamLead() {
+            const p = getPerms();
+            const anyTrue = o => !!o && Object.keys(o).some(k => o[k] === true);
+            return !!((p.approvals && p.approvals.canReview) || anyTrue(p.hiring) || anyTrue(p.offerLetters));
         }
 
         function applyEmployeeModeUI() {
@@ -4437,6 +4521,8 @@
                 if (isEmployeeMode) slot.appendChild(bell);
                 else if (bell.parentElement === slot) headerControls.insertBefore(bell, headerControls.firstChild);
             }
+            const apTab = document.getElementById('epn-approvals');
+            if (apTab) apTab.style.display = (isEmployeeMode && canAccessApprovalsHub()) ? '' : 'none';
             if (isEmployeeMode && currentUser) {
                 const emp = employees.find(e => String(e['ID']) === String(currentUser.employeeId));
                 const nm = (emp && emp['Name']) || currentUser.fullName || currentUser.username || '';
@@ -6752,7 +6838,8 @@
             // tabs available
             const tabs = [];
             if (d.hasEmployee) tabs.push({ id: 'mine', label: 'My Requests', icon: 'fa-user', rows: d.myRequests });
-            if (d.toDecide.length || d.canManage || isTeamLead()) tabs.push({ id: 'decide', label: 'Awaiting My Decision', icon: 'fa-inbox', rows: d.toDecide, badge: d.toDecide.length });
+            if (d.toDecide.length || d.canManage || d.isManager) tabs.push({ id: 'decide', label: 'Awaiting My Decision', icon: 'fa-inbox', rows: d.toDecide, badge: d.toDecide.length });
+            if (d.isManager && !d.canViewAll) tabs.push({ id: 'team', label: 'My Team', icon: 'fa-people-group', rows: d.teamRequests });
             if (d.canViewAll) tabs.push({ id: 'all', label: 'All Employees', icon: 'fa-users', rows: d.allRequests });
             if (!tabs.find(t => t.id === leaveTab)) leaveTab = (tabs.find(t => t.id === 'decide' && t.badge) || tabs[0] || {}).id;
             const cur = tabs.find(t => t.id === leaveTab);
@@ -6824,6 +6911,7 @@
             const sc = r.status.toLowerCase();
             let actions = '';
             if (canDecide) actions += `<button class="decision-btn approve" onclick="openLeaveDecision('${id}','Approved')"><i class="fas fa-check"></i> Approve</button><button class="decision-btn reject" onclick="openLeaveDecision('${id}','Rejected')"><i class="fas fa-xmark"></i> Reject</button>`;
+            if (r.status === 'Pending' && (mineRow || leaveData.canManage) && r.leaveType !== 'CompEarn' || (r.status === 'Pending' && r.leaveType === 'CompEarn' && (mineRow || leaveData.canManage))) actions += `<button class="lv-ghost lv-cancel" onclick="resendLeaveEmail('${id}', this)" title="Email the approver again"><i class="fas fa-envelope"></i> Resend email</button>`;
             if (canCancel) actions += `<button class="lv-ghost lv-cancel" onclick="cancelLeaveAction('${id}', this)">Cancel</button>`;
             const who = tabId !== 'mine' ? `<div class="lv-who">${leaveEsc(r.employeeName)}${r.appliedOnBehalfBy ? ` <span>· applied by ${leaveEsc(r.appliedOnBehalfBy)}</span>` : ''}</div>` : '';
             const note = r.status === 'Pending' ? `Waiting for ${leaveEsc(r.routedToName || 'HR')}` :
@@ -6965,7 +7053,7 @@
                 closeLeaveModal();
                 await loadLeave();
                 checkPendingApprovals();
-                alert(`${leaveMode === 'wfh' ? 'WFH request' : leaveMode === 'comp' ? 'Comp day claim' : 'Leave request'} submitted (${res.days} day${res.days === 1 ? '' : 's'}). It has gone to ${res.routedTo}, who has been emailed.`);
+                alert(`${leaveMode === 'wfh' ? 'WFH request' : leaveMode === 'comp' ? 'Comp day claim' : 'Leave request'} submitted (${res.days} day${res.days === 1 ? '' : 's'}). It has gone to ${res.routedTo}.\n\n` + leaveEmailSummary(res.email));
             } catch (e) {
                 err.textContent = e.message; err.style.display = 'block';
             } finally { setButtonLoading(btn, false); }
@@ -6996,6 +7084,21 @@
                 await loadLeave();
                 checkPendingApprovals();
             } catch (e) { err.textContent = e.message; err.style.display = 'block'; }
+            finally { setButtonLoading(btn, false); }
+        }
+
+        function leaveEmailSummary(e) {
+            if (!e) return '';
+            const sent = (e.sent || []).length ? 'Email sent to: ' + e.sent.join(', ') + '.' : 'No email was sent.';
+            return sent + ((e.problems || []).length ? '\n' + e.problems.join('\n') : '');
+        }
+
+        async function resendLeaveEmail(leaveId, btn) {
+            setButtonLoading(btn, true, 'Sending…');
+            try {
+                const res = await callAppsScript('resendLeaveEmail', { token: getSessionToken(), leaveId });
+                alert(leaveEmailSummary(res.email));
+            } catch (e) { alert('Could not send: ' + e.message); }
             finally { setButtonLoading(btn, false); }
         }
 
@@ -7077,7 +7180,9 @@
             act.sort((a, b) => String(b.t).localeCompare(String(a.t)));
             const actHtml = act.length ? act.slice(0, 5).map(a => `<div class="ep-act-row"><span>${a.text}</span>${a.badge}</div>`).join('') : `<p class="ep-muted" style="margin:0;">Nothing yet. Your leave requests and assessments will show up here.</p>`;
 
-            body.innerHTML = `<div class="ep-date">${dateStr}</div><div class="ep-greet">${greet}, ${leaveEsc(first)}</div>
+            const waiting = lv && lv.toDecide ? lv.toDecide.length : 0;
+            const mgrBanner = waiting ? `<div class="ep-card" style="flex-direction:row;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;border-color:var(--primary-color);"><div><strong>${waiting} request${waiting > 1 ? 's' : ''} from your team ${waiting > 1 ? 'are' : 'is'} waiting for your decision</strong><div class="ep-muted" style="margin:2px 0 0;">Leave, work from home and comp-day requests.</div></div><button class="btn-submit-prominent" style="width:auto;margin:0;" onclick="leaveTab='decide';showPage('leave')">Review now</button></div>` : '';
+            body.innerHTML = `<div class="ep-date">${dateStr}</div><div class="ep-greet">${greet}, ${leaveEsc(first)}</div>${mgrBanner}
                 <div class="ep-grid">
                     <div class="ep-card"><div class="ep-card-h"><span class="ep-ico"><i class="fas fa-calendar-check"></i></span>Leave</div>${leaveCard}</div>
                     <div class="ep-card"><div class="ep-card-h"><span class="ep-ico"><i class="fas fa-chart-line"></i></span>Performance</div>${perfCard}</div>
@@ -7131,7 +7236,7 @@
             pageTitle.textContent = pageId === 'users' ? 'Manage Users' : (pageId === 'payrollHandoff' ? 'Payroll Handoff' : (pageId === 'empHome' ? 'Home' : pageId === 'leave' ? 'Leave Management' : pageId === 'selfAssessment' ? 'Employee Performance Evaluation Portal' : pageId.charAt(0).toUpperCase() + pageId.slice(1)));
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             document.querySelector(`.nav-link[data-page="${pageId}"]`).classList.add('active');
-            ['empHome','selfAssessment','leave'].forEach(p => { const b = document.getElementById('epn-' + p); if (b) b.classList.toggle('on', p === pageId); });
+            ['empHome','selfAssessment','leave','approvals'].forEach(p => { const b = document.getElementById('epn-' + p); if (b) b.classList.toggle('on', p === pageId); });
             if (pageId === 'users') {
                 loadUsers();
             } else if (pageId === 'empHome') {
