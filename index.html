@@ -1270,10 +1270,10 @@
         <div class="sp-org">Research &amp; Development Solutions</div>
         <div class="sp-tag" id="sp-tag">
             <span>People first. Always.</span>
-            <span>Leave, payroll and performance, simplified.</span>
+            <span>Leave, Payroll & Performance, simplified.</span>
             <span>Smarter HR for a stronger team.</span>
             <span>Approvals in one tap, even from your inbox.</span>
-            <span>Your people, your policies, one secure place.</span>
+            <span>Your People, Your Policies, One Secure Place.</span>
         </div>
         <div class="sp-chips"><span>Leave &amp; WFH</span><span>Payroll</span><span>Performance</span><span>Hiring</span></div>
         <div class="sp-bar" id="sp-bar"><i></i></div>
@@ -2910,6 +2910,15 @@
                     currentUser = session.user;
                     loginOverlay.classList.add('hidden');
                     applyPermissionsUI();
+                    // Refresh role/permissions from the server so changes made by an admin apply without signing out
+                    callAppsScript('verifySession', { token: session.token }).then(res => {
+                        if (res && res.user) {
+                            const changed = JSON.stringify(res.user.permissions) !== JSON.stringify(currentUser.permissions) || res.user.role !== currentUser.role || String(res.user.employeeId || '') !== String(currentUser.employeeId || '');
+                            currentUser = Object.assign({}, currentUser, res.user);
+                            sessionStorage.setItem(SESSION_KEY, JSON.stringify({ token: session.token, user: currentUser }));
+                            if (changed) location.reload();
+                        }
+                    }).catch(() => {});
                     return true;
                 } catch (e) {
                     sessionStorage.removeItem(SESSION_KEY);
@@ -3418,6 +3427,16 @@
 
         function openUserModal(user, type) {
             currentUserModalType = type || (user && user.employeeId ? 'employee' : 'user');
+            // An account that already has real dashboard permissions must be edited with the full
+            // permissions form — never through the simplified employee form (it would wipe them).
+            if (currentUserModalType === 'employee' && user) {
+                let _p = user.permissions;
+                if (typeof _p === 'string') { try { _p = JSON.parse(_p); } catch (e) { _p = {}; } }
+                const s = (_p && _p.sections) || {};
+                const broad = Object.keys(s).some(k => k !== 'approvals' && (s[k] === true || (s[k] && typeof s[k] === 'object' && Object.keys(s[k]).some(x => s[k][x] === true)))) ||
+                    !!(s.approvals && (s.approvals.canReview));
+                if (broad || user.role === 'admin') currentUserModalType = 'user';
+            }
             const form = document.getElementById('user-form');
             form.reset();
             document.getElementById('user-active-group').style.display = user ? '' : 'none';
