@@ -1270,10 +1270,10 @@
         <div class="sp-org">Research &amp; Development Solutions</div>
         <div class="sp-tag" id="sp-tag">
             <span>People first. Always.</span>
-            <span>Leave, Payroll & Performance, simplified.</span>
+            <span>Leave, payroll and performance, simplified.</span>
             <span>Smarter HR for a stronger team.</span>
             <span>Approvals in one tap, even from your inbox.</span>
-            <span>Your People, Your Policies, One Secure Place.</span>
+            <span>Your people, your policies, one secure place.</span>
         </div>
         <div class="sp-chips"><span>Leave &amp; WFH</span><span>Payroll</span><span>Performance</span><span>Hiring</span></div>
         <div class="sp-bar" id="sp-bar"><i></i></div>
@@ -1315,9 +1315,9 @@
                 <div class="lb-mid">
                     <h2>Everything about your people, in one place.</h2>
                     <ul class="lb-feats">
-                        <li><i class="fas fa-calendar-check"></i> Leave and WFH approvals</li>
-                        <li><i class="fas fa-money-check-dollar"></i> Payroll and performance</li>
-                        <li><i class="fas fa-user-plus"></i> Hiring and offer letters</li>
+                        <li><i class="fas fa-calendar-check"></i> Leave & WFH Approvals</li>
+                        <li><i class="fas fa-money-check-dollar"></i> Payroll & Performance</li>
+                        <li><i class="fas fa-user-plus"></i> Complete Hiring & Offer Letters</li>
                     </ul>
                 </div>
                 <div class="lb-foot"><span>Developed by</span><img data-logo="details" alt="DETAILS"><b>DETAILS</b></div>
@@ -3527,9 +3527,15 @@
 
             if (currentUserModalType === 'employee') {
                 if (!employeeId) { alert('Select which employee this account belongs to.'); return; }
-                // employee accounts get no dashboard permissions; the only exception is being a manager
-                permissions = document.getElementById('user-is-manager').value === 'yes'
-                    ? { sections: { approvals: { view: true, canReview: false, teamLead: true } } } : {};
+                // Keep whatever permissions were ticked in the form; being a manager adds team-lead rights.
+                const isMgrEmp = document.getElementById('user-is-manager').value === 'yes';
+                permissions = JSON.parse(JSON.stringify(permissions || {}));
+                permissions.sections = permissions.sections || {};
+                const ap = permissions.sections.approvals || { view: false, canReview: false, teamLead: false };
+                ap.teamLead = isMgrEmp;
+                ap.view = !!(ap.view || ap.canReview || isMgrEmp);
+                permissions.sections.approvals = ap;
+                if (!isMgrEmp && !Object.keys(permissions.sections).some(k => { const v = permissions.sections[k]; return k !== 'approvals' ? (v === true || (v && Object.keys(v).some(x => v[x] === true))) : (v.view || v.canReview); })) permissions = {};
             }
 
             if (employeeId) {
