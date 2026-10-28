@@ -6164,9 +6164,18 @@
             updateApprovalCardCounts();
         }
 
-        function openConfirmationLetterModal() {
+        async function openConfirmationLetterModal() {
             document.getElementById('confirmation-letter-form').reset();
             const sel = document.getElementById('conf-employee');
+            if (!employees.length) {
+                sel.innerHTML = '<option value="">Loading employees…</option>';
+                document.getElementById('confirmation-letter-modal').style.display = 'flex';
+                try { await loadDataFromGoogleSheets(); } catch (e) {}
+                if (!employees.length) {
+                    sel.innerHTML = '<option value="">No employees loaded — ' + confEsc(window.lastEmployeeLoadError || 'check the backend') + '</option>';
+                    return;
+                }
+            }
             const active = employees.filter(e => (e['Status'] || '').toLowerCase() !== 'inactive' && !e['Date of Leaving']).sort((a, b) => (a.Name || '').localeCompare(b.Name || ''));
             sel.innerHTML = '<option value="">Select Employee…</option>' + active.map(e => `<option value="${confEsc(e.ID)}">${confEsc(e.Name)} — ${confEsc(e.Department || '')} (${confEsc(e.ID)})</option>`).join('');
             document.getElementById('confirmation-letter-modal').style.display = 'flex';
@@ -7050,6 +7059,7 @@
                 }
             } catch (error) {
                 console.error('Error loading from Google Sheets:', error);
+                window.lastEmployeeLoadError = error && error.message ? error.message : 'unknown error';
                 if (btn) {
                     btn.classList.remove('loading');
                 }
