@@ -2659,7 +2659,9 @@
                     </div>
                     <div class="form-group"><label>Probation Start</label><input type="date" id="conf-prob-start"></div>
                     <div class="form-group"><label>Probation End</label><input type="date" id="conf-prob-end" onchange="onConfProbEndChange(this.value)"></div>
-                    <div class="form-group" style="grid-column:1/-1;"><label>Confirmation Effective From</label><input type="date" id="conf-effective" required></div>
+                    <div class="form-group"><label>Confirmation Effective From</label><input type="date" id="conf-effective" required onchange="onConfEffectiveChange(this.value)"></div>
+                    <div class="form-group"><label>Letter Date (Issuance Date)</label><input type="date" id="conf-issue-date" required></div>
+                    <p style="grid-column:1/-1;margin:-4px 0 4px;font-size:0.8rem;color:var(--secondary-color);">The letter shows this date, not the day it was created. You can backdate it; it cannot be in the future.</p>
                     <div class="form-group" style="grid-column:1/-1;"><label>Probation Extension Note (Optional)</label><input type="text" id="conf-extension" maxlength="200" placeholder="This confirmation follows the extension of your probation period."></div>
                     <div class="form-group" style="grid-column:1/-1;"><label>Additional Paragraph (Optional)</label><textarea id="conf-additional" rows="3" maxlength="600" placeholder="Salary revision or any extra terms, if applicable."></textarea></div>
                 </div>
@@ -6172,7 +6174,7 @@
                 : sorted.map(c => `<tr><td>${confEsc(c.RefNo)}</td><td>${confEsc(c.EmployeeName)}</td><td>${confEsc(c.Designation)}</td><td>${confLong(confYmd(c.EffectiveDate))}</td>
                     <td><span class="${hiringStatusBadgeClass(c.Status)}">${confEsc(c.Status)}</span></td>
                     <td>${c.PreparedAt ? new Date(c.PreparedAt).toLocaleDateString() : ''}</td>
-                    <td>${c.Status === 'Approved' ? `<button class="icon-btn icon-btn-pdf" onclick="printConfirmationLetterPDF('${confEsc(c.ConfirmID)}')" title="Download PDF"><i class="fas fa-file-pdf"></i></button>` : '—'}</td></tr>`).join('');
+                    <td>${c.Status === 'Approved' ? `<button class="icon-btn icon-btn-pdf" onclick="printConfirmationLetterPDF('${confEsc(c.ConfirmID)}')" title="Download PDF"><i class="fas fa-file-pdf"></i></button>` : (c.Status === 'Pending CEO Approval' && canPrepareConfirmations() ? `<button onclick="editConfirmationDate('${confEsc(c.ConfirmID)}')">Edit Letter Date</button>` : '—')}</td></tr>`).join('');
             updateApprovalCardCounts();
         }
 
@@ -6183,6 +6185,9 @@
             document.getElementById('conf-employee-id').value = '';
             document.getElementById('conf-picked').style.display = 'none';
             document.getElementById('conf-picker').style.display = '';
+            const issueEl = document.getElementById('conf-issue-date');
+            issueEl.dataset.touched = ''; issueEl.max = confYmd(new Date()); issueEl.value = confYmd(new Date());
+            issueEl.oninput = () => { issueEl.dataset.touched = '1'; };
             document.getElementById('confirmation-letter-modal').style.display = 'flex';
             if (!employees.length) {
                 sel.innerHTML = '<option value="">Loading employees…</option>';
@@ -6243,6 +6248,12 @@
                 onConfProbEndChange(peStr);
             }
         }
+        function onConfEffectiveChange(v) {
+            const issue = document.getElementById('conf-issue-date');
+            const todayStr = confYmd(new Date());
+            if (v && !issue.dataset.touched) issue.value = v < todayStr ? v : todayStr;
+            issue.max = todayStr;
+        }
         function onConfProbEndChange(v) {
             if (!v) return;
             const d = new Date(v + 'T00:00:00'); d.setDate(d.getDate() + 1);
@@ -6255,7 +6266,7 @@
             return {
                 employeeId: id, employeeName: e ? e.Name : '', designation: document.getElementById('conf-designation').value.trim(),
                 department: document.getElementById('conf-department').value.trim(), employmentType: document.getElementById('conf-employment-type').value, probationStart: document.getElementById('conf-prob-start').value,
-                probationEnd: document.getElementById('conf-prob-end').value, effectiveDate: document.getElementById('conf-effective').value,
+                probationEnd: document.getElementById('conf-prob-end').value, effectiveDate: document.getElementById('conf-effective').value, issueDate: document.getElementById('conf-issue-date').value,
                 extensionNote: document.getElementById('conf-extension').value.trim(), additionalParagraph: document.getElementById('conf-additional').value.trim()
             };
         }
@@ -6264,7 +6275,7 @@
             const l = readConfirmationForm();
             if (!l.employeeId) { alert('Select an employee first.'); return; }
             renderConfirmationLetter({ ConfirmID: 'PREVIEW', RefNo: '(Preview — number assigned on sending)', EmployeeID: l.employeeId, EmployeeName: l.employeeName, Designation: l.designation,
-                Department: l.department, EmploymentType: l.employmentType, ProbationStart: l.probationStart, ProbationEnd: l.probationEnd, EffectiveDate: l.effectiveDate, ExtensionNote: l.extensionNote,
+                Department: l.department, EmploymentType: l.employmentType, ProbationStart: l.probationStart, ProbationEnd: l.probationEnd, EffectiveDate: l.effectiveDate, IssueDate: l.issueDate, ExtensionNote: l.extensionNote,
                 AdditionalParagraph: l.additionalParagraph, Status: 'Draft' }, true);
         }
 
@@ -6286,6 +6297,18 @@
             }
         }
 
+        async function editConfirmationDate(confirmId) {
+            const c = cachedConfirmationLetters.find(x => String(x.ConfirmID) === String(confirmId));
+            if (!c) return;
+            const cur = confYmd(c.IssueDate || c.PreparedAt);
+            const val = prompt('Letter date (YYYY-MM-DD). It can be backdated but not in the future.', cur);
+            if (!val || val === cur) return;
+            try {
+                await callAppsScript('updateConfirmationDate', { token: getSessionToken(), confirmId, issueDate: val.trim() });
+                loadConfirmationLetters();
+            } catch (err) { alert('Could not change the date: ' + err.message); }
+        }
+
         function openConfirmationReviewModal(confirmId) {
             const c = cachedConfirmationLetters.find(x => String(x.ConfirmID) === String(confirmId));
             if (!c) return;
@@ -6295,6 +6318,7 @@
                 <div class="permission-block">
                     <div class="permission-row"><span style="flex:1;">Reference</span><strong>${confEsc(c.RefNo)}</strong></div>
                     <div class="permission-row"><span style="flex:1;">Employment Type</span><strong>${confEsc(c.EmploymentType || 'Regular')}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Letter Date (Issuance)</span><strong>${confLong(confYmd(c.IssueDate || c.PreparedAt))}</strong></div>
                     <div class="permission-row"><span style="flex:1;">Probation Period</span><strong>${confLong(confYmd(c.ProbationStart))} to ${confLong(confYmd(c.ProbationEnd))}</strong></div>
                     <div class="permission-row"><span style="flex:1;">Confirmed From</span><strong>${confLong(confYmd(c.EffectiveDate))}</strong></div>
                     <div class="permission-row"><span style="flex:1;">Source</span><strong>${c.Source === 'Auto' ? 'Automatic (approved probation evaluation)' : 'Drafted by ' + confEsc(c.PreparedByName)}</strong></div>
@@ -6343,7 +6367,7 @@
             const fullName = confEsc(c.EmployeeName);
             const lastName = confEsc(String(c.EmployeeName || '').trim().split(/\s+/).slice(-1)[0] || '');
             const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            const issued = signed && c.DecidedAt ? new Date(c.DecidedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : today;
+            const issued = c.IssueDate ? confLong(confYmd(c.IssueDate)) : (signed && c.DecidedAt ? new Date(c.DecidedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : today);
             const ps = confLong(confYmd(c.ProbationStart)), pe = confLong(confYmd(c.ProbationEnd)), eff = confLong(confYmd(c.EffectiveDate));
             const probSentence = (c.ProbationStart && c.ProbationEnd) ? `following a satisfactory review of your performance during your probation period from ${ps} to ${pe}` : 'following a satisfactory review of your performance during your probation period';
             const etype = String(c.EmploymentType || 'Regular');
@@ -6403,7 +6427,7 @@
                     <div class="sig-img">${signed ? `<img src="${CEO_SIGNATURE_DATA_URI}" alt="Signature">` : ''}</div>
                     <div class="name">${signed ? confEsc(c.CEOName || 'Dr. Ayesha Khan') : '&nbsp;'}</div>
                     <div class="meta">Chief Executive Officer<br>${BRAND.companyName}</div>
-                    ${signed ? `<div class="esign-note">Approved &amp; e-signed on ${issued}</div>` : '<div class="esign-note">Awaiting CEO e-signature</div>'}
+                    ${signed ? '' : '<div class="esign-note">Awaiting CEO e-signature</div>'}
                 </div>
 
                 <div class="issuance"><b>Issued By HR Department</b><br>${BRAND.companyName}</div>
