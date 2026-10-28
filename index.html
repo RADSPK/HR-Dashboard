@@ -2651,6 +2651,12 @@
                         <div id="conf-picked" style="display:none;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border:1px solid var(--primary-color);border-radius:8px;background:var(--card-bg);"><span id="conf-picked-text" style="font-weight:600;"></span><button type="button" class="lv-ghost" onclick="changeConfEmployee()">Change</button></div></div>
                     <div class="form-group"><label>Designation</label><input type="text" id="conf-designation" required></div>
                     <div class="form-group"><label>Department</label><input type="text" id="conf-department"></div>
+                    <div class="form-group" style="grid-column:1/-1;"><label>Employment Type</label>
+                        <select id="conf-employment-type">
+                            <option>Regular</option><option>Contractual</option><option>Project Staff</option><option>Field Staff</option>
+                            <option>Consultant</option><option>Fixed Time</option><option>Part-time</option><option>Daily Wager</option>
+                        </select>
+                    </div>
                     <div class="form-group"><label>Probation Start</label><input type="date" id="conf-prob-start"></div>
                     <div class="form-group"><label>Probation End</label><input type="date" id="conf-prob-end" onchange="onConfProbEndChange(this.value)"></div>
                     <div class="form-group" style="grid-column:1/-1;"><label>Confirmation Effective From</label><input type="date" id="conf-effective" required></div>
@@ -6223,6 +6229,11 @@
             if (!e) return;
             document.getElementById('conf-designation').value = e.Position || '';
             document.getElementById('conf-department').value = e.Department || '';
+            const etMap = { 'core': 'Regular', 'fixed term': 'Fixed Time', 'short term': 'Contractual', 'project': 'Project Staff' };
+            const rawType = String(e['Employment Type'] || '').trim();
+            const et = etMap[rawType.toLowerCase()] || rawType;
+            const etSel = document.getElementById('conf-employment-type');
+            etSel.value = Array.from(etSel.options).some(o => o.value.toLowerCase() === et.toLowerCase()) ? Array.from(etSel.options).find(o => o.value.toLowerCase() === et.toLowerCase()).value : 'Regular';
             const doj = parseDate(e['Date of Joining']);
             if (doj && !isNaN(doj.getTime())) {
                 document.getElementById('conf-prob-start').value = confYmd(doj);
@@ -6243,7 +6254,7 @@
             const e = employees.find(x => String(x.ID) === String(id));
             return {
                 employeeId: id, employeeName: e ? e.Name : '', designation: document.getElementById('conf-designation').value.trim(),
-                department: document.getElementById('conf-department').value.trim(), probationStart: document.getElementById('conf-prob-start').value,
+                department: document.getElementById('conf-department').value.trim(), employmentType: document.getElementById('conf-employment-type').value, probationStart: document.getElementById('conf-prob-start').value,
                 probationEnd: document.getElementById('conf-prob-end').value, effectiveDate: document.getElementById('conf-effective').value,
                 extensionNote: document.getElementById('conf-extension').value.trim(), additionalParagraph: document.getElementById('conf-additional').value.trim()
             };
@@ -6253,7 +6264,7 @@
             const l = readConfirmationForm();
             if (!l.employeeId) { alert('Select an employee first.'); return; }
             renderConfirmationLetter({ ConfirmID: 'PREVIEW', RefNo: '(Preview — number assigned on sending)', EmployeeID: l.employeeId, EmployeeName: l.employeeName, Designation: l.designation,
-                Department: l.department, ProbationStart: l.probationStart, ProbationEnd: l.probationEnd, EffectiveDate: l.effectiveDate, ExtensionNote: l.extensionNote,
+                Department: l.department, EmploymentType: l.employmentType, ProbationStart: l.probationStart, ProbationEnd: l.probationEnd, EffectiveDate: l.effectiveDate, ExtensionNote: l.extensionNote,
                 AdditionalParagraph: l.additionalParagraph, Status: 'Draft' }, true);
         }
 
@@ -6283,6 +6294,7 @@
                 <p><strong>${confEsc(c.EmployeeName)}</strong> — ${confEsc(c.Designation)}, ${confEsc(c.Department || '')}</p>
                 <div class="permission-block">
                     <div class="permission-row"><span style="flex:1;">Reference</span><strong>${confEsc(c.RefNo)}</strong></div>
+                    <div class="permission-row"><span style="flex:1;">Employment Type</span><strong>${confEsc(c.EmploymentType || 'Regular')}</strong></div>
                     <div class="permission-row"><span style="flex:1;">Probation Period</span><strong>${confLong(confYmd(c.ProbationStart))} to ${confLong(confYmd(c.ProbationEnd))}</strong></div>
                     <div class="permission-row"><span style="flex:1;">Confirmed From</span><strong>${confLong(confYmd(c.EffectiveDate))}</strong></div>
                     <div class="permission-row"><span style="flex:1;">Source</span><strong>${c.Source === 'Auto' ? 'Automatic (approved probation evaluation)' : 'Drafted by ' + confEsc(c.PreparedByName)}</strong></div>
@@ -6334,6 +6346,12 @@
             const issued = signed && c.DecidedAt ? new Date(c.DecidedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : today;
             const ps = confLong(confYmd(c.ProbationStart)), pe = confLong(confYmd(c.ProbationEnd)), eff = confLong(confYmd(c.EffectiveDate));
             const probSentence = (c.ProbationStart && c.ProbationEnd) ? `following a satisfactory review of your performance during your probation period from ${ps} to ${pe}` : 'following a satisfactory review of your performance during your probation period';
+            const etype = String(c.EmploymentType || 'Regular');
+            const typePhrase = { 'Regular': 'a regular employee', 'Contractual': 'a contractual employee', 'Project Staff': 'a project staff member', 'Field Staff': 'a field staff member',
+                'Consultant': 'a consultant', 'Fixed Time': 'a fixed-time employee', 'Part-time': 'a part-time employee', 'Daily Wager': 'a daily wager' }[etype] || ('a ' + etype.toLowerCase() + ' employee');
+            const benefitsLine = etype === 'Regular'
+                ? 'You are now eligible for the benefits applicable to regular employees.'
+                : `You will be entitled to the benefits applicable to your category of employment (${confEsc(etype)}) as per the organization's policies.`;
             const html = `<!DOCTYPE html><html><head><title>Confirmation Letter — ${fullName}</title>
             <style>
                 @page { size: A4; margin: 0.65in; }
@@ -6356,6 +6374,7 @@
                 .esign-note { font-size: 7.5pt; color: #999; margin-top: 3pt; }
                 .issuance { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; padding-top: 7pt; border-top: 0.5pt solid #DDD; font-size: 9pt; color: #666; line-height: 1.5; }
                 .issuance b { color: #444; }
+                @media screen { body { max-width: 800px; margin: 24px auto; padding: 0 36px 60px; } .issuance { position: static; margin-top: 50px; } }
                 .watermark { position: fixed; top: 40%; left: 0; right: 0; text-align: center; font-size: 80pt; color: rgba(0,0,0,0.06); transform: rotate(-24deg); font-weight: bold; }
             </style></head>
             <body>
@@ -6369,13 +6388,13 @@
                 </div>
 
                 <div class="refrow"><div><b>Ref:</b> ${confEsc(c.RefNo)}</div><div><b>Date:</b> ${issued}</div></div>
-                <div class="addressee">${title}${fullName}<br>Employee ID: ${confEsc(c.EmployeeID)}${c.Department ? '<br>' + confEsc(c.Department) + ' Department' : ''}</div>
+                <div class="addressee">${title}${fullName}<br>Employee ID: ${confEsc(c.EmployeeID)}${c.Department ? '<br>' + confEsc(c.Department) + ' Department' : ''}<br>Employment Type: ${confEsc(etype)}</div>
 
                 <div class="subject">Confirmation Of Employment</div>
 
                 <p>Dear ${title}${lastName},</p>
-                <p>We are pleased to inform you that, ${probSentence}, the management has approved your <strong>confirmation as a regular employee</strong> of ${BRAND.companyName} in the position of <strong>${confEsc(c.Designation)}</strong>${c.Department ? ' in the ' + confEsc(c.Department) + ' department' : ''}, effective <strong>${eff}</strong>.${c.ExtensionNote ? ' ' + confEsc(c.ExtensionNote) : ''}</p>
-                <p>All other terms and conditions of your employment, as stated in your letter of offer and the organization's HR policies, remain unchanged. You are now eligible for the benefits applicable to regular employees.</p>
+                <p>We are pleased to inform you that, ${probSentence}, the management has approved your <strong>confirmation as ${typePhrase}</strong> of ${BRAND.companyName} in the position of <strong>${confEsc(c.Designation)}</strong>${c.Department ? ' in the ' + confEsc(c.Department) + ' department' : ''}, effective <strong>${eff}</strong>.${c.ExtensionNote ? ' ' + confEsc(c.ExtensionNote) : ''}</p>
+                <p>All other terms and conditions of your employment, as stated in your letter of offer and the organization's HR policies, remain unchanged. ${benefitsLine}</p>
                 ${c.AdditionalParagraph ? `<p>${confEsc(c.AdditionalParagraph)}</p>` : ''}
                 <p>We appreciate your contribution so far and look forward to your continued commitment to the organization's mission.</p>
                 <p style="margin-bottom:0;">Yours sincerely,</p>
