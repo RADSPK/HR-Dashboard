@@ -2647,7 +2647,7 @@
             <h3 style="margin-bottom: 16px;">New Confirmation Letter</h3>
             <form id="confirmation-letter-form">
                 <div class="form-grid">
-                    <div class="form-group" style="grid-column:1/-1;"><label>Employee</label><select id="conf-employee" required onchange="onConfEmployeeChange(this.value)"></select></div>
+                    <div class="form-group" style="grid-column:1/-1;"><label>Employee</label><input type="text" id="conf-employee-search" placeholder="Type A Name, ID Or Department To Search…" autocomplete="off" oninput="filterConfEmployees(this.value)" style="margin-bottom:6px;"><select id="conf-employee" required size="6" onchange="onConfEmployeeChange(this.value)" style="height:auto;"></select></div>
                     <div class="form-group"><label>Designation</label><input type="text" id="conf-designation" required></div>
                     <div class="form-group"><label>Department</label><input type="text" id="conf-department"></div>
                     <div class="form-group"><label>Probation Start</label><input type="date" id="conf-prob-start"></div>
@@ -6167,18 +6167,30 @@
         async function openConfirmationLetterModal() {
             document.getElementById('confirmation-letter-form').reset();
             const sel = document.getElementById('conf-employee');
+            document.getElementById('conf-employee-search').value = '';
+            document.getElementById('confirmation-letter-modal').style.display = 'flex';
             if (!employees.length) {
                 sel.innerHTML = '<option value="">Loading employees…</option>';
-                document.getElementById('confirmation-letter-modal').style.display = 'flex';
                 try { await loadDataFromGoogleSheets(); } catch (e) {}
                 if (!employees.length) {
                     sel.innerHTML = '<option value="">No employees loaded — ' + confEsc(window.lastEmployeeLoadError || 'check the backend') + '</option>';
                     return;
                 }
             }
-            const active = employees.filter(e => (e['Status'] || '').toLowerCase() !== 'inactive' && !e['Date of Leaving']).sort((a, b) => (a.Name || '').localeCompare(b.Name || ''));
-            sel.innerHTML = '<option value="">Select Employee…</option>' + active.map(e => `<option value="${confEsc(e.ID)}">${confEsc(e.Name)} — ${confEsc(e.Department || '')} (${confEsc(e.ID)})</option>`).join('');
-            document.getElementById('confirmation-letter-modal').style.display = 'flex';
+            filterConfEmployees('');
+        }
+
+        function filterConfEmployees(q) {
+            const sel = document.getElementById('conf-employee');
+            const term = String(q || '').trim().toLowerCase();
+            let pool = employees.filter(e => String(e['Status'] || '').toLowerCase() !== 'inactive');
+            if (!pool.length) pool = employees.slice();
+            pool = pool.filter(e => !term || [e.Name, e.ID, e.Department, e.Position].some(v => String(v || '').toLowerCase().includes(term)))
+                       .sort((a, b) => String(a.Name || '').localeCompare(String(b.Name || '')));
+            sel.innerHTML = pool.length
+                ? pool.map(e => `<option value="${confEsc(e.ID)}">${confEsc(e.Name)} — ${confEsc(e.Department || '')} (${confEsc(e.ID)})</option>`).join('')
+                : '<option value="">No matching employee</option>';
+            if (term && pool.length === 1) { sel.value = pool[0].ID; onConfEmployeeChange(pool[0].ID); }
         }
         function closeConfirmationLetterModal() { document.getElementById('confirmation-letter-modal').style.display = 'none'; }
 
